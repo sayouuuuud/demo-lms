@@ -13,7 +13,7 @@ const config = {
 }
 
 export function CategoryDistributionChart({ data: inputData }: { data?: any[] }) {
-  const categoryDistribution = inputData || initialData
+  const categoryDistribution = inputData || []
   const total = categoryDistribution.reduce((sum, c) => sum + c.value, 0)
 
   return (

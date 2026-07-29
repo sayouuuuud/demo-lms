@@ -16,7 +16,7 @@ function ShareBar({ value }: { value: number }) {
 }
 
 export function CoursePerformanceTable({ courses: inputCourses }: { courses?: any[] }) {
-  const coursePerformance = inputCourses || initialData
+  const coursePerformance = inputCourses || []
 
   if (coursePerformance.length === 0) {
     return (
