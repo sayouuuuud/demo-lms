@@ -17,8 +17,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         
+        // Normalize the email so casing / stray whitespace can't cause a false
+        // "invalid credentials" result.
+        const email = (credentials.email as string).trim().toLowerCase();
+
         const user = await prisma.user.findFirst({
-          where: { email: credentials.email as string },
+          where: { email: { equals: email, mode: 'insensitive' } },
         });
 
         if (!user || !user.encrypted_password) {
