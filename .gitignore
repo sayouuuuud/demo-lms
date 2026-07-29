@@ -16,3 +16,19 @@ node_modules
 
 # TypeScript incremental build cache (regenerated on every typecheck)
 tsconfig.tsbuildinfo
+
+# ─── مضاف بواسطة T01: ملفات حسّاسة وسكريبتات صيانة ───
+*.csv
+*.sql
+!prisma/**/*.sql
+*.log
+fix*.js
+fix*.ps1
+test*.js
+smoke_test.js
+add_col.mjs
+*.bat
+*.bak
+after-login.png
+shot-*.png
+dash-anim.png

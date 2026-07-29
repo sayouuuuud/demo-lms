@@ -10,7 +10,7 @@ export type FreeWatchLesson = {
   title: string
   duration: string
   description: string | null
-  videoUrl: string
+  videoUrl: string | null
   attachments: { name: string; url: string; type: string }[]
 }
 
@@ -33,8 +33,8 @@ export async function getFreeLectureWatch(
 
   try {
     const data = await prisma.lessons.findMany({
-      where: { lecture_id: result.lecture.dbId },
-      select: { id: true, slug: true, title: true, duration: true, description: true, video_url: true, attachments: true, sort_order: true },
+      where: { lecture_id: result.lecture.dbId, is_free: true },
+      select: { id: true, slug: true, title: true, duration: true, description: true, video_url: true, is_free: true, attachments: true, sort_order: true },
       orderBy: { sort_order: 'asc' }
     })
 
@@ -43,7 +43,7 @@ export async function getFreeLectureWatch(
       title: row.title ?? '',
       duration: row.duration ?? '',
       description: row.description ?? null,
-      videoUrl: row.video_url || FALLBACK_VIDEO,
+      videoUrl: row.is_free ? (row.video_url || FALLBACK_VIDEO) : null,
       attachments: Array.isArray(row.attachments) ? (row.attachments as any[]) : [],
     }))
 
