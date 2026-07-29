@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/auth-guard'
@@ -32,7 +33,7 @@ export async function wipeAllData(password: string) {
     await prisma.$executeRaw`SELECT admin_wipe_all_data(${user.id}::uuid)`
     return { success: true }
   } catch (error: any) {
-    console.log('[v0] wipeAllData error:', error.message)
+    logError('wipeAllData', error)
     if (error.message.toLowerCase().includes('function') && error.message.includes('admin_wipe_all_data')) {
       return {
         error: 'دالة المسح غير موجودة في قاعدة البيانات. شغّل ملف scripts/wipe_data.sql على الـ live DB الأول.',

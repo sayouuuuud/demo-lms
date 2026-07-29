@@ -1,4 +1,5 @@
 import 'server-only'
+import { logError } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import {
   DEFAULT_SITE_CONTENT,
@@ -73,7 +74,7 @@ export async function getSiteContent(): Promise<SiteContent> {
     ) {
       throw err
     }
-    console.log('[v0] getSiteContent unexpected error:', err)
+    logError('getSiteContent', err)
     return DEFAULT_SITE_CONTENT
   }
 }

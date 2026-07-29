@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
@@ -175,7 +176,7 @@ export async function getLecturesAdmin(): Promise<AdminLecture[]> {
       badge: row.badge,
       image: row.image ?? null,
       sortOrder: row.sort_order,
-      releaseDate: row.release_date ?? null,
+      releaseDate: row.release_date ? new Date(row.release_date).toISOString() : null,
       branchId: row.branch_id,
       monthlyCourseId: row.monthly_course_id ?? null,
       courseSectionId: row.monthly_course_section_id ?? null,
@@ -433,7 +434,7 @@ export async function updateLecture(id: string, input: LectureInput) {
 export async function deleteLecture(id: string) {
   if (!(await hasResourceAccess('courses', 'manage'))) return { error: 'غير مسموح. لازم تكون أدمن.' }
 
-  // await cleanupLectureMedia(id).catch((e) => console.log('[v0] cleanupLectureMedia error:', e))
+  // await cleanupLectureMedia(id).catch((e) => logError('cleanupLectureMedia', e))
 
   try {
     await prisma.lectures.delete({ where: { id } })
@@ -544,7 +545,7 @@ export async function updateLesson(id: string, input: LessonInput) {
 export async function deleteLesson(id: string) {
   if (!(await hasResourceAccess('courses', 'manage'))) return { error: 'غير مسموح. لازم تكون أدمن.' }
 
-  // await cleanupLessonMedia(id).catch((e) => console.log('[v0] cleanupLessonMedia error:', e))
+  // await cleanupLessonMedia(id).catch((e) => logError('cleanupLessonMedia', e))
 
   try {
     await prisma.lessons.delete({ where: { id } })
@@ -653,7 +654,7 @@ export async function getLectureDetailAdmin(id: string): Promise<{ lecture: Admi
     badge: row.badge,
     image: row.image ?? null,
     sortOrder: row.sort_order,
-    releaseDate: row.release_date ?? null,
+    releaseDate: row.release_date ? new Date(row.release_date).toISOString() : null,
     branchId: row.branch_id,
     monthlyCourseId: row.monthly_course_id ?? null,
     courseSectionId: row.monthly_course_section_id ?? null,

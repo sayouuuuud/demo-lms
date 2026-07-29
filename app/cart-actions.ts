@@ -95,6 +95,19 @@ export async function addToCart(lectureId: string) {
     })
 
     const code = generateOrderCode()
+    
+    // T18: منع تكرار الطلبات المجانية — لوحظ 3 طلبات لنفس المحاضرة لنفس الطالب
+    const existingFree = await prisma.order_items.findFirst({
+      where: {
+        lecture_id: lectureId,
+        orders: { student_id: user.id, status: 'approved' },
+      },
+      select: { id: true },
+    })
+    if (existingFree) {
+      return { success: true, alreadyOwned: true }
+    }
+
     const order = await prisma.orders.create({
       data: {
         code,
@@ -164,6 +177,18 @@ export async function addCourseToCart(monthlyCourseId: string) {
     const code = generateOrderCode()
     const branchTitle = course.branches?.title || ''
     const stageTitle = course.branches?.stages?.title || ''
+    
+    // T18: منع تكرار الطلبات المجانية
+    const existingFree = await prisma.order_items.findFirst({
+      where: {
+        monthly_course_id: monthlyCourseId,
+        orders: { student_id: user.id, status: 'approved' },
+      },
+      select: { id: true },
+    })
+    if (existingFree) {
+      return { success: true, alreadyOwned: true }
+    }
 
     const order = await prisma.orders.create({
       data: {

@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
@@ -281,7 +282,7 @@ export async function submitExam(code: string, answers: SubmitAnswer[]) {
       status,
     }
   } catch (error: any) {
-    console.log('[v0] submitExam error:', error.message)
+    logError('submitExam', error)
     return { success: false, error: 'تعذر تسليم الاختبار.' }
   }
 }

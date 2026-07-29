@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
@@ -16,7 +17,7 @@ export async function pingPresence(): Promise<{ ok: boolean }> {
 
     return { ok: true }
   } catch (e) {
-    console.log('[v0] pingPresence exception:', (e as Error).message)
+    logError('pingPresence', e)
     return { ok: false }
   }
 }

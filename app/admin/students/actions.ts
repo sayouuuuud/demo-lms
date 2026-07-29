@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
@@ -164,7 +165,7 @@ export async function createStudent(input: StudentInput) {
         }
       })
     } catch (authError: any) {
-      console.log('[v0] createStudent auth error:', authError.message)
+      logError('createStudent auth', authError)
       return { error: 'تعذّر إنشاء حساب الطالب. حاول تاني.' }
     }
   }
@@ -187,7 +188,7 @@ export async function createStudent(input: StudentInput) {
     revalidatePath('/admin/students')
     return { success: true }
   } catch (error: any) {
-    console.log('[v0] createStudent error:', error.message)
+    logError('createStudent', error)
     return { error: 'تعذّر إضافة الطالب. تأكد من البيانات وحاول تاني.' }
   }
 }
@@ -207,7 +208,7 @@ export async function deleteStudent(code: string) {
     
     if (row?.user_id) {
       await prisma.user.delete({ where: { id: row.user_id } }).catch((e: any) => {
-        console.log('[v0] deleteStudent auth delete threw:', e.message)
+        logError('deleteStudent auth delete', e)
       })
     }
 
@@ -215,7 +216,7 @@ export async function deleteStudent(code: string) {
     revalidatePath('/admin/students')
     return { success: true }
   } catch (error: any) {
-    console.log('[v0] deleteStudent error:', error.message)
+    logError('deleteStudent', error)
     return { error: 'تعذّر حذف الطالب.' }
   }
 }

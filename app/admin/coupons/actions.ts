@@ -21,12 +21,12 @@ export async function getCoupons(): Promise<CouponRecord[]> {
     code: row.code,
     description: row.description,
     type: row.type as CouponType,
-    value: row.value,
+    value: Number(row.value),
     used: row.used,
     limit: row.limit,
-    startDate: row.start_date,
-    endDate: row.end_date,
-    status: computeCouponStatus(row.status as CouponStatus, row.end_date),
+    startDate: row.start_date.toISOString(),
+    endDate: row.end_date?.toISOString() ?? '',
+    status: computeCouponStatus(row.status as CouponStatus, row.end_date ? row.end_date.toISOString() : ''),
     scope: (row.scope ?? 'all') as 'all' | 'lectures',
   }))
 }

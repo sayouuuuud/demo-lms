@@ -19,7 +19,7 @@ import { unenrollMonthlyCourse, unenrollCourse } from '@/app/student/actions'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import type { EnrolledMonthlyCourse, CourseProgress } from '@/lib/student-courses-data'
+import type { EnrolledMonthlyCourse, CourseProgress } from '@/lib/student-types'
 
 type Filter = 'all' | 'in-progress' | 'completed' | 'new'
 

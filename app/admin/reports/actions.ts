@@ -227,7 +227,20 @@ export async function getAdvancedAnalytics() {
   }
 
   try {
-    const data = await prisma.$queryRaw`SELECT * FROM get_advanced_analytics()`
+    const rawData = await prisma.$queryRaw<any[]>`SELECT * FROM get_advanced_analytics()`
+    const data = (rawData && rawData[0]) ? rawData[0] : {
+      views_data: [],
+      exam_insights: [],
+      top_students: [],
+      notifications_engagement: [],
+      refunds_analysis: [],
+      payment_trends: [],
+      coupon_performance: [],
+      dropoff_points: [],
+      time_to_completion: {},
+      course_completion: [],
+      peak_times: [],
+    }
     return { success: true, data }
   } catch (error: any) {
     console.error('Failed to fetch advanced analytics:', error)

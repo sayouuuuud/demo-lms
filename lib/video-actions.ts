@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { prisma } from '@/lib/prisma'
 import { createR2UploadUrl, r2Keys, isR2Configured, checkR2Connection, assertR2ConfiguredOrThrow } from '@/lib/r2'
@@ -222,7 +223,7 @@ export async function saveStreamingSettings(input: {
     })
     return { ok: true }
   } catch (err: any) {
-    console.log('[v0] saveStreamingSettings error:', err.message)
+    logError('saveStreamingSettings', err)
     return { error: 'تعذّر حفظ إعدادات الاستريمنج.' }
   }
 }

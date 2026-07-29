@@ -1,3 +1,5 @@
+import { logError } from '@/lib/logger'
+import type { Prisma } from '@prisma/client'
 import 'server-only'
 import { prisma } from '@/lib/prisma'
 import type { NotificationType } from '@/lib/notifications-data'
@@ -28,25 +30,25 @@ function genCode() {
 
 export async function createNotification(input: NotifyInput) {
   try {
-    const row: Record<string, any> = {
+    const row: Prisma.notificationsCreateInput = {
       code: genCode(),
       type: input.type,
       title: input.title,
       description: input.description ?? '',
       read: false,
-      time_label: null,
+      time_label: undefined,
     }
-    if (input.studentId) row.student_id = input.studentId
+    if (input.studentId) row.students = { connect: { id: input.studentId } }
     if (input.grade) row.grade = input.grade
-    if (input.stageId) row.stage_id = input.stageId
-    if (input.branchId) row.branch_id = input.branchId
-    if (input.lectureId) row.lecture_id = input.lectureId
+    if (input.stageId) row.stages = { connect: { id: input.stageId } }
+    if (input.branchId) row.branches = { connect: { id: input.branchId } }
+    if (input.lectureId) row.lectures = { connect: { id: input.lectureId } }
 
     await prisma.notifications.create({ data: row })
 
     return { success: true }
   } catch (e: any) {
-    console.log('[v0] createNotification threw:', e?.message)
+    logError('notify.createNotification', e)
     return { error: 'failed' }
   }
 }

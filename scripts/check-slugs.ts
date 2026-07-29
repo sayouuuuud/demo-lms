@@ -39,6 +39,8 @@ function mapAssignment(row: any, courseSlug: string) {
     status: 'لم يبدأ',
     attachments: [],
     questions: undefined,
+    score: undefined as number | undefined,
+    locked: false,
   }
 }
 

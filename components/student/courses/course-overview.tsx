@@ -28,7 +28,7 @@ import {
   type CourseDetail,
   type Lesson,
   type Section,
-} from '@/lib/student-courses-data'
+} from '@/lib/student-types'
 
 const lessonIcon = (lesson: Lesson) => {
   if (lesson.completed) return CheckCircle2

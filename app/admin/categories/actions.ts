@@ -1,4 +1,5 @@
 'use server'
+import { logError } from '@/lib/logger'
 
 import { prisma } from '@/lib/prisma'
 import { hasResourceAccess } from '@/lib/auth-guard'
@@ -294,7 +295,7 @@ export async function updateStage(id: string, input: StageInput) {
 export async function deleteStage(id: string) {
   if (!(await hasResourceAccess('categories', 'manage'))) return { error: 'غير مسموح. لازم تكون أدمن.' }
 
-  // await cleanupStageMedia(id).catch((e) => console.log('[v0] cleanupStageMedia error:', e))
+  // await cleanupStageMedia(id).catch((e) => logError('cleanupStageMedia', e))
 
   try {
     await prisma.stages.delete({ where: { id } })
@@ -359,7 +360,7 @@ export async function updateBranch(id: string, input: Omit<BranchInput, 'stageId
 export async function deleteBranch(id: string) {
   if (!(await hasResourceAccess('categories', 'manage'))) return { error: 'غير مسموح. لازم تكون أدمن.' }
 
-  // await cleanupBranchMedia(id).catch((e) => console.log('[v0] cleanupBranchMedia error:', e))
+  // await cleanupBranchMedia(id).catch((e) => logError('cleanupBranchMedia', e))
 
   try {
     await prisma.branches.delete({ where: { id } })
@@ -433,7 +434,7 @@ export async function updateMonthlyCourse(id: string, input: Omit<MonthlyCourseI
 export async function deleteMonthlyCourse(id: string) {
   if (!(await hasResourceAccess('categories', 'manage'))) return { error: 'غير مسموح. لازم تكون أدمن.' }
 
-  // await cleanupCourseMedia(id).catch((e) => console.log('[v0] cleanupCourseMedia error:', e))
+  // await cleanupCourseMedia(id).catch((e) => logError('cleanupCourseMedia', e))
 
   try {
     await prisma.lectures.updateMany({

@@ -13,7 +13,7 @@ import type {
   Lesson,
   QuestionKind,
   Section,
-} from '@/lib/student-courses-data'
+} from '@/lib/student-types'
 
 const FALLBACK_VIDEO =
   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'

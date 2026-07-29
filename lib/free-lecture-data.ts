@@ -1,3 +1,4 @@
+import { logError } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import { getFreeLectureBySlug } from '@/lib/curriculum'
 import type { Stage, Branch, MonthlyCourse } from '@/lib/landing-data'
@@ -59,7 +60,7 @@ export async function getFreeLectureWatch(
       lessons,
     }
   } catch (error: any) {
-    console.log('[v0] getFreeLectureWatch lessons error:', error.message)
+    logError('getFreeLectureWatch', error)
     return undefined
   }
 }
