@@ -11,7 +11,6 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { PanelCard } from '@/components/dashboard/panel-card'
-import { monthlyRevenue as initialData } from '@/lib/reports-data'
 import { RANGE_OPTIONS } from '@/lib/time-series'
 
 const config = {
@@ -20,7 +19,7 @@ const config = {
 } satisfies ChartConfig
 
 export function RevenueReportChart({ data: inputData }: { data?: any[] }) {
-  const full = inputData || initialData
+  const full = inputData || []
   const [range, setRange] = useState('6')
   const monthlyRevenue = full.slice(-Number(range))
   return (

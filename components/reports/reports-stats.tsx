@@ -1,7 +1,6 @@
 import { DollarSign, Users, BookOpen, RotateCcw, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { reportStats as initialData } from '@/lib/reports-data'
 
 const icons = {
   revenue: { icon: DollarSign, color: 'text-primary', bg: 'bg-primary/10' },
@@ -11,7 +10,7 @@ const icons = {
 } as const
 
 export function ReportsStats({ stats: inputStats }: { stats?: any[] }) {
-  const reportStats = inputStats || initialData
+  const reportStats = inputStats || []
   return (
     <div className="ns-stagger grid grid-cols-2 gap-4 lg:grid-cols-4">
       {reportStats.map((stat) => {

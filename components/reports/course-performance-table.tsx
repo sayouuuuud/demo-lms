@@ -1,5 +1,4 @@
 import { Card } from '@/components/ui/card'
-import { coursePerformance as initialData } from '@/lib/reports-data'
 
 function ShareBar({ value }: { value: number }) {
   return (
