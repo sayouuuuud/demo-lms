@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { createR2UploadUrl, r2Keys, isR2Configured, checkR2Connection } from '@/lib/r2'
+import { createR2UploadUrl, r2Keys, isR2Configured, checkR2Connection, assertR2ConfiguredOrThrow } from '@/lib/r2'
 import { auth } from '@/auth'
 import { isStaff } from '@/lib/auth-guard'
 
@@ -108,6 +108,7 @@ export async function confirmVideoUpload(
         }
       })
 
+      assertR2ConfiguredOrThrow()
       // استخدام upsert لمنع تكرار الـ jobs لو تم الاستدعاء مرتين
       const existingJob = await tx.video_jobs.findFirst({ where: { video_id: videoId } })
       if (!existingJob) {

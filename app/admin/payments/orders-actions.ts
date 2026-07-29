@@ -95,7 +95,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
       ? `طلب ${orderRow.code} — ${orderRow.student_name} (${orderRow.total} ج.م)`
       : `طلب ID: ${id}`
     logActivity({ action, resource: 'payments', targetId: id, targetLabel: label }).catch(() => {})
-    revalidatePath('/payments')
+    revalidatePath('/admin/payments')
     return { success: true }
   } catch (error: any) {
     return { error: 'تعذر تحديث الطلب.' }
@@ -120,7 +120,7 @@ export async function messageStudent(orderId: string) {
   })
 
   if (existing?.code) {
-    revalidatePath('/messages')
+    revalidatePath('/admin/messages')
     return { success: true, code: existing.code }
   }
 
@@ -135,7 +135,7 @@ export async function messageStudent(orderId: string) {
         sender_name: order.student_name ?? '',
         subject: `تواصل بخصوص الطلب ${order.code}`,
         content: greeting,
-        time_label: 'الآن',
+        time_label: '',
         is_read: true,
         sender_role: 'student',
         unread_count: 0,
@@ -146,7 +146,7 @@ export async function messageStudent(orderId: string) {
       }
     })
 
-    revalidatePath('/messages')
+    revalidatePath('/admin/messages')
     return { success: true, code }
   } catch (error: any) {
     return { error: 'تعذر بدء المحادثة.' }

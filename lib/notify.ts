@@ -34,7 +34,7 @@ export async function createNotification(input: NotifyInput) {
       title: input.title,
       description: input.description ?? '',
       read: false,
-      time_label: 'الآن',
+      time_label: null,
     }
     if (input.studentId) row.student_id = input.studentId
     if (input.grade) row.grade = input.grade

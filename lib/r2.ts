@@ -162,3 +162,22 @@ export const r2Keys = {
   /** prefix يجمع كل ملفات HLS لفيديو معيّن */
   hlsPrefix: (videoId: string) => `hls/${videoId}/`,
 }
+
+/**
+ * T11: فحص إلزامي قبل إنشاء أي video job.
+ * السبب: 8 من 11 job فشلت بـ "متغيرات R2 غير مكتملة" وكان الفشل صامتًا تمامًا.
+ */
+export function assertR2ConfiguredOrThrow(): void {
+  const missing = [
+    'R2_ACCOUNT_ID',
+    'R2_ACCESS_KEY_ID',
+    'R2_SECRET_ACCESS_KEY',
+    'R2_BUCKET',
+  ].filter((k) => !process.env[k])
+
+  if (missing.length > 0) {
+    throw new Error(
+      `إعدادات التخزين (R2) غير مكتملة: ${missing.join(', ')} — اضبطها من الإعدادات قبل رفع فيديو.`,
+    )
+  }
+}

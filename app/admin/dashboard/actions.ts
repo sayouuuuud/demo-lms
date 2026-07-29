@@ -313,7 +313,7 @@ export async function getDashboardData() {
       title: c.title,
       students: `${c._count.order_items} طالب`,
       revenue: `${Number(c.price || 0) * (c._count.order_items || 0)} ج.م`,
-      image: c.image || '/courses/python.png',
+      image: c.image || null,
     })),
     latestPayments,
     latestStudents: latestStudents.map((s) => ({
@@ -324,7 +324,7 @@ export async function getDashboardData() {
     latestLessons: latestLessons.map((l) => ({
       title: l.title,
       time: getRelativeTimeArabic(l.created_at),
-      image: '/courses/javascript.png',
+      image: null,
     })),
     latestMessages,
   }

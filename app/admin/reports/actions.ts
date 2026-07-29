@@ -52,7 +52,7 @@ export async function generateReport() {
     })
 
     logActivity({ action: 'create', resource: 'reports', targetLabel: 'تقرير مخصص جديد' }).catch(() => {})
-    revalidatePath('/reports')
+    revalidatePath('/admin/reports')
     return { success: true }
   } catch (error: any) {
     return { error: 'تعذر إنشاء التقرير.' }

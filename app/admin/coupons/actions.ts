@@ -117,7 +117,7 @@ export async function createCoupon(values: {
     await syncCouponLectures(created.id, scope, values.lectureIds ?? [])
 
     logActivity({ action: 'create', resource: 'coupons', targetId: displayCode, targetLabel: `كوبون: ${displayCode} (${values.value}%)` }).catch(() => {})
-    revalidatePath('/coupons')
+    revalidatePath('/admin/coupons')
     return { success: true }
   } catch (error: any) {
     if (error?.code === 'P2002') {
@@ -168,7 +168,7 @@ export async function updateCoupon(
     await syncCouponLectures(updated.id, scope, values.lectureIds ?? [])
 
     logActivity({ action: 'update', resource: 'coupons', targetId: id, targetLabel: `كوبون: ${id}` }).catch(() => {})
-    revalidatePath('/coupons')
+    revalidatePath('/admin/coupons')
     return { success: true }
   } catch (error: any) {
     if (error?.code === 'P2002') {
@@ -186,7 +186,7 @@ export async function deleteCoupon(id: string) {
   try {
     await prisma.coupons.delete({ where: { display_code: id } })
     logActivity({ action: 'delete', resource: 'coupons', targetId: id, targetLabel: `كوبون: ${id}` }).catch(() => {})
-    revalidatePath('/coupons')
+    revalidatePath('/admin/coupons')
     return { success: true }
   } catch (error: any) {
     return { error: error.message }

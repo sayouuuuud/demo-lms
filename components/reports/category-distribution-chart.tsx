@@ -2,7 +2,7 @@
 
 import { DonutChart } from '@/components/ui/donut-chart'
 import { PanelCard } from '@/components/dashboard/panel-card'
-import { categoryDistribution as initialData } from '@/lib/reports-data'
+
 
 const config = {
   البرمجة: { label: 'البرمجة', color: 'var(--chart-1)' },

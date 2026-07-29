@@ -5,10 +5,11 @@ import { hasResourceAccess } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import { logActivity } from '@/lib/audit-log'
 import type { Conversation, ChatMessage, TicketStatus } from '@/lib/messages-data'
+import { getRelativeTimeArabic } from '@/lib/utils'
 
 export async function getConversations(): Promise<Conversation[]> {
   const data = await prisma.messages.findMany({
-    select: { code: true, sender_name: true, subject: true, content: true, time_label: true, unread_count: true, status: true, chat_history: true },
+    select: { code: true, sender_name: true, subject: true, content: true, time_label: true, created_at: true, unread_count: true, status: true, chat_history: true },
     orderBy: { created_at: 'desc' }
   })
 
@@ -17,7 +18,7 @@ export async function getConversations(): Promise<Conversation[]> {
     name: row.sender_name,
     subject: row.subject || 'تذكرة دعم',
     preview: row.content,
-    time: row.time_label,
+    time: getRelativeTimeArabic(row.created_at),
     unread: row.unread_count ?? 0,
     status: (row.status as TicketStatus) ?? 'open',
     messages: (row.chat_history ? (typeof row.chat_history === 'string' ? JSON.parse(row.chat_history) : row.chat_history) : []) as ChatMessage[],
@@ -88,7 +89,7 @@ export async function replyToConversation(id: string, message: string) {
       data: {
         chat_history: JSON.stringify([...history, newMsg]),
         content: text,
-        time_label: 'الآن',
+        time_label: '',
         student_unread: (data.student_unread ?? 0) + 1,
         status: 'open',
       }

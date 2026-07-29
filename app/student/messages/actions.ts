@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { getCurrentStudent } from '@/lib/auth-guard'
 import { auth } from '@/auth'
 import type { Conversation, ChatMessage, TicketStatus } from '@/lib/student-messages-data'
+import { getRelativeTimeArabic } from '@/lib/utils'
 
 const TEACHER_NAME = 'أ. عبد السلام'
 const TEACHER_ROLE = 'المدرّس وفريق الدعم'
@@ -28,7 +29,7 @@ export async function getStudentConversations(): Promise<Conversation[]> {
 
   const rows = await prisma.messages.findMany({
     where: { student_id: user.id as string },
-    select: { code: true, subject: true, content: true, time_label: true, chat_history: true, status: true, student_unread: true },
+    select: { code: true, subject: true, content: true, time_label: true, created_at: true, chat_history: true, status: true, student_unread: true },
     orderBy: { created_at: 'desc' }
   })
 
@@ -39,7 +40,7 @@ export async function getStudentConversations(): Promise<Conversation[]> {
     initials: TEACHER_INITIALS,
     subject: row.subject ?? 'تذكرة دعم',
     status: (row.status as TicketStatus) ?? 'open',
-    lastTime: row.time_label ?? '',
+    lastTime: getRelativeTimeArabic(row.created_at),
     unread: row.student_unread ?? 0,
     messages: toStudentMessages(row.chat_history),
   }))
@@ -69,7 +70,7 @@ export async function startConversation(subject: string, text: string) {
       sender_name: studentName,
       subject: subject.trim() || 'تذكرة دعم',
       content: message,
-      time_label: 'الآن',
+      time_label: '',
       is_read: false,
       has_attachment: false,
       sender_role: 'student',
@@ -108,7 +109,7 @@ export async function sendStudentMessage(code: string, text: string) {
     data: {
       chat_history: [...history, newMsg] as any,
       content: message,
-      time_label: 'الآن',
+      time_label: '',
       unread_count: (convo.unread_count ?? 0) + 1,
       status: 'open',
     }
