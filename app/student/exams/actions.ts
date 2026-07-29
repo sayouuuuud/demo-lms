@@ -56,8 +56,9 @@ async function studentCanAccessExam(
   if (hasStage && student.stage_id && exam.stage_id === student.stage_id) return true
 
   if (hasBranch) {
+    // orders.student_id يخزّن auth user id (شوف app/cart-actions.ts) وليس students.id
     const orders = await prisma.orders.findMany({
-      where: { student_id: student.id, status: 'approved' },
+      where: { student_id: student.user_id, status: 'approved' },
       include: { order_items: { select: { lecture_id: true } } }
     })
 

@@ -30,16 +30,9 @@ import {
   markAsRead,
   markAllAsRead,
 } from '@/app/admin/notifications/actions'
+import { getConversations } from '@/app/admin/messages/actions'
 import type { NotificationRecord } from '@/lib/notifications-data'
 
-/* ─── mock data ─── */
-const mockMessages = [
-  { id: 1, name: 'أحمد علي', text: 'متى موعد المحاضرة القادمة؟', time: 'منذ 5 د', read: false },
-  { id: 2, name: 'سارة محمد', text: 'شكراً على الكورس، استفدت كتير', time: 'منذ 20 د', read: false },
-  { id: 3, name: 'عمر خالد', text: 'هل يوجد تمارين إضافية؟', time: 'منذ ساعة', read: false },
-  { id: 4, name: 'منى حسن', text: 'الفيديو مش بيشتغل عندي', time: 'منذ 3 س', read: true },
-  { id: 5, name: 'يوسف إبراهيم', text: 'تم الاشتراك في الكورس الجديد', time: 'أمس', read: true },
-]
 
 /* ─── hook: close on outside click ─── */
 function useOutsideClick(ref: React.RefObject<HTMLElement | null>, cb: () => void) {
@@ -55,7 +48,22 @@ function useOutsideClick(ref: React.RefObject<HTMLElement | null>, cb: () => voi
 /* ─── Messages dropdown ─── */
 function MessagesDropdown() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState(mockMessages)
+  const { data: fetched } = useSWR('admin-header-messages', () => getConversations(), {
+    refreshInterval: 60000,
+    revalidateOnFocus: true,
+  })
+  const [messages, setMessages] = useState<any[]>([])
+  useEffect(() => {
+    if (Array.isArray(fetched)) {
+      setMessages(fetched.map((c) => ({
+        id: c.id,
+        name: c.name,
+        text: c.preview,
+        time: c.time,
+        read: c.unread === 0,
+      })))
+    }
+  }, [fetched])
   const ref = useRef<HTMLDivElement>(null)
   useOutsideClick(ref, () => setOpen(false))
 

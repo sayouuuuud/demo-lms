@@ -258,7 +258,7 @@ export async function createStage(input: StageInput) {
       }
     })
     logActivity({ action: 'create', resource: 'categories', targetLabel: `مرحلة: ${input.title}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -283,7 +283,7 @@ export async function updateStage(id: string, input: StageInput) {
       }
     })
     logActivity({ action: 'update', resource: 'categories', targetId: id, targetLabel: `مرحلة: ${input.title}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -299,7 +299,7 @@ export async function deleteStage(id: string) {
   try {
     await prisma.stages.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'categories', targetId: id, targetLabel: `مرحلة ID: ${id}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -326,7 +326,7 @@ export async function createBranch(input: BranchInput) {
       }
     })
     logActivity({ action: 'create', resource: 'categories', targetLabel: `فرع: ${input.title}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -348,7 +348,7 @@ export async function updateBranch(id: string, input: Omit<BranchInput, 'stageId
       }
     })
     logActivity({ action: 'update', resource: 'categories', targetId: id, targetLabel: `فرع: ${input.title}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -364,7 +364,7 @@ export async function deleteBranch(id: string) {
   try {
     await prisma.branches.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'categories', targetId: id, targetLabel: `فرع ID: ${id}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -395,7 +395,7 @@ export async function createMonthlyCourse(input: MonthlyCourseInput) {
       }
     })
     logActivity({ action: 'create', resource: 'categories', targetLabel: `كورس: ${input.title}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -422,7 +422,7 @@ export async function updateMonthlyCourse(id: string, input: Omit<MonthlyCourseI
       }
     })
     logActivity({ action: 'update', resource: 'categories', targetId: id, targetLabel: `كورس: ${input.title}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -442,7 +442,7 @@ export async function deleteMonthlyCourse(id: string) {
     })
     await prisma.monthly_courses.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'categories', targetId: id, targetLabel: `كورس ID: ${id}` }).catch(() => {})
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -533,7 +533,7 @@ export async function createCourseSection(input: CourseSectionInput) {
     })
     logActivity({ action: 'create', resource: 'categories', targetLabel: `تصنيف كورس: ${title}` }).catch(() => {})
     revalidatePath('/admin/categories')
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/student/browse')
     revalidatePath('/student/courses')
     return { success: true }
@@ -554,7 +554,7 @@ export async function updateCourseSection(id: string, input: { title: string }) 
       data: { title }
     })
     revalidatePath('/admin/categories')
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/student/browse')
     revalidatePath('/student/courses')
     return { success: true }
@@ -574,7 +574,7 @@ export async function deleteCourseSection(id: string) {
     await prisma.monthly_course_sections.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'categories', targetId: id, targetLabel: `تصنيف كورس ID: ${id}` }).catch(() => {})
     revalidatePath('/admin/categories')
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/student/browse')
     revalidatePath('/student/courses')
     return { success: true }

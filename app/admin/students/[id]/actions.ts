@@ -274,10 +274,10 @@ export async function getStudentProfileData(code: string): Promise<StudentProfil
       select: { item_id: true, updated_at: true }
     })
 
-    legacyProgress = await prisma.lesson_progress.findMany({
-      where: { enrollments: { student_id: studentId }, completed: true },
-      select: { lesson_id: true, completed_at: true }
-    })
+    // lesson_progress غير قابل للكتابة بحكم الـ schema:
+    // enrollment_id هو NOT NULL و enrollments فيه 0 صف ولا يوجد أي create عليه.
+    // المصدر الحقيقي للتقدّم هو student_content_progress بالأعلى.
+    legacyProgress = []
 
     ordersData = await prisma.orders.findMany({
       where: { student_id: studentUserId },

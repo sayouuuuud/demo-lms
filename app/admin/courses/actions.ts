@@ -253,7 +253,7 @@ export async function createMonthlyCourseQuick(input: {
     logActivity({ action: 'create', resource: 'categories', targetLabel: `كورس: ${title}` }).catch(() => {})
     revalidatePath('/admin/courses')
     revalidatePath('/admin/categories')
-    revalidatePath('/categories')
+    revalidatePath('/admin/categories')
     revalidatePath('/')
     return { id: data.id, title: data.title }
   } catch (error: any) {
@@ -323,8 +323,8 @@ export async function createLecture(input: LectureInput) {
     }
 
     logActivity({ action: 'create', resource: 'courses', targetLabel: `محاضرة: ${input.title}` }).catch(() => {})
-    revalidatePath('/courses')
-    revalidatePath('/calendar')
+    revalidatePath('/admin/courses')
+    revalidatePath('/admin/calendar')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -421,8 +421,8 @@ export async function updateLecture(id: string, input: LectureInput) {
     }
 
     logActivity({ action: 'update', resource: 'courses', targetId: id, targetLabel: `محاضرة ID: ${id}` }).catch(() => {})
-    revalidatePath('/courses')
-    revalidatePath('/calendar')
+    revalidatePath('/admin/courses')
+    revalidatePath('/admin/calendar')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -438,7 +438,7 @@ export async function deleteLecture(id: string) {
   try {
     await prisma.lectures.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'courses', targetId: id, targetLabel: `محاضرة ID: ${id}` }).catch(() => {})
-    revalidatePath('/courses')
+    revalidatePath('/admin/courses')
     revalidatePath('/')
     return { success: true }
   } catch (error: any) {
@@ -486,7 +486,7 @@ export async function createLesson(lectureId: string, input: LessonInput) {
     }
 
     logActivity({ action: 'create', resource: 'courses', targetLabel: `درس: ${input.title}` }).catch(() => {})
-    revalidatePath('/courses', 'layout')
+    revalidatePath('/admin/courses', 'layout')
     revalidatePath('/', 'layout')
     revalidatePath('/student', 'layout')
     return { success: true }
@@ -532,7 +532,7 @@ export async function updateLesson(id: string, input: LessonInput) {
     }
 
     logActivity({ action: 'update', resource: 'courses', targetId: id, targetLabel: `درس: ${input.title}` }).catch(() => {})
-    revalidatePath('/courses', 'layout')
+    revalidatePath('/admin/courses', 'layout')
     revalidatePath('/', 'layout')
     revalidatePath('/student', 'layout')
     return { success: true }
@@ -549,7 +549,7 @@ export async function deleteLesson(id: string) {
   try {
     await prisma.lessons.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'courses', targetId: id, targetLabel: `درس ID: ${id}` }).catch(() => {})
-    revalidatePath('/courses', 'layout')
+    revalidatePath('/admin/courses', 'layout')
     revalidatePath('/', 'layout')
     revalidatePath('/student', 'layout')
     return { success: true }
@@ -795,7 +795,7 @@ export async function createAssignment(lectureId: string, input: AssignmentInput
 
     logActivity({ action: 'create', resource: 'courses', targetLabel: `واجب: ${input.title}` }).catch(() => {})
     revalidatePath(`/admin/courses/${lectureId}`)
-    revalidatePath('/courses', 'layout')
+    revalidatePath('/admin/courses', 'layout')
     revalidatePath('/student', 'layout')
     return { success: true }
   } catch (error: any) {
@@ -825,7 +825,7 @@ export async function updateAssignment(id: string, input: AssignmentInput) {
 
     logActivity({ action: 'update', resource: 'courses', targetId: id, targetLabel: `واجب: ${input.title}` }).catch(() => {})
     revalidatePath('/admin/courses')
-    revalidatePath('/courses', 'layout')
+    revalidatePath('/admin/courses', 'layout')
     revalidatePath('/student', 'layout')
     return { success: true }
   } catch (error: any) {
@@ -840,7 +840,7 @@ export async function deleteAssignment(id: string) {
     await prisma.assignment_questions.deleteMany({ where: { assignment_id: id } })
     await prisma.assignments.delete({ where: { id } })
     logActivity({ action: 'delete', resource: 'courses', targetId: id, targetLabel: `واجب ID: ${id}` }).catch(() => {})
-    revalidatePath('/courses', 'layout')
+    revalidatePath('/admin/courses', 'layout')
     revalidatePath('/student', 'layout')
     return { success: true }
   } catch (error: any) {
@@ -872,7 +872,7 @@ export async function reorderLectureContent(
     await Promise.all(promises)
 
     revalidatePath(`/admin/courses/${lectureId}`)
-    revalidatePath('/courses')
+    revalidatePath('/admin/courses')
     return { success: true }
   } catch (error: any) {
     return { error: 'تعذّر إعادة الترتيب.' }

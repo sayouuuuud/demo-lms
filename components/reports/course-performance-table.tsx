@@ -1,5 +1,4 @@
 import { Card } from '@/components/ui/card'
-import { coursePerformance as initialData } from '@/lib/reports-data'
 
 function ShareBar({ value }: { value: number }) {
   return (
@@ -16,7 +15,7 @@ function ShareBar({ value }: { value: number }) {
 }
 
 export function CoursePerformanceTable({ courses: inputCourses }: { courses?: any[] }) {
-  const coursePerformance = inputCourses || initialData
+  const coursePerformance = inputCourses || []
 
   if (coursePerformance.length === 0) {
     return (

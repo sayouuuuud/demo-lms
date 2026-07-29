@@ -45,7 +45,7 @@ export async function sendAnnouncement(input: {
   if (res.error) return { error: 'تعذّر إرسال الإشعار. حاول تاني.' }
 
   logActivity({ action: 'create', resource: 'notifications', targetLabel: `إشعار: ${title}` }).catch(() => {})
-  revalidatePath('/notifications')
+  revalidatePath('/admin/notifications')
   revalidatePath('/student/notifications')
   return { success: true }
 }
@@ -75,7 +75,7 @@ export async function markAsRead(id: string) {
       where: { code: id },
       data: { read: true }
     })
-    revalidatePath('/notifications')
+    revalidatePath('/admin/notifications')
     return { success: true }
   } catch (error: any) {
     return { error: 'تعذر التحديث.' }
@@ -92,7 +92,7 @@ export async function markAllAsRead() {
       where: { read: false },
       data: { read: true }
     })
-    revalidatePath('/notifications')
+    revalidatePath('/admin/notifications')
     return { success: true }
   } catch (error: any) {
     return { error: 'تعذر التحديث.' }
@@ -107,7 +107,7 @@ export async function deleteNotification(id: string) {
   try {
     await prisma.notifications.delete({ where: { code: id } })
     logActivity({ action: 'delete', resource: 'notifications', targetId: id, targetLabel: `إشعار كود: ${id}` }).catch(() => {})
-    revalidatePath('/notifications')
+    revalidatePath('/admin/notifications')
     return { success: true }
   } catch (error: any) {
     return { error: 'تعذر الحذف.' }

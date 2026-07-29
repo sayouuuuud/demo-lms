@@ -1,7 +1,8 @@
 import NextAuth from "next-auth"
 import authConfig from "./auth.config"
 import { NextResponse } from "next/server"
-import { mapPathToResource, RESOURCES } from '@/lib/permissions'
+import { mapPathToResource, RESOURCES, satisfies } from '@/lib/permissions'
+import type { AccessLevel, ResourceKey } from '@/lib/permissions'
 
 const { auth } = NextAuth(authConfig)
 
@@ -38,17 +39,30 @@ export default auth((req) => {
 
     if (role === 'assistant') {
       const permissions = user?.permissions || []
-      const granted = new Map(
-        permissions.map((p: any) => [p.resource, p.access_level])
+      const granted = new Map<string, AccessLevel>(
+        permissions.map((p: any) => [p.resource as string, p.access_level as AccessLevel])
       )
 
-      const resource = mapPathToResource(nextUrl.pathname)
-      const hasAccess = resource ? granted.has(resource) : false
+      // مسارات أدمن عامة لا تخضع لجدول الصلاحيات (T11)
+      const OPEN_ADMIN_PATHS = ['/admin/streaming', '/admin/search', '/admin/activity']
+      const isOpenAdminPath = OPEN_ADMIN_PATHS.some(
+        (p) => nextUrl.pathname === p || nextUrl.pathname.startsWith(`${p}/`),
+      )
 
-      if (!hasAccess) {
-        const firstAllowed = RESOURCES.find((r) => granted.has(r.key))
-        const fallback = firstAllowed ? firstAllowed.href : '/admin/no-access'
-        return NextResponse.redirect(new URL(fallback, nextUrl))
+      if (!isOpenAdminPath) {
+        const resource = mapPathToResource(nextUrl.pathname)
+        // satisfies() يفحص المستوى فعليًا، بخلاف granted.has() الذي كان يمرّر 'none'
+        const level = resource ? granted.get(resource) : undefined
+        const hasAccess = !!level && satisfies(level, 'view')
+
+        if (!hasAccess) {
+          const firstAllowed = RESOURCES.find((r) => {
+            const lvl = granted.get(r.key as ResourceKey)
+            return !!lvl && satisfies(lvl, 'view')
+          })
+          const fallback = firstAllowed ? firstAllowed.href : '/admin/no-access'
+          return NextResponse.redirect(new URL(fallback, nextUrl))
+        }
       }
     }
   }

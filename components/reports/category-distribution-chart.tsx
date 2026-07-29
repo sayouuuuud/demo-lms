@@ -2,7 +2,7 @@
 
 import { DonutChart } from '@/components/ui/donut-chart'
 import { PanelCard } from '@/components/dashboard/panel-card'
-import { categoryDistribution as initialData } from '@/lib/reports-data'
+
 
 const config = {
   البرمجة: { label: 'البرمجة', color: 'var(--chart-1)' },
@@ -13,7 +13,7 @@ const config = {
 }
 
 export function CategoryDistributionChart({ data: inputData }: { data?: any[] }) {
-  const categoryDistribution = inputData || initialData
+  const categoryDistribution = inputData || []
   const total = categoryDistribution.reduce((sum, c) => sum + c.value, 0)
 
   return (

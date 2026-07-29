@@ -70,10 +70,12 @@ export async function getCartItems(): Promise<CartItem[] | null> {
   })
 }
 
+// T18: استبدلنا rand(9000) بـ crypto.randomUUID() لضمان uniqueness الكاملة
+// ونحتفظ بالـ prefix لقراءة سهلة في لوحة الأدمن
 function generateOrderCode() {
   const year = new Date().getFullYear()
-  const rand = Math.floor(1000 + Math.random() * 9000)
-  return `ORD-${year}-${rand}`
+  const suffix = crypto.randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase()
+  return `ORD-${year}-${suffix}`
 }
 
 export async function addToCart(lectureId: string) {

@@ -184,7 +184,7 @@ export async function createStudent(input: StudentInput) {
     })
 
     logActivity({ action: 'create', resource: 'students', targetId: code, targetLabel: `طالب: ${input.name}` }).catch(() => {})
-    revalidatePath('/students')
+    revalidatePath('/admin/students')
     return { success: true }
   } catch (error: any) {
     console.log('[v0] createStudent error:', error.message)
@@ -212,7 +212,7 @@ export async function deleteStudent(code: string) {
     }
 
     logActivity({ action: 'delete', resource: 'students', targetId: code, targetLabel: `طالب كود: ${code}` }).catch(() => {})
-    revalidatePath('/students')
+    revalidatePath('/admin/students')
     return { success: true }
   } catch (error: any) {
     console.log('[v0] deleteStudent error:', error.message)

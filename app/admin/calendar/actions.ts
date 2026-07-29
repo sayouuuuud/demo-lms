@@ -92,7 +92,7 @@ export async function createEvent(values: {
       description: `${values.date} - ${values.time}${values.course ? ` · ${values.course}` : ''}`,
     })
 
-    revalidatePath('/calendar')
+    revalidatePath('/admin/calendar')
     return { success: true }
   } catch (error: any) {
     return { error: error.message }
@@ -134,7 +134,7 @@ export async function updateEvent(
     })
 
     logActivity({ action: 'update', resource: 'calendar', targetId: id, targetLabel: `حدث: ${values.title}` }).catch(() => {})
-    revalidatePath('/calendar')
+    revalidatePath('/admin/calendar')
     return { success: true }
   } catch (error: any) {
     return { error: error.message }
@@ -149,7 +149,7 @@ export async function deleteEvent(id: string) {
   try {
     await prisma.calendar_events.delete({ where: { code: id } })
     logActivity({ action: 'delete', resource: 'calendar', targetId: id, targetLabel: `حدث كود: ${id}` }).catch(() => {})
-    revalidatePath('/calendar')
+    revalidatePath('/admin/calendar')
     return { success: true }
   } catch (error: any) {
     return { error: error.message }

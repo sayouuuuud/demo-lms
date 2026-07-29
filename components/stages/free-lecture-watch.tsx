@@ -48,7 +48,7 @@ export function FreeLectureWatch({
             {/* Player + details */}
             <div className="flex flex-col gap-4">
               <div className="aspect-video w-full overflow-hidden rounded-2xl border border-navy/10 bg-black dark:border-ink-line">
-                <VideoPlayer key={active?.id} src={active?.videoUrl} />
+                <VideoPlayer key={active?.id} src={active?.videoUrl ?? undefined} />
               </div>
 
               <div className="rounded-2xl border border-navy/10 bg-white p-5 dark:border-ink-line dark:bg-ink-raised">

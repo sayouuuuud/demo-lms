@@ -17,6 +17,35 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co' },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000' },
+          // لوحة أدمن + بيانات دفع => منع التأطير
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          // Report-Only أولًا حتى لا تُكسر الموارد الخارجية (R2 / UploadThing)
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "img-src 'self' data: blob: https:",
+              "media-src 'self' blob: https:",
+              "style-src 'self' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "font-src 'self' data:",
+              "connect-src 'self' https://*.r2.dev https://utfs.io https://*.ufs.sh https://*.supabase.co",
+              "frame-ancestors 'self'",
+            ].join('; '),
+          },
+        ],
+      },
+    ]
+  },
 }
 
 export default nextConfig
