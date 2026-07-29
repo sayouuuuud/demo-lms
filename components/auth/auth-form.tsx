@@ -9,6 +9,11 @@ import { signIn, getSession } from 'next-auth/react'
 
 type Tab = 'login' | 'register'
 
+const DEMO_ADMIN = {
+  email: 'admin@test.com',
+  password: '111111',
+}
+
 const grades = [
   { value: 'sec-1', label: 'الصف الأول الثانوي' },
   { value: 'sec-2', label: 'الصف الثاني الثانوي' },
@@ -23,9 +28,9 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
   const [doneMessage, setDoneMessage] = useState('')
   const [error, setError] = useState('')
 
-  // login state
-  const [loginEmail, setLoginEmail] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
+  // login state — prefilled with the demo admin account
+  const [loginEmail, setLoginEmail] = useState(DEMO_ADMIN.email)
+  const [loginPassword, setLoginPassword] = useState(DEMO_ADMIN.password)
 
   // register state
   const [name, setName] = useState('')
@@ -371,6 +376,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
         <Field
           id="email"
           label="البريد الإلكتروني"
+          hint={tab === 'login' ? DEMO_ADMIN.email : undefined}
           icon={<Mail className="size-4" />}
           type="email"
           placeholder="you@example.com"
@@ -430,8 +436,19 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
         {/* Password */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="block text-sm font-semibold text-navy dark:text-ink-fg">
+            <label
+              htmlFor="password"
+              className="flex flex-wrap items-center gap-2 text-sm font-semibold text-navy dark:text-ink-fg"
+            >
               كلمة السر
+              {tab === 'login' && (
+                <span
+                  dir="ltr"
+                  className="rounded-md bg-gold/15 px-1.5 py-0.5 font-mono text-xs font-bold text-gold-deep dark:bg-teal-glow/15 dark:text-teal-glow"
+                >
+                  {DEMO_ADMIN.password}
+                </span>
+              )}
             </label>
             {tab === 'login' && (
               <button type="button" className="text-xs font-semibold text-gold-deep hover:underline dark:text-teal-glow">
@@ -527,6 +544,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
 function Field({
   id,
   label,
+  hint,
   icon,
   type,
   placeholder,
@@ -537,6 +555,7 @@ function Field({
 }: {
   id: string
   label: string
+  hint?: string
   icon: React.ReactNode
   type: string
   placeholder: string
@@ -547,8 +566,19 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={id} className="block text-sm font-semibold text-navy dark:text-ink-fg">
+      <label
+        htmlFor={id}
+        className="flex flex-wrap items-center gap-2 text-sm font-semibold text-navy dark:text-ink-fg"
+      >
         {label}
+        {hint && (
+          <span
+            dir="ltr"
+            className="rounded-md bg-gold/15 px-1.5 py-0.5 font-mono text-xs font-bold text-gold-deep dark:bg-teal-glow/15 dark:text-teal-glow"
+          >
+            {hint}
+          </span>
+        )}
       </label>
       <div className="relative">
         <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-navy-soft dark:text-ink-dim">
