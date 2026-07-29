@@ -1,5 +1,25 @@
 import type { NextAuthConfig } from "next-auth"
 
+const isProduction = process.env.NODE_ENV === 'production'
+
+// The dev/preview app is rendered inside a cross-site iframe, where browsers
+// drop SameSite=Lax cookies. That silently breaks the sign-in CSRF check and
+// surfaces as "invalid credentials". Outside production we therefore issue the
+// auth cookies as SameSite=None (which requires Secure), so they survive the
+// embedded preview. Production keeps the stricter Lax default.
+const crossSiteCookieOptions = {
+  httpOnly: true,
+  sameSite: 'none' as const,
+  path: '/',
+  secure: true,
+}
+
+const previewCookies: NextAuthConfig['cookies'] = {
+  sessionToken: { name: 'authjs.session-token', options: crossSiteCookieOptions },
+  csrfToken: { name: 'authjs.csrf-token', options: crossSiteCookieOptions },
+  callbackUrl: { name: 'authjs.callback-url', options: crossSiteCookieOptions },
+}
+
 // We define the edge-friendly config here.
 // The database adapter and Credentials provider will be added in auth.ts.
 export default {
@@ -7,6 +27,10 @@ export default {
   pages: {
     signIn: '/auth',
   },
+  // The app is served through a proxy host in preview/production, so the
+  // forwarded host must be trusted instead of inferred from the request.
+  trustHost: true,
+  ...(isProduction ? {} : { cookies: previewCookies }),
   callbacks: {
     // Attach the user's role and permissions from DB into the JWT during sign-in
     async jwt({ token, user, trigger, session }) {
