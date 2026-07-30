@@ -1,3 +1,5 @@
+import { ShieldAlert } from 'lucide-react'
+
 import { PageHeader } from './page-header'
 import { StatCards } from './stat-cards'
 import { AnalyticsKpis } from './analytics-kpis'
@@ -13,7 +15,24 @@ import { LatestStudents } from './latest-students'
 import { LatestLessons } from './latest-lessons'
 
 export function DashboardShell({ data }: { data?: any }) {
-  if (!data) return <PageHeader />
+  // `data` ممكن ترجع { success: false, error } من الأكشن لما الصلاحيات ناقصة.
+  // الشرط القديم `if (!data)` كان بيفشل لأن الكائن نفسه truthy، فالداشبورد
+  // كانت بترسم و data.stats تبقى undefined.
+  if (!data || data.error || !data.stats) {
+    return (
+      <div className="space-y-6">
+        <PageHeader />
+        <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 rounded-lg border border-border bg-card p-8 text-center">
+          <div className="flex size-14 items-center justify-center rounded-full bg-secondary">
+            <ShieldAlert className="size-7 text-muted-foreground" aria-hidden="true" />
+          </div>
+          <p className="max-w-md text-pretty text-sm leading-relaxed text-muted-foreground">
+            {data?.error || 'مش قادرين نجيب بيانات لوحة التحكم دلوقتي. حاول تاني بعد شوية.'}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
