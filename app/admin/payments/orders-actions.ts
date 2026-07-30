@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { hasResourceAccess } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import { logActivity } from '@/lib/audit-log'
+import { sendWhatsAppText, paymentApprovedText } from '@/lib/whatsapp'
 
 export type OrderStatus = 'pending' | 'approved' | 'rejected'
 
@@ -74,6 +75,51 @@ export async function getOrders(): Promise<AdminOrder[]> {
   }))
 }
 
+/**
+ * يبعت رسالة واتساب للطالب بعد قبول الطلب.
+ * fire-and-forget: الطلب اتقبل بالفعل، فشل الواتساب ما يوقفش حاجة.
+ */
+async function notifyOrderApproved(orderId: string) {
+  try {
+    const full = await prisma.orders.findUnique({
+      where: { id: orderId },
+      select: {
+        code: true,
+        student_name: true,
+        student_phone: true,
+        total: true,
+        student_id: true,
+        order_items: { select: { lecture_title: true } },
+      },
+    })
+    if (!full) return
+
+    // students.phone هو المصدر الرسمي للرقم، وorders.student_phone كـ fallback.
+    // ملاحظة: orders.student_id بيشاور على auth.users، فلازم نجيب students.id عبر user_id.
+    const student = await prisma.students.findFirst({
+      where: { user_id: full.student_id },
+      select: { id: true, phone: true },
+    })
+
+    const phone = student?.phone || full.student_phone
+    if (!phone) return
+
+    await sendWhatsAppText({
+      phone,
+      text: paymentApprovedText({
+        studentName: full.student_name ?? '',
+        orderCode: full.code,
+        total: Number(full.total),
+        items: full.order_items.map((i) => i.lecture_title ?? '').filter(Boolean),
+      }),
+      template: 'payment_approved',
+      studentId: student?.id ?? null,
+    })
+  } catch {
+    // متعمّد: ممنوع نرجّع error للأدمن بسبب الواتساب.
+  }
+}
+
 export async function updateOrderStatus(id: string, status: OrderStatus) {
   if (!(await hasResourceAccess('payments', 'manage'))) {
     return { error: 'غير مسموح. لازم تكون أدمن.' }
@@ -95,6 +141,11 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
       ? `طلب ${orderRow.code} — ${orderRow.student_name} (${orderRow.total} ج.م)`
       : `طلب ID: ${id}`
     logActivity({ action, resource: 'payments', targetId: id, targetLabel: label }).catch(() => {})
+
+    if (status === 'approved') {
+      void notifyOrderApproved(id)
+    }
+
     revalidatePath('/admin/payments')
     return { success: true }
   } catch (error: any) {
