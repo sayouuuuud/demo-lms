@@ -81,6 +81,13 @@ export async function getOrders(): Promise<AdminOrder[]> {
  */
 async function notifyOrderApproved(orderId: string) {
   try {
+    // تحقق من إعداد المنصة — لو الواتساب متوقف ما نبعتش.
+    const platformSettings = await prisma.platform_settings.findUnique({
+      where: { id: 1 },
+      select: { whatsapp_payment_notify: true },
+    })
+    if (platformSettings?.whatsapp_payment_notify === false) return
+
     const full = await prisma.orders.findUnique({
       where: { id: orderId },
       select: {

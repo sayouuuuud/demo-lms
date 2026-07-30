@@ -146,7 +146,7 @@ export function SettingsPanel({
     initials: string
   } | null
   initialSiteContent?: SiteContent
-  initialPlatformSettings?: { is_streaming_enabled: boolean } | null
+  initialPlatformSettings?: { is_streaming_enabled: boolean; whatsapp_payment_notify: boolean } | null
   initialStreamingSettings?: any
   initialStreamingJobs?: any[]
   initialStreamingVideos?: any[]
@@ -249,6 +249,10 @@ export function SettingsPanel({
     initialPlatformSettings?.is_streaming_enabled ?? false,
   )
 
+  const [whatsappPaymentNotify, setWhatsappPaymentNotify] = useState(
+    initialPlatformSettings?.whatsapp_payment_notify ?? true,
+  )
+
   // Whether new students can register (defaults to ON when not previously saved).
   const [allowRegistrations, setAllowRegistrations] = useState(
     settings.security?.allowRegistrations !== false,
@@ -291,7 +295,10 @@ export function SettingsPanel({
       }
 
       const res = await updateSettings(newSettings)
-      const resPlatform = await updatePlatformSettings({ is_streaming_enabled: isStreamingEnabled })
+      const resPlatform = await updatePlatformSettings({
+        is_streaming_enabled: isStreamingEnabled,
+        whatsapp_payment_notify: whatsappPaymentNotify,
+      })
 
       if (res.error || resPlatform?.error) {
         toast.error(res.error || resPlatform?.error)
@@ -537,6 +544,12 @@ export function SettingsPanel({
                 onChange={setIsStreamingEnabled}
                 label="تفعيل تحويل الفيديو (HLS Streaming)"
                 description="تشفير وتقطيع الفيديوهات لمنع التحميل وتحسين سرعة التشغيل. يتطلب إعداد Cloudflare R2."
+              />
+              <ToggleSwitch
+                checked={whatsappPaymentNotify}
+                onChange={setWhatsappPaymentNotify}
+                label="إشعارات الواتساب عند قبول المدفوعات"
+                description="لما يتقبل طلب دفع، يوصل للطالب رسالة واتساب تلقائية بتفاصيل الطلب. قفله يوقف الإرسال من غير ما يأثر على قبول الطلب."
               />
             </div>
 
