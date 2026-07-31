@@ -81,7 +81,7 @@ export function QuestionEditorModal({
         type, contentMode, text, imageUrl,
         options: options.map(o => o.trim()).filter(Boolean),
         correctAnswer,
-        modelAnswer: model,
+        modelAnswer: modelAnswer,
         points, difficulty, notes,
         topics: selectedTopics,
         scopes,
