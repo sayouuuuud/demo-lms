@@ -11,18 +11,18 @@ import type { TreeStage } from '@/app/admin/question-bank/actions'
 import { importQuestionsFromExam } from '@/app/admin/question-bank/actions'
 
 interface ArchiveToBankButtonProps {
-  examCode: string
-  tree:     TreeStage[]
+  examId: string
+  tree:   TreeStage[]
 }
 
-export function ArchiveToBankButton({ examCode, tree }: ArchiveToBankButtonProps) {
+export function ArchiveToBankButton({ examId, tree }: ArchiveToBankButtonProps) {
   const [open, setOpen]         = useState(false)
   const [scopes, setScopes]     = useState<ScopeInput[]>([])
   const [pending, start]        = useTransition()
 
   const handleImport = () =>
     start(async () => {
-      const res = await importQuestionsFromExam(examCode, scopes)
+      const res = await importQuestionsFromExam(examId, scopes)
       if ('error' in res) { toast.error(res.error); return }
       toast.success(`اتضاف ${res.imported} سؤال للبنك${res.skipped ? ` (${res.skipped} متكرر واتّجاهل)` : ''}.`)
       setOpen(false)
