@@ -84,6 +84,9 @@ async function studentCanAccessExam(
 }
 
 export async function getStudentExam(code: string): Promise<StudentExam | null> {
+  const guard = await assertDeviceAllowed()
+  if (!guard.ok) return null
+
   const student = await getCurrentStudent()
   if (!student) return null
 
