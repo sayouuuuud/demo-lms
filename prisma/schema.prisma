@@ -1398,10 +1398,15 @@ model students {
   notification_reads     notification_reads[]
   notifications          notifications[]
   payments               payments[]
-  student_devices        student_devices?
-  student_weekly_goals   student_weekly_goals?
-  stages                 stages?                  @relation(fields: [stage_id], references: [id], onUpdate: NoAction)
-  users                  User?                    @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+  student_devices          student_devices?
+  student_weekly_goals     student_weekly_goals?
+  student_trusted_devices  student_trusted_devices[]
+  student_device_sessions  student_device_sessions[]
+  student_security_state   student_security_state?
+  student_security_events  student_security_events[]
+  device_removal_requests  device_removal_requests[]
+  stages                   stages?                  @relation(fields: [stage_id], references: [id], onUpdate: NoAction)
+  users                    User?                    @relation(fields: [user_id], references: [id], onUpdate: NoAction)
 
   @@index([last_seen_at(sort: Desc)], map: "idx_students_last_seen_at")
   @@index([stage_id], map: "students_stage_idx")
@@ -1596,7 +1601,7 @@ enum one_time_token_type {
   @@schema("auth")
 }
 
-// ─── Question Bank ────────────────────────────────────────────────────────────
+// ─── Question Bank ─────────────────────────────────────────���──────────────────
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model question_bank_questions {
@@ -1666,5 +1671,151 @@ model question_bank_question_topics {
 
   @@id([question_id, topic_id])
   @@index([topic_id], map: "idx_qbqt_topic")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model student_trusted_devices {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  student_id       String    @db.Uuid
+  device_key       String
+  fingerprint_hash String    @default("")
+  label            String    @default("")
+  browser          String    @default("")
+  os               String    @default("")
+  device_type      String    @default("كمبيوتر")
+  first_ip         String    @default("")
+  last_ip          String    @default("")
+  last_city        String    @default("")
+  last_country     String    @default("")
+  last_lat         Float?
+  last_lon         Float?
+  login_count      Int       @default(1)
+  status           String    @default("active")
+  removed_at       DateTime? @db.Timestamptz(6)
+  removed_by       String?   @db.Uuid
+  last_active_at   DateTime  @default(now()) @db.Timestamptz(6)
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+
+  students                students                  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  student_device_sessions student_device_sessions[]
+  student_security_events student_security_events[]
+  device_removal_requests device_removal_requests[]
+
+  @@unique([student_id, device_key], map: "uq_trusted_devices_student_key")
+  @@index([student_id], map: "idx_trusted_devices_student")
+  @@index([student_id, fingerprint_hash], map: "idx_trusted_devices_fp")
+  @@index([status], map: "idx_trusted_devices_status")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model student_device_sessions {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  student_id     String    @db.Uuid
+  device_id      String?   @db.Uuid
+  session_key    String    @unique
+  ip             String    @default("")
+  city           String    @default("")
+  country        String    @default("")
+  lat            Float?
+  lon            Float?
+  geo_fetched    Boolean   @default(false)
+  user_agent     String    @default("")
+  started_at     DateTime  @default(now()) @db.Timestamptz(6)
+  last_seen_at   DateTime  @default(now()) @db.Timestamptz(6)
+  revoked_at     DateTime? @db.Timestamptz(6)
+  revoked_reason String    @default("")
+
+  students students                  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  device   student_trusted_devices?  @relation(fields: [device_id], references: [id], onUpdate: NoAction)
+
+  @@index([student_id, last_seen_at(sort: Desc)], map: "idx_device_sessions_student_seen")
+  @@index([device_id], map: "idx_device_sessions_device")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model student_security_state {
+  student_id       String    @id @db.Uuid
+  score            Int       @default(100)
+  blocked          Boolean   @default(false)
+  blocked_at       DateTime? @db.Timestamptz(6)
+  blocked_reason   String    @default("")
+  last_ip          String    @default("")
+  last_city        String    @default("")
+  last_country     String    @default("")
+  last_lat         Float?
+  last_lon         Float?
+  last_geo_at      DateTime? @db.Timestamptz(6)
+  last_event_at    DateTime? @db.Timestamptz(6)
+  last_recovery_at DateTime? @db.Timestamptz(6)
+  updated_at       DateTime  @default(now()) @db.Timestamptz(6)
+
+  students students @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([score], map: "idx_security_state_score")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model student_security_events {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  student_id  String   @db.Uuid
+  device_id   String?  @db.Uuid
+  event_type  String
+  severity    String   @default("info")
+  score_delta Int      @default(0)
+  score_after Int      @default(100)
+  ip          String   @default("")
+  city        String   @default("")
+  country     String   @default("")
+  details     Json     @default("{}")
+  actor_id    String?  @db.Uuid
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  students students                  @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  device   student_trusted_devices?  @relation(fields: [device_id], references: [id], onUpdate: NoAction)
+
+  @@index([student_id, created_at(sort: Desc)], map: "idx_security_events_student")
+  @@index([event_type], map: "idx_security_events_type")
+  @@index([created_at(sort: Desc)], map: "idx_security_events_created")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ip_geo_cache {
+  ip           String   @id
+  city         String   @default("")
+  country      String   @default("")
+  country_code String   @default("")
+  lat          Float?
+  lon          Float?
+  is_proxy     Boolean  @default(false)
+  provider     String   @default("bigdatacloud")
+  raw          Json     @default("{}")
+  fetched_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([fetched_at(sort: Desc)], map: "idx_ip_geo_fetched")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model device_removal_requests {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  student_id String    @db.Uuid
+  device_id  String    @db.Uuid
+  reason     String    @default("")
+  status     String    @default("pending")
+  admin_note String    @default("")
+  handled_by String?   @db.Uuid
+  handled_at DateTime? @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+
+  students students               @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  device   student_trusted_devices @relation(fields: [device_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([status, created_at(sort: Desc)], map: "idx_removal_requests_status")
+  @@index([student_id], map: "idx_removal_requests_student")
   @@schema("public")
 }
