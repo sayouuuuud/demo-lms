@@ -825,3 +825,100 @@ export async function refreshBankQuestionStats(): Promise<{ success: true; updat
   revalidatePath('/admin/question-bank')
   return { success: true, updated: all.length }
 }
+
+// ─── صيانة النطاقات اليتيمة ────────────────────────────────────────────────────
+
+export async function cleanupOrphanScopes(): Promise<{ success: true } | { error: string }> {
+  if (!(await hasResourceAccess('question-bank', 'manage')))
+    return { error: 'غير مسموح' }
+  try {
+    await prisma.$executeRaw`SELECT public.qb_cleanup_orphan_scopes()`
+    revalidatePath('/admin/question-bank')
+    return { success: true }
+  } catch {
+    return { error: 'تعذّر تنظيف الروابط' }
+  }
+}
+
+// ─── الإدخال المجمّع ──────────────────────────────────────────────────────────
+
+export async function bulkCreateBankQuestions(input: {
+  questions: {
+    text: string
+    type: 'mcq' | 'essay'
+    options: string[]
+    correctAnswer: string | null
+    points: number
+    difficulty: Difficulty
+  }[]
+  scopes: { scopeType: ScopeType; scopeId: string }[]
+  topics: string[]
+}): Promise<{ success?: true; created?: number; failed?: number; error?: string }> {
+  if (!(await hasResourceAccess('question-bank', 'manage')))
+    return { error: 'غير مسموح. لازم تكون أدمن.' }
+
+  if (!input.questions.length || input.questions.length > 200)
+    return { error: 'عدد الأسئلة لازم يكون بين 1 و200' }
+
+  const session = await auth()
+  const userId = session?.user?.id ?? null
+
+  // Expand scopes once + get-or-create topics once before loop
+  const expanded = await autoExpandScopes(input.scopes)
+  const topicIds: string[] = []
+  for (const raw of input.topics) {
+    const title = raw.trim()
+    if (!title) continue
+    const topic = await prisma.question_bank_topics.upsert({
+      where: { title },
+      create: { title },
+      update: {},
+      select: { id: true },
+    })
+    topicIds.push(topic.id)
+  }
+
+  let created = 0
+  let failed  = 0
+
+  for (const q of input.questions) {
+    try {
+      await prisma.$transaction(async tx => {
+        const row = await tx.question_bank_questions.create({
+          data: {
+            question_text:  q.text,
+            question_type:  q.type,
+            content_mode:   'text',
+            options:        q.type === 'mcq' ? q.options : [],
+            correct_answer: q.type === 'mcq' ? ((q.correctAnswer ?? '').trim() || null) : null,
+            points:         q.points,
+            difficulty:     q.difficulty,
+            created_by:     userId,
+          },
+          select: { id: true },
+        })
+
+        if (topicIds.length) {
+          await tx.question_bank_question_topics.createMany({
+            data: topicIds.map(tid => ({ question_id: row.id, topic_id: tid })),
+            skipDuplicates: true,
+          })
+        }
+
+        if (expanded.length) {
+          await tx.question_bank_scopes.createMany({
+            data: expanded.map(s => ({ question_id: row.id, scope_type: s.scopeType, scope_id: s.scopeId })),
+            skipDuplicates: true,
+          })
+        }
+      })
+      created++
+    } catch {
+      failed++
+    }
+  }
+
+  logActivity({ action: 'create', resource: 'question-bank', targetId: 'bulk', targetLabel: `استيراد مجمّع: ${created} سؤال` }).catch(() => {})
+  revalidatePath('/admin/question-bank')
+  return { success: true, created, failed }
+}

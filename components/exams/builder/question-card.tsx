@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, GripVertical, ImageIcon, Plus, Trash2, Type, X } from 'lucide-react'
+import { Check, GripVertical, ImageIcon, Loader2, Plus, RefreshCw, Trash2, Type, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ImageUploadField } from '@/components/ui/image-upload-field'
 import { cn } from '@/lib/utils'
@@ -16,12 +16,14 @@ interface QuestionCardProps {
   index: number
   onChange: (q: Question) => void
   onRemove: () => void
+  onReplace?: () => void
+  replacing?: boolean
 }
 
 const fieldCls =
   'w-full rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-card'
 
-export function QuestionCard({ question, index, onChange, onRemove }: QuestionCardProps) {
+export function QuestionCard({ question, index, onChange, onRemove, onReplace, replacing }: QuestionCardProps) {
   const meta = questionTypeMeta[question.type]
   const Icon = meta.icon
 
@@ -43,15 +45,30 @@ export function QuestionCard({ question, index, onChange, onRemove }: QuestionCa
             {meta.label}
           </span>
         </div>
-        <Button
-          type="button"
-          variant="destructive"
-          size="icon-sm"
-          onClick={onRemove}
-          aria-label="حذف السؤال"
-        >
-          <Trash2 className="size-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {onReplace && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-sm"
+              onClick={onReplace}
+              disabled={replacing}
+              aria-label="استبدال من البنك"
+              title="استبدال من البنك"
+            >
+              {replacing ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon-sm"
+            onClick={onRemove}
+            aria-label="حذف السؤال"
+          >
+            <Trash2 className="size-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Question prompt: text or image */}

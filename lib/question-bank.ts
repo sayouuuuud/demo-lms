@@ -102,10 +102,115 @@ import type { Question } from '@/lib/exam-builder'
  * يحوّل `BankQuestion` إلى `Question` جاهز للـ exam-builder.
  * لا يعيد استخدام `bq.id` كـ `Question.id` — id جديد لكل صف.
  */
+// ─── محلّل الإدخال المجمّع ─────────────────────────────────────────────────────
+
+export type ParsedBulkQuestion = {
+  text: string
+  type: 'mcq' | 'essay'
+  options: string[]
+  correctAnswer: string | null
+  points: number
+  difficulty: Difficulty
+  errors: string[]
+}
+
+export function parseBulkQuestions(raw: string): ParsedBulkQuestion[] {
+  const blocks = raw.split(/\n\s*\n+/).filter(b => b.trim())
+  const results: ParsedBulkQuestion[] = []
+
+  for (const block of blocks) {
+    const lines = block.split('\n').map(l => l.trimEnd())
+    if (!lines.length) continue
+
+    let text    = ''
+    let type: 'mcq' | 'essay' | null = null
+    let points  = 1
+    let difficulty: Difficulty = 'medium'
+    const options: string[]    = []
+    let correctAnswer: string | null = null
+    const errors: string[]           = []
+    let correctCount = 0
+
+    // First line: question text + inline keys
+    let firstLine = lines[0]
+    // Strip question prefix
+    firstLine = firstLine.replace(/^(س[:.]|سؤال:)\s*/, '')
+
+    // Extract inline keys separated by |
+    const parts = firstLine.split('|')
+    let questionPart = parts[0].trim()
+
+    for (const part of parts.slice(1)) {
+      const p = part.trim()
+      const diffMatch = p.match(/^صعوبة:\s*(سهل|متوسط|صعب)$/)
+      if (diffMatch) {
+        difficulty = diffMatch[1] === 'سهل' ? 'easy' : diffMatch[1] === 'صعب' ? 'hard' : 'medium'
+        continue
+      }
+      const pointsMatch = p.match(/^درجة:\s*(\d+)$/)
+      if (pointsMatch) {
+        points = Math.max(1, parseInt(pointsMatch[1], 10))
+        continue
+      }
+    }
+
+    text = questionPart
+
+    // Rest of lines
+    for (const line of lines.slice(1)) {
+      const trimmed = line.trim()
+      if (!trimmed) continue
+
+      // Essay marker
+      if (/^نوع:\s*مقالي$/.test(trimmed)) { type = 'essay'; continue }
+
+      // Difficulty inline
+      const diffM = trimmed.match(/^صعوبة:\s*(سهل|متوسط|صعب)$/)
+      if (diffM) {
+        difficulty = diffM[1] === 'سهل' ? 'easy' : diffM[1] === 'صعب' ? 'hard' : 'medium'
+        continue
+      }
+
+      // Points inline
+      const ptM = trimmed.match(/^درجة:\s*(\d+)$/)
+      if (ptM) { points = Math.max(1, parseInt(ptM[1], 10)); continue }
+
+      // Option: starts with - or *
+      if (/^[-*]/.test(trimmed)) {
+        const isCorrect = trimmed.startsWith('*')
+        const optText   = trimmed.replace(/^[-*]\s*/, '').trim()
+        if (!optText) continue
+        options.push(optText)
+        if (isCorrect) {
+          correctCount++
+          if (correctCount === 1) correctAnswer = optText
+          else if (correctCount > 1) errors.push('أكتر من إجابة صحيحة — اتاخد الأول')
+        }
+        continue
+      }
+    }
+
+    // Infer type
+    if (type === null) {
+      type = options.length > 0 ? 'mcq' : 'essay'
+    }
+
+    if (type === 'mcq') {
+      if (options.length < 2) errors.push('لازم خيارين على الأقل')
+      if (!correctAnswer)     errors.push('مفيش إجابة صحيحة محددة')
+    }
+
+    results.push({ text, type, options: type === 'essay' ? [] : options, correctAnswer, points, difficulty, errors })
+  }
+
+  return results
+}
+
 export function bankQuestionToBuilderQuestion(bq: BankQuestion): Question {
   const q = createQuestion(bq.type)
 
-  q.bankQuestionId = bq.id
+  q.bankQuestionId  = bq.id
+  q.bankDifficulty  = bq.difficulty
   q.contentMode    = bq.contentMode
   q.text           = bq.text
   q.imageUrl       = bq.imageUrl
