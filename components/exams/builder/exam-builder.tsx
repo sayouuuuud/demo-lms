@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, ListChecks, Loader2, Plus, Save, Send } from 'lucide-react'
+import { ArrowRight, Library, ListChecks, Loader2, Plus, Save, Send, Wand2 } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -16,13 +16,26 @@ import {
   type QuestionType,
 } from '@/lib/exam-builder'
 import { saveExam, type StageWithBranches } from '@/app/admin/exams/actions'
+import { pickReplacementQuestion } from '@/app/admin/question-bank/actions'
+import { bankQuestionToBuilderQuestion } from '@/lib/question-bank'
 import { QuestionCard } from './question-card'
 import { QuestionTypePicker } from './question-type-picker'
+import { BankPickerModal } from './bank-picker-modal'
+import { AutoGenerateModal } from './auto-generate-modal'
+import type { TreeStage } from '@/app/admin/question-bank/actions'
 
 const fieldCls =
   'w-full rounded-xl border border-border bg-secondary/50 px-4 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:bg-card'
 
-export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
+export function ExamBuilder({
+  stages = [],
+  tree = [],
+  topics = [],
+}: {
+  stages?: StageWithBranches[]
+  tree?: TreeStage[]
+  topics?: { id: string; title: string }[]
+}) {
   const [meta, setMeta] = useState<ExamMeta>({
     title: '',
     course: '',
@@ -35,8 +48,16 @@ export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
   })
   const [questions, setQuestions] = useState<Question[]>([])
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [bankOpen, setBankOpen]     = useState(false)
+  const [genOpen, setGenOpen]       = useState(false)
+  const [replacing, setReplacing]   = useState<string | null>(null)
+  const [saving, setSaving]         = useState(false)
   const router = useRouter()
+
+  const bankIds = useMemo(
+    () => questions.map(q => q.bankQuestionId).filter(Boolean) as string[],
+    [questions],
+  )
 
   const updateMeta = (patch: Partial<ExamMeta>) => setMeta((m) => ({ ...m, ...patch }))
 
@@ -55,6 +76,30 @@ export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
 
   const removeQuestion = (id: string) =>
     setQuestions((qs) => qs.filter((item) => item.id !== id))
+
+  const addFromBank = (picked: Question[]) =>
+    setQuestions(qs => [...qs, ...picked])
+
+  const handleReplace = async (q: Question) => {
+    setReplacing(q.id)
+    try {
+      const res = await pickReplacementQuestion({
+        difficulty: q.bankDifficulty ?? 'medium',
+        type: q.type,
+        scope: null,
+        excludeIds: bankIds,
+      })
+      if (!res.question) {
+        toast.error(res.error ?? 'مفيش بديل متاح')
+        return
+      }
+      const next = bankQuestionToBuilderQuestion(res.question)
+      setQuestions(qs => qs.map(item => item.id === q.id ? { ...next, id: item.id } : item))
+      toast.success('تم استبدال السؤال')
+    } finally {
+      setReplacing(null)
+    }
+  }
 
   const validate = () => {
     if (!meta.title.trim()) {
@@ -104,6 +149,7 @@ export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
           options: q.options,
           correctOptionId: q.correctOptionId,
           modelAnswer: q.modelAnswer,
+          bankQuestionId: q.bankQuestionId ?? null,
         })),
         publish,
       })
@@ -264,17 +310,27 @@ export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
 
         {/* Questions */}
         <section className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-base font-bold text-foreground">
               الأسئلة
               <span className="mr-2 text-sm font-normal text-muted-foreground">
                 ({questions.length})
               </span>
             </h3>
-            <Button type="button" onClick={() => setPickerOpen(true)}>
-              <Plus className="size-4" />
-              إضافة سؤال
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="outline" onClick={() => setBankOpen(true)} disabled={!tree.length}>
+                <Library className="size-4" />
+                من بنك الأسئلة
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setGenOpen(true)} disabled={!tree.length}>
+                <Wand2 className="size-4" />
+                توليد تلقائي
+              </Button>
+              <Button type="button" onClick={() => setPickerOpen(true)}>
+                <Plus className="size-4" />
+                إضافة سؤال
+              </Button>
+            </div>
           </div>
 
           {questions.length === 0 ? (
@@ -302,6 +358,8 @@ export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
                   index={i}
                   onChange={updateQuestion}
                   onRemove={() => removeQuestion(q.id)}
+                  onReplace={q.bankQuestionId ? () => handleReplace(q) : undefined}
+                  replacing={replacing === q.id}
                 />
               ))}
             </div>
@@ -376,6 +434,26 @@ export function ExamBuilder({ stages = [] }: { stages?: StageWithBranches[] }) {
       >
         <QuestionTypePicker onPick={addQuestion} />
       </Modal>
+
+      {/* Bank picker modal */}
+      <BankPickerModal
+        open={bankOpen}
+        onClose={() => setBankOpen(false)}
+        onPick={addFromBank}
+        excludeIds={bankIds}
+        tree={tree}
+        topics={topics}
+      />
+
+      {/* Auto generate modal */}
+      <AutoGenerateModal
+        open={genOpen}
+        onClose={() => setGenOpen(false)}
+        onGenerate={addFromBank}
+        excludeIds={bankIds}
+        tree={tree}
+        topics={topics}
+      />
     </div>
   )
 }

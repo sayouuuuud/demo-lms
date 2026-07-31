@@ -29,6 +29,10 @@ export type Question = {
   allowedTypes: string[]
   maxFileSizeMb: number
   required: boolean
+  /** id السؤال في بنك الأسئلة لو السؤال مسحوب من البنك */
+  bankQuestionId?: string | null
+  /** صعوبة السؤال في البنك (للاستبدال بنفس المستوى) */
+  bankDifficulty?: 'easy' | 'medium' | 'hard' | null
 }
 
 export type ExamMeta = {
@@ -96,6 +100,8 @@ export function createQuestion(type: QuestionType): Question {
     allowedTypes: ['image'],
     maxFileSizeMb: 10,
     required: true,
+    bankQuestionId: null,
+    bankDifficulty: null,
   }
 
   if (type === 'mcq') {

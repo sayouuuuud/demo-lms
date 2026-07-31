@@ -45,6 +45,7 @@ export type SaveExamPayload = {
     options: { id: string; text: string }[]
     correctOptionId: string | null
     modelAnswer: string
+    bankQuestionId?: string | null
   }>
   publish: boolean
 }
@@ -97,10 +98,20 @@ export async function saveExam(payload: SaveExamPayload) {
           model_answer: q.type === 'essay' ? q.modelAnswer.trim() || null : null,
           points: q.points || 1,
           order_index: index,
+          bank_question_id: q.bankQuestionId || null,
         }
       })
 
       await prisma.exam_questions.createMany({ data: rows })
+
+      // Fire-and-forget: increment usage_count for bank questions
+      const usedBankIds = questions.map(q => q.bankQuestionId).filter(Boolean) as string[]
+      if (usedBankIds.length > 0) {
+        prisma.question_bank_questions.updateMany({
+          where: { id: { in: usedBankIds } },
+          data: { usage_count: { increment: 1 }, last_used_at: new Date() },
+        }).catch(() => {})
+      }
     }
 
     logActivity({ action: 'create', resource: 'exams', targetId: exam.code, targetLabel: `اختبار: ${meta.title.trim()}` }).catch(() => {})

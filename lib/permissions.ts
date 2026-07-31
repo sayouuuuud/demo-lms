@@ -9,6 +9,7 @@ export type ResourceKey =
   | 'categories'
   | 'courses'
   | 'exams'
+  | 'question-bank'
   | 'assignments'
   | 'calendar'
   | 'payments'
@@ -27,6 +28,7 @@ export const RESOURCES: { key: ResourceKey; label: string; href: string }[] = [
   { key: 'categories', label: 'التصنيفات', href: '/admin/categories' },
   { key: 'courses', label: 'المحاضرات', href: '/admin/courses' },
   { key: 'exams', label: 'الاختبارات', href: '/admin/exams' },
+  { key: 'question-bank', label: 'بنك الأسئلة', href: '/admin/question-bank' },
   { key: 'assignments', label: 'الواجبات', href: '/admin/assignments' },
   { key: 'calendar', label: 'التقويم', href: '/admin/calendar' },
   { key: 'payments', label: 'الطلبات', href: '/admin/payments' },
