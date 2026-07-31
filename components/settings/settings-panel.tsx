@@ -250,6 +250,7 @@ export function SettingsPanel({
     enforceLimit: settings.security?.devices?.enforceLimit !== false,
     enforceConcurrency: settings.security?.devices?.enforceConcurrency !== false,
     autoBlock: settings.security?.devices?.autoBlock !== false,
+    notifyWhatsApp: settings.security?.devices?.notifyWhatsApp === true,
     maxDevices: Number(settings.security?.devices?.maxDevices) || 3,
     blockThreshold: Number(settings.security?.devices?.blockThreshold) || 40,
     concurrencyWindowSeconds: Number(settings.security?.devices?.concurrencyWindowSeconds) || 120,
@@ -596,6 +597,14 @@ export function SettingsPanel({
                   onChange={(v) => setDeviceSecurity((s) => ({ ...s, autoBlock: v }))}
                   label="الحظر التلقائي"
                   description="يحظر الطالب تلقائيًا لو السكور نزل تحت الحد المحدد."
+                />
+              </div>
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={deviceSecurity.notifyWhatsApp}
+                  onChange={(v) => setDeviceSecurity((s) => ({ ...s, notifyWhatsApp: v }))}
+                  label="إشعار واتساب للأحداث الخطيرة"
+                  description="يبعت رسالة واتساب للطالب عند رصد دخول متزامن أو تغيير دولة أو انتقال مريب. يتطلب إعداد Evolution API في متغيرات البيئة."
                 />
               </div>
 

@@ -380,3 +380,47 @@ export async function touchDeviceSession(): Promise<void> {
     logError('touchDeviceSession', e)
   }
 }
+
+/**
+ * فحص خفيف للأكشنز الحسّاسة: بيرفض لو الطالب محظور أو جلسته ملغاة.
+ * ممنوع يعمل استدعاءات خارجية ولا يكتب كوكيز — دالة قراءة بس.
+ */
+export async function assertDeviceAllowed(): Promise<{ ok: true } | { ok: false; message: string }> {
+  try {
+    const cfg = await getDeviceSecurityConfig()
+    if (!cfg.enabled) return { ok: true }
+
+    const session = await auth()
+    const user = session?.user as any
+    if (!user?.id || user.role !== 'student') return { ok: true }
+
+    const student = await prisma.students.findFirst({
+      where: { user_id: user.id },
+      select: { id: true },
+    })
+    if (!student) return { ok: true }
+
+    const state = await prisma.student_security_state.findUnique({
+      where: { student_id: student.id },
+      select: { blocked: true },
+    })
+    if (state?.blocked) {
+      return { ok: false, message: 'حسابك موقوف لأسباب أمنية. تواصل مع الدعم.' }
+    }
+
+    const sessionKey = await readSessionKey()
+    if (!sessionKey) return { ok: true }   // fail-open: الجلسة لسه ماتسجّلتش
+
+    const row = await prisma.student_device_sessions.findUnique({
+      where: { session_key: sessionKey },
+      select: { revoked_at: true, student_id: true },
+    })
+    if (row && row.student_id === student.id && row.revoked_at) {
+      return { ok: false, message: 'تم إنهاء هذه الجلسة. سجّل دخول من جديد.' }
+    }
+
+    return { ok: true }
+  } catch {
+    return { ok: true }   // fail-open مقصود
+  }
+}

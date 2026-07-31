@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/auth'
+import { assertDeviceAllowed } from '@/lib/device-guard'
 
 export async function markLessonComplete(lessonId: string, courseSlug?: string) {
   const session = await auth()
@@ -151,6 +152,9 @@ export async function submitAssignmentProgress(
   assignmentCode: string,
   payload: { status: 'تم التسليم' | 'مصحّح'; score?: number; courseSlug?: string },
 ) {
+  const guard = await assertDeviceAllowed()
+  if (!guard.ok) return { error: guard.message }
+
   const session = await auth()
   const user = session?.user
   if (!user?.id) return { error: 'يجب تسجيل الدخول.' }

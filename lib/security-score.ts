@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import { logError } from '@/lib/logger'
 import { createNotification } from '@/lib/notify'
 import { getDeviceSecurityConfig } from '@/lib/device-settings'
+import { sendWhatsAppText } from '@/lib/whatsapp'
+import { getGlobalSettings } from '@/lib/settings-data'
 
 export type SecurityEventType =
   | 'newDevice' | 'deviceLimit' | 'concurrent' | 'cityChange' | 'countryChange'
@@ -104,6 +106,30 @@ export async function recordSecurityEvent(input: {
       actor_id: input.actorId ?? null,
     },
   }).catch((e) => logError('recordSecurityEvent.event', e))
+
+  // إشعار واتساب للأحداث الخطيرة (fire-and-forget)
+  if (SEVERITY[input.type] === 'critical') {
+    ;(async () => {
+      try {
+        const globalSettings = await getGlobalSettings()
+        if ((globalSettings.security as any)?.devices?.notifyWhatsApp !== true) return
+        const student = await prisma.students.findUnique({
+          where: { id: input.studentId },
+          select: { phone: true, name: true },
+        })
+        if (!student?.phone) return
+        const label = EVENT_LABELS[input.type] ?? input.type
+        await sendWhatsAppText({
+          phone: student.phone,
+          text: `تنبيه أمني: تم رصد محاولة دخول مريبة لحسابك (${label}). لو مش إنت، غيّر كلمة السر فورًا وكلّم الدعم.`,
+          template: 'custom',
+          studentId: input.studentId,
+        })
+      } catch {
+        // fire-and-forget — ما نوقفش التقييم
+      }
+    })().catch(() => {})
+  }
 
   if (shouldBlock) {
     await applyBlock(input.studentId, `السكور الأمني وصل ${nextScore}`)
