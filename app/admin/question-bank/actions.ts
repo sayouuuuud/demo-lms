@@ -84,7 +84,10 @@ export async function getContentTree(): Promise<TreeStage[]> {
 
 type ScopeInput = { scopeType: ScopeType; scopeId: string }
 
-async function autoExpandScopes(inputs: ScopeInput[]): Promise<ScopeInput[]> {
+/** أي client — الـ prisma العام أو الـ tx جوه transaction */
+type DbClient = Pick<typeof prisma, 'lectures' | 'monthly_courses' | 'branches'>
+
+async function autoExpandScopes(inputs: ScopeInput[], db: DbClient = prisma): Promise<ScopeInput[]> {
   const seen = new Set<string>()
   const result: ScopeInput[] = []
 
@@ -102,7 +105,7 @@ async function autoExpandScopes(inputs: ScopeInput[]): Promise<ScopeInput[]> {
 
   for (const inp of inputs) {
     if (inp.scopeType === 'lecture') {
-      const lec = await prisma.lectures.findUnique({
+      const lec = await db.lectures.findUnique({
         where: { id: inp.scopeId },
         select: { branch_id: true, monthly_course_id: true, branches: { select: { stage_id: true } } },
       })
@@ -111,7 +114,7 @@ async function autoExpandScopes(inputs: ScopeInput[]): Promise<ScopeInput[]> {
       add('branch', lec.branch_id)
       if (lec.branches?.stage_id) add('stage', lec.branches.stage_id)
     } else if (inp.scopeType === 'monthly_course') {
-      const course = await prisma.monthly_courses.findUnique({
+      const course = await db.monthly_courses.findUnique({
         where: { id: inp.scopeId },
         select: { branch_id: true, branches: { select: { stage_id: true } } },
       })
@@ -119,7 +122,7 @@ async function autoExpandScopes(inputs: ScopeInput[]): Promise<ScopeInput[]> {
       add('branch', course.branch_id)
       if (course.branches?.stage_id) add('stage', course.branches.stage_id)
     } else if (inp.scopeType === 'branch') {
-      const branch = await prisma.branches.findUnique({
+      const branch = await db.branches.findUnique({
         where: { id: inp.scopeId },
         select: { stage_id: true },
       })
@@ -241,7 +244,7 @@ export async function saveBankQuestion(input: SaveBankQuestionInput): Promise<{ 
   if (input.type === 'mcq') {
     const cleanedOpts = input.options.map(o => o.trim()).filter(Boolean)
     if (cleanedOpts.length < 2) return { error: 'لازم خيارين على الأقل' }
-    if (!input.correctAnswer || !cleanedOpts.includes(input.correctAnswer)) return { error: 'حدّد الإجابة الصحيحة' }
+    if (!cleanedOpts.includes((input.correctAnswer ?? '').trim())) return { error: 'حدّد الإجابة الصحيحة' }
   }
 
   if (input.points < 1 || input.points > 100) return { error: 'الدرجة لازم بين 1 و100' }
@@ -265,7 +268,7 @@ export async function saveBankQuestion(input: SaveBankQuestionInput): Promise<{ 
         content_mode:   input.contentMode,
         image_url:      isText ? null : (input.imageUrl || null),
         options:        isMcq  ? cleanedOpts : [],
-        correct_answer: isMcq  ? (input.correctAnswer ?? null) : null,
+        correct_answer: isMcq  ? ((input.correctAnswer ?? '').trim() || null) : null,
         model_answer:   isEssay ? (input.modelAnswer || null) : null,
         points:         input.points,
         difficulty:     input.difficulty,
@@ -310,7 +313,7 @@ export async function saveBankQuestion(input: SaveBankQuestionInput): Promise<{ 
       }
 
       // نطاقات
-      const expanded = await autoExpandScopes(input.scopes)
+      const expanded = await autoExpandScopes(input.scopes, tx)
       await tx.question_bank_scopes.deleteMany({ where: { question_id: q.id } })
       if (expanded.length) {
         await tx.question_bank_scopes.createMany({
@@ -370,11 +373,16 @@ export async function deleteBankQuestions(ids: string[]): Promise<{ success?: tr
   }
 
   revalidatePath('/admin/question-bank')
+
+  const parts: string[] = []
+  if (deleteIds.length) parts.push(`اتحذف ${deleteIds.length} سؤال.`)
+  if (usedIds.length)   parts.push(`${usedIds.length} سؤال مستخدم في اختبارات فاتّأرشف بدل الحذف.`)
+
   return {
     success:  true,
     deleted:  deleteIds.length,
     archived: usedIds.length,
-    message:  `اتحذف ${deleteIds.length} سؤال. ${usedIds.length > 0 ? `${usedIds.length} سؤال مستخدم في اختبارات فاتّأرشف بدل الحذف.` : ''}`.trim(),
+    message:  parts.join(' '),
   }
 }
 
@@ -459,6 +467,26 @@ export async function getBankQuestions(filters: BankListFilters = {}): Promise<{
   const items = (rows as unknown as QBRow[]).map(r => toBankQuestion(r, labelMap))
 
   return { items, total, page, perPage }
+}
+
+/**
+ * يجيب أسئلة محددة بالـ ids (private).
+ * لازم يكون بديل استخدام getBankQuestions مع perPage ثابت — ده كان بيسقّط
+ * أسئلة برّه أول صفحة. هنا مفيش pagination خالص، بنجيب الـ ids المطلوبة بالظبط.
+ */
+async function fetchBankQuestionsByIds(ids: string[]): Promise<Map<string, BankQuestion>> {
+  if (!ids.length) return new Map()
+
+  const rows = await prisma.question_bank_questions.findMany({
+    where: { id: { in: ids } },
+    include: {
+      scopes: { select: { scope_type: true, scope_id: true } },
+      topics: { include: { topic: { select: { id: true, title: true } } } },
+    },
+  })
+
+  const labelMap = await buildLabelMap(rows as unknown as QBRow[])
+  return new Map((rows as unknown as QBRow[]).map(r => [r.id, toBankQuestion(r, labelMap)]))
 }
 
 export async function getBankTopics(): Promise<{ id: string; title: string; count: number }[]> {
@@ -580,15 +608,13 @@ export async function generateExamQuestions(input: GenerateInput): Promise<{
 
   if (!allIds.length) return { questions: [], shortage }
 
-  const { items } = await getBankQuestions({ page: 1, perPage: 200 })
-  const byId = new Map(items.map(q => [q.id, q]))
+  const byId = await fetchBankQuestionsByIds(allIds)
 
   const ordered: BankQuestion[] = []
   for (const diff of difficulties) {
-    const ids = allIds.filter(id => byId.get(id)?.difficulty === diff)
-    for (const id of ids) {
+    for (const id of allIds) {
       const q = byId.get(id)
-      if (q) ordered.push(q)
+      if (q && q.difficulty === diff) ordered.push(q)
     }
   }
 
@@ -630,10 +656,8 @@ export async function pickReplacementQuestion(input: {
 
   if (!rows.length) return { question: null, error: 'مفيش سؤال بديل بنفس المواصفات في البنك' }
 
-  const { items } = await getBankQuestions({ page: 1, perPage: 1 })
-  const all = await getBankQuestions({ page: 1, perPage: 200 })
-  const q = all.items.find(q => q.id === rows[0].id) ?? null
-  return { question: q }
+  const byId = await fetchBankQuestionsByIds([rows[0].id])
+  return { question: byId.get(rows[0].id) ?? null }
 }
 
 // ─── الاستيراد من اختبار ──────────────────────────────────────────────────────
