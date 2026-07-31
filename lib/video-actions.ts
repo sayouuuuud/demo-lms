@@ -185,12 +185,13 @@ export async function getStreamingSettings(): Promise<{
 
   const r2Configured = isR2Configured()
   return {
-    enabled:             (data?.is_streaming_enabled ?? false) && r2Configured,
+    // الافتراضي: التشفير مفعّل (لسه متوقف على تهيئة R2) والأرقام زي ما هي
+    enabled:             (data?.is_streaming_enabled ?? true) && r2Configured,
     r2Configured,
-    workerCpuThreads:    data?.worker_cpu_threads  ?? 2,
-    workerRamMb:         data?.worker_ram_mb        ?? 2048,
+    workerCpuThreads:    data?.worker_cpu_threads   ?? 2,
+    workerRamMb:         data?.worker_ram_mb        ?? 2560,
     workerConcurrency:   data?.worker_concurrency   ?? 1,
-    segmentDurationSec:  data?.segment_duration_sec ?? 4,
+    segmentDurationSec:  data?.segment_duration_sec ?? 10,
   }
 }
 

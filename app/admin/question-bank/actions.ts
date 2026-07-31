@@ -894,17 +894,18 @@ export async function bulkCreateBankQuestions(input: {
   }
 
   let created = 0
-  let failed  = 0
+  let failed  = invalidCount
 
-  for (const q of input.questions) {
+  for (const q of questions) {
     try {
       await prisma.$transaction(async tx => {
+        const cleanedOpts = q.type === 'mcq' ? q.options.map(o => o.trim()).filter(Boolean) : []
         const row = await tx.question_bank_questions.create({
           data: {
-            question_text:  q.text,
+            question_text:  q.text.trim(),
             question_type:  q.type,
             content_mode:   'text',
-            options:        q.type === 'mcq' ? q.options : [],
+            options:        cleanedOpts,
             correct_answer: q.type === 'mcq' ? ((q.correctAnswer ?? '').trim() || null) : null,
             points:         q.points,
             difficulty:     q.difficulty,
