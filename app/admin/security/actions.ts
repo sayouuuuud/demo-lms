@@ -543,7 +543,7 @@ export async function handleRemovalRequest(
         },
       })
       createNotification({
-        type: 'system',
+        type: 'نظام',
         title: 'تم رفض طلب إزالة الجهاز',
         description: note ? `السبب: ${note}` : 'راجع الدعم لمزيد من التفاصيل.',
         studentId: request.student_id,
@@ -555,7 +555,7 @@ export async function handleRemovalRequest(
       resource: 'security',
       targetId: requestId,
       targetLabel: action === 'approve' ? 'موافقة على طلب إزالة جهاز' : 'رفض طلب إزالة جهاز',
-      details: { note },
+      details: note || undefined,
     }).catch(() => {})
     revalidatePath('/admin/security')
     return { success: true }

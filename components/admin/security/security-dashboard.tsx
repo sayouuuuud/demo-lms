@@ -27,16 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { Modal } from '@/components/ui/modal'
 import { Textarea } from '@/components/ui/textarea'
 import {
   adminRemoveDevice,
@@ -264,32 +255,26 @@ function ConfirmDialog({
 }) {
   const [note, setNote] = useState('')
   return (
-    <AlertDialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        {needsNote && (
-          <Textarea
-            placeholder={notePlaceholder ?? 'ملاحظة (اختياري)'}
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="mt-2"
-            rows={3}
-          />
-        )}
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>إلغاء</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => { onConfirm(note); setNote('') }}
-            className={destructive ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
-          >
-            تأكيد
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <Modal open={open} onClose={onClose} title={title} description={description} className="max-w-sm">
+      {needsNote && (
+        <Textarea
+          placeholder={notePlaceholder ?? 'ملاحظة (اختياري)'}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          className="mb-4"
+          rows={3}
+        />
+      )}
+      <div className="flex justify-start gap-2">
+        <Button
+          onClick={() => { onConfirm(note); setNote('') }}
+          variant={destructive ? 'destructive' : 'default'}
+        >
+          تأكيد
+        </Button>
+        <Button variant="outline" onClick={onClose}>إلغاء</Button>
+      </div>
+    </Modal>
   )
 }
 
