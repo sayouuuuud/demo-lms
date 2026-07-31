@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { getCurrentStudent } from '@/lib/auth-guard'
 import { getStudentTargeting } from './notifications'
 import type { AssignmentStatus } from '@/lib/student-types'
+import { normalizeStatus } from '@/lib/assignments-shared'
 
 export async function getStudentExams() {
   const student = await getCurrentStudent()
@@ -76,22 +77,39 @@ export async function getStudentAssignments() {
   const student = await getCurrentStudent()
   if (!student) return []
 
+  // الشجرة القديمة: enrollments → courses.id (legacy)
   const enrollments = await prisma.enrollments.findMany({
     where: { student_id: student.id },
-    select: { course_id: true }
+    select: { course_id: true },
   })
+  const legacyCourseIds = enrollments.map((e) => e.course_id).filter(Boolean) as string[]
 
-  if (enrollments.length === 0) return []
-  const lectureIds = enrollments.map((e) => e.course_id).filter(Boolean) as string[]
+  // الشجرة الجديدة: الطالب → stage → branches → lectures
+  const { branchIds } = await getStudentTargeting(student)
+  const lectures = await prisma.lectures.findMany({
+    where:
+      branchIds.length > 0
+        ? { branch_id: { in: branchIds } }
+        : { id: '00000000-0000-0000-0000-000000000000' },
+    select: { id: true },
+  })
+  const lectureIds = lectures.map((l) => l.id)
+
+  if (lectureIds.length === 0 && legacyCourseIds.length === 0) return []
+
+  const orClauses = [
+    ...(lectureIds.length > 0 ? [{ lecture_id: { in: lectureIds } }] : []),
+    ...(legacyCourseIds.length > 0 ? [{ course_id: { in: legacyCourseIds } }] : []),
+  ]
 
   const rows = await prisma.assignments.findMany({
-    where: { lecture_id: { in: lectureIds } },
+    where: { OR: orClauses },
     select: {
       id: true, code: true, title: true, type: true, due_date: true, points: true,
       description: true, instructions: true, lecture_id: true,
       lectures: { select: { title: true } }
     },
-    orderBy: { due_date: 'asc' }
+    orderBy: { due_date: 'asc' },
   })
 
   if (rows.length === 0) return []
@@ -117,15 +135,7 @@ export async function getStudentAssignments() {
         })
       : '—'
 
-    const rawStatus = sub?.status
-    const status: AssignmentStatus =
-      rawStatus === 'مصحّح' || rawStatus === 'graded' || rawStatus === 'مصحح'
-        ? 'مصحّح'
-        : rawStatus === 'تم التسليم' || rawStatus === 'submitted'
-          ? 'تم التسليم'
-          : rawStatus === 'قيد التنفيذ' || rawStatus === 'pending'
-            ? 'قيد التنفيذ'
-            : 'لم يبدأ'
+    const status: AssignmentStatus = normalizeStatus(sub?.status)
 
     return {
       id: a.code ?? a.id,
