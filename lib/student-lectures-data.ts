@@ -2,6 +2,7 @@ import 'server-only'
 import { prisma } from '@/lib/prisma'
 import { createPlaybackToken } from '@/lib/video-token'
 import { auth } from '@/auth'
+import { assertDeviceAllowed } from '@/lib/device-guard'
 import type {
   Assignment,
   AssignmentStatus,
@@ -509,6 +510,9 @@ export async function getPurchasedLesson(
 ): Promise<
   { course: CourseDetail; lesson: Lesson; index: number; all: Lesson[] } | undefined
 > {
+  const guard = await assertDeviceAllowed()
+  if (!guard.ok) return undefined
+
   const session = await auth()
   const user = session?.user
   if (!user || !user.id) return undefined

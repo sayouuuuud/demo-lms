@@ -3,6 +3,7 @@ import { logError } from '@/lib/logger'
 
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/auth'
+import { touchDeviceSession } from '@/lib/device-guard'
 
 export async function pingPresence(): Promise<{ ok: boolean }> {
   try {
@@ -14,6 +15,8 @@ export async function pingPresence(): Promise<{ ok: boolean }> {
       where: { user_id: user.id },
       data: { last_seen_at: new Date() }
     })
+
+    await touchDeviceSession()
 
     return { ok: true }
   } catch (e) {

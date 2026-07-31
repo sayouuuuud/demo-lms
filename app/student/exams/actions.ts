@@ -4,6 +4,7 @@ import { logError } from '@/lib/logger'
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { getCurrentStudent } from '@/lib/auth-guard'
+import { assertDeviceAllowed } from '@/lib/device-guard'
 
 export type StudentExamQuestion = {
   id: string
@@ -83,6 +84,9 @@ async function studentCanAccessExam(
 }
 
 export async function getStudentExam(code: string): Promise<StudentExam | null> {
+  const guard = await assertDeviceAllowed()
+  if (!guard.ok) return null
+
   const student = await getCurrentStudent()
   if (!student) return null
 
@@ -180,6 +184,9 @@ export type SubmitAnswer = {
 }
 
 export async function submitExam(code: string, answers: SubmitAnswer[]) {
+  const guard = await assertDeviceAllowed()
+  if (!guard.ok) return { success: false, error: guard.message }
+
   const student = await getCurrentStudent()
   if (!student) return { success: false, error: 'لازم تسجّل دخول.' }
 
