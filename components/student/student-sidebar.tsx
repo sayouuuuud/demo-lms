@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Bell,
   Receipt,
+  ShieldCheck,
   Settings,
   LogOut,
   ChevronLeft,
@@ -46,6 +47,7 @@ const navItems: {
   { label: 'الرسائل', icon: MessageSquare, href: '/student/messages', badge: 'messages' },
   { label: 'الإشعارات', icon: Bell, href: '/student/notifications', badge: 'notifications' },
   { label: 'الفواتير', icon: Receipt, href: '/student/billing', badge: 'billing' },
+  { label: 'أجهزتي', icon: ShieldCheck, href: '/student/devices' },
   { label: 'الإعدادات', icon: Settings, href: '/student/settings' },
 ]
 
