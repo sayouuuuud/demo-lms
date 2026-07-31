@@ -188,13 +188,16 @@ export async function updateSettings(newSettings: any) {
 export async function getPlatformSettings() {
   const data = await prisma.platform_settings.findUnique({
     where: { id: 1 },
-    select: { is_streaming_enabled: true }
+    select: { is_streaming_enabled: true, whatsapp_payment_notify: true }
   })
 
-  return data || { is_streaming_enabled: false }
+  return data || { is_streaming_enabled: false, whatsapp_payment_notify: true }
 }
 
-export async function updatePlatformSettings(input: { is_streaming_enabled: boolean }) {
+export async function updatePlatformSettings(input: {
+  is_streaming_enabled: boolean
+  whatsapp_payment_notify: boolean
+}) {
   if (!(await hasResourceAccess('settings', 'manage'))) {
     return { error: 'غير مسموح. لازم تكون أدمن.' }
   }
@@ -202,11 +205,20 @@ export async function updatePlatformSettings(input: { is_streaming_enabled: bool
   try {
     await prisma.platform_settings.upsert({
       where: { id: 1 },
-      update: { is_streaming_enabled: input.is_streaming_enabled, updated_at: new Date() },
-      create: { id: 1, is_streaming_enabled: input.is_streaming_enabled, updated_at: new Date() }
+      update: {
+        is_streaming_enabled: input.is_streaming_enabled,
+        whatsapp_payment_notify: input.whatsapp_payment_notify,
+        updated_at: new Date(),
+      },
+      create: {
+        id: 1,
+        is_streaming_enabled: input.is_streaming_enabled,
+        whatsapp_payment_notify: input.whatsapp_payment_notify,
+        updated_at: new Date(),
+      },
     })
 
-    logActivity({ action: 'update', resource: 'settings', targetLabel: `إعدادات المنصة - الاستريمنج: ${input.is_streaming_enabled}` }).catch(() => {})
+    logActivity({ action: 'update', resource: 'settings', targetLabel: `إعدادات المنصة - الاستريمنج: ${input.is_streaming_enabled} - واتساب: ${input.whatsapp_payment_notify}` }).catch(() => {})
     revalidatePath('/', 'layout')
     return { success: true }
   } catch (error: any) {
