@@ -6,9 +6,9 @@ import { logActivity } from '@/lib/audit-log'
 import { revalidatePath } from 'next/cache'
 import {
   type AssignmentType,
+  type DerivedSubmissionStatus,
   normalizeStatus,
   deriveStatus,
-  SUBMITTED_STATUSES,
 } from '@/lib/assignments-shared'
 
 // ─── Exported types ───────────────────────────────────────────────────────────
@@ -104,6 +104,9 @@ export type AssignmentDetail = {
 // ─── UUID helper ──────────────────────────────────────────────────────────────
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** الحالات المشتقّة اللي تُحسب "سلّم" */
+const SUBMITTED_DERIVED: DerivedSubmissionStatus[] = ['تم التسليم', 'مصحّح', 'متأخر']
 
 // ─── Filters ─────────────────────────────────────────────────────────────────
 
@@ -222,12 +225,13 @@ export async function getAssignmentRows(): Promise<AdminAssignmentRow[]> {
     const lectureId = row.lecture_id ?? null
     const lectureTitle = row.lectures?.title ?? '—'
 
-    const eligible = stageId
-      ? (stageCount.get(stageId) ?? 0)
-      : activeTotal
-    const safeEligible = eligible === 0 ? Math.max(row.assignment_submissions.length, 1) : eligible
+    // المستحقّون = طلاب ستيج المحاضرة، وإلا كل الطلاب النشطين.
+    // لو الستيج مفيهوش طلاب، نرجع لعدد التسليمات الفعلية عشان النسبة ما تبقاش 0/0
+    // (بدون ما نخترع مستحقّين وهميين لما يكون مفيش تسليمات خالص).
+    const baseEligible = stageId ? (stageCount.get(stageId) ?? 0) : activeTotal
+    const eligible = baseEligible > 0 ? baseEligible : row.assignment_submissions.length
 
-    // دقة المقارنة: نهاية يوم due_date
+    // due_date نوعه @db.Date — المقارنة لازم تكون على نهاية اليوم مش منتصف الليل
     const rawDue = row.due_date ? new Date(row.due_date) : null
     if (rawDue) rawDue.setHours(23, 59, 59, 999)
 
@@ -239,13 +243,11 @@ export async function getAssignmentRows(): Promise<AdminAssignmentRow[]> {
       }
     })
 
-    const submitted = subs.filter((s) =>
-      ['تم التسليم', 'مصحّح', 'متأخر'].includes(s.derived),
-    ).length
+    const submitted = subs.filter((s) => SUBMITTED_DERIVED.includes(s.derived)).length
     const graded = subs.filter((s) => s.derived === 'مصحّح').length
     const late = subs.filter((s) => s.derived === 'متأخر').length
-    const missing = Math.max(safeEligible - submitted, 0)
-    const submissionRate = Math.round((submitted / safeEligible) * 100)
+    const missing = Math.max(eligible - submitted, 0)
+    const submissionRate = eligible > 0 ? Math.round((submitted / eligible) * 100) : 0
 
     const scoredSubs = subs.filter((s) => s.score != null)
     const avgScorePercent =
@@ -265,7 +267,7 @@ export async function getAssignmentRows(): Promise<AdminAssignmentRow[]> {
       title: row.title,
       type: (row.type ?? 'تسليم') as AssignmentType,
       points: row.points ?? 0,
-      dueDate: row.due_date ? row.due_date.toISOString() : null,
+      dueDate: rawDue?.toISOString() ?? null,
       dueDateLabel,
       createdAt: row.created_at.toISOString(),
       questionsCount: row._count.assignment_questions,
@@ -277,7 +279,7 @@ export async function getAssignmentRows(): Promise<AdminAssignmentRow[]> {
       courseTitle,
       lectureId,
       lectureTitle,
-      eligible: safeEligible,
+      eligible,
       submitted,
       graded,
       late,
@@ -290,11 +292,17 @@ export async function getAssignmentRows(): Promise<AdminAssignmentRow[]> {
 
 // ─── Overview ────────────────────────────────────────────────────────────────
 
-export async function getAssignmentsOverview(): Promise<AssignmentsOverview | null> {
+/**
+ * @param prefetchedRows مرّر نتيجة getAssignmentRows() لو الصفحة جابتها أصلًا،
+ * عشان ما نعيدش نفس الاستعلام التقيل مرتين.
+ */
+export async function getAssignmentsOverview(
+  prefetchedRows?: AdminAssignmentRow[],
+): Promise<AssignmentsOverview | null> {
   if (!(await hasResourceAccess('assignments'))) return null
 
   const [rows, recentSubs] = await Promise.all([
-    getAssignmentRows(),
+    prefetchedRows ?? getAssignmentRows(),
     prisma.assignment_submissions.findMany({
       where: { submitted_at: { not: null } },
       select: {
@@ -348,13 +356,6 @@ export async function getAssignmentsOverview(): Promise<AssignmentsOverview | nu
     rate: v.eligibleSum > 0 ? Math.round((v.submittedSum / v.eligibleSum) * 100) : 0,
   }))
 
-  // statusBreakdown (from all submissions)
-  const allSubs = rows.flatMap((r) =>
-    Array(r.graded).fill('مصحّح')
-      .concat(Array(r.submitted - r.graded - r.late).fill('تم التسليم'))
-      .concat(Array(r.late).fill('متأخر'))
-      .concat(Array(r.missing).fill('لم يسلّم')),
-  )
   const statusBreakdown = [
     { label: 'مصحّح', value: rows.reduce((a, r) => a + r.graded, 0) },
     { label: 'تم التسليم', value: rows.reduce((a, r) => a + Math.max(r.submitted - r.graded - r.late, 0), 0) },

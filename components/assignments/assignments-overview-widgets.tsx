@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts'
@@ -28,22 +28,22 @@ function buildKpis(o: AssignmentsOverview) {
       label: 'إجمالي التسليمات',
       value: o.totalSubmissions.toLocaleString('ar-EG'),
       icon: Send,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50 dark:bg-blue-500/10',
+      color: 'text-chart-2',
+      bg: 'bg-chart-2/10',
     },
     {
       label: 'نسبة التسليم العامة',
       value: `${o.overallRate}%`,
       icon: TrendingUp,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+      color: 'text-success',
+      bg: 'bg-success/10',
     },
     {
       label: 'محتاج تصحيح',
       value: o.needsGrading.toLocaleString('ar-EG'),
       icon: CheckCircle2,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50 dark:bg-amber-500/10',
+      color: 'text-warning',
+      bg: 'bg-warning/10',
     },
     {
       label: 'متأخر / لم يسلّم',
@@ -56,8 +56,8 @@ function buildKpis(o: AssignmentsOverview) {
       label: 'متوسط الدرجات',
       value: `${o.avgScorePercent}%`,
       icon: Target,
-      color: 'text-violet-600',
-      bg: 'bg-violet-50 dark:bg-violet-500/10',
+      color: 'text-chart-4',
+      bg: 'bg-chart-4/10',
     },
   ]
 }
@@ -65,10 +65,10 @@ function buildKpis(o: AssignmentsOverview) {
 // ─── Donut colors ─────────────────────────────────────────────────────────────
 
 const DONUT_COLORS: Record<string, string> = {
-  'مصحّح': 'hsl(var(--primary))',
-  'تم التسليم': 'hsl(var(--chart-2))',
-  'متأخر': 'hsl(var(--destructive))',
-  'لم يسلّم': 'hsl(var(--muted-foreground))',
+  'مصحّح': 'var(--primary)',
+  'تم التسليم': 'var(--chart-2)',
+  'متأخر': 'var(--destructive)',
+  'لم يسلّم': 'var(--muted-foreground)',
 }
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
@@ -165,9 +165,7 @@ export function AssignmentsOverviewWidgets({ overview }: { overview: Assignments
                         <Cell
                           key={entry.stageId}
                           fill={
-                            hoveredStage === entry.stageId
-                              ? 'hsl(var(--primary))'
-                              : 'hsl(var(--chart-2))'
+                            hoveredStage === entry.stageId ? 'var(--primary)' : 'var(--chart-2)'
                           }
                           onMouseEnter={() => setHoveredStage(entry.stageId)}
                           onMouseLeave={() => setHoveredStage(null)}

@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowRight, CalendarDays, Hash } from 'lucide-react'
+import { ArrowRight, Check, Hash } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { getAssignmentDetail } from '../actions'
 import { AssignmentSubmissionsTable } from '@/components/assignments/assignment-submissions-table'
+import { AssignmentDueDateEditor } from '@/components/assignments/assignment-due-date-editor'
 
 export default async function AssignmentDetailPage({
   params,
@@ -47,7 +48,7 @@ export default async function AssignmentDetailPage({
                 variant="outline"
                 className={
                   data.type === 'اختبار'
-                    ? 'border-amber-500/40 text-amber-600 dark:text-amber-400'
+                    ? 'border-warning/40 text-warning'
                     : 'border-primary/40 text-primary'
                 }
               >
@@ -67,13 +68,11 @@ export default async function AssignmentDetailPage({
               <p className="text-xs text-muted-foreground">الدرجة الكلية</p>
               <p className="font-bold text-foreground">{data.points} درجة</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <CalendarDays className="size-3.5" />
-                آخر ميعاد
-              </p>
-              <p className="font-bold text-foreground">{data.dueDateLabel}</p>
-            </div>
+            <AssignmentDueDateEditor
+              assignmentId={data.id}
+              dueDate={data.dueDate}
+              dueDateLabel={data.dueDateLabel}
+            />
           </div>
         </div>
 
@@ -117,11 +116,12 @@ export default async function AssignmentDetailPage({
                         key={oi}
                         className={
                           oi === q.correctIndex
-                            ? 'text-sm font-medium text-primary'
-                            : 'text-sm text-muted-foreground'
+                            ? 'flex items-center gap-1.5 text-sm font-medium text-primary'
+                            : 'flex items-center gap-1.5 text-sm text-muted-foreground'
                         }
                       >
-                        {oi === q.correctIndex ? '✓ ' : ''}{opt}
+                        {oi === q.correctIndex && <Check className="size-3.5 shrink-0" />}
+                        {opt}
                       </li>
                     ))}
                   </ul>

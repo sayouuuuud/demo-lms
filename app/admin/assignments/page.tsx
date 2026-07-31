@@ -4,9 +4,10 @@ import { AssignmentsExplorer } from '@/components/assignments/assignments-explor
 import { getAssignmentRows, getAssignmentsOverview, getAssignmentsFilters } from './actions'
 
 export default async function AdminAssignmentsPage() {
-  const [rows, overview, filters] = await Promise.all([
-    getAssignmentRows(),
-    getAssignmentsOverview(),
+  // الصفوف أول حاجة، وبعدها الـ overview بياخدها جاهزة عشان ما نكرّرش الاستعلام
+  const rows = await getAssignmentRows()
+  const [overview, filters] = await Promise.all([
+    getAssignmentsOverview(rows),
     getAssignmentsFilters(),
   ])
 

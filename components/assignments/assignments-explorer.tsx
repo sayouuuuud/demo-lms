@@ -64,8 +64,8 @@ export function AssignmentsExplorer({
   const [health, setHealth] = useState<HealthFilter>('all')
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
-  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
-  const [initialised, setInitialised] = useState(false)
+  // null = لسه المستخدم مافتحش/قفلش حاجة → افتح أول مجموعتين افتراضيًا
+  const [openGroups, setOpenGroups] = useState<Set<string> | null>(null)
 
   // Filtered branches & courses cascading
   const availableBranches = useMemo(
@@ -110,17 +110,15 @@ export function AssignmentsExplorer({
   // Group paged rows for accordion display
   const groups = useMemo(() => groupRows(pagedRows), [pagedRows])
 
-  // Auto-open first 2 groups on initial load
-  useMemo(() => {
-    if (!initialised && groups.length > 0) {
-      setOpenGroups(new Set(groups.slice(0, 2).map((g) => g.key)))
-      setInitialised(true)
-    }
-  }, [groups, initialised])
+  // الحالة الفعلية للمجموعات المفتوحة: مشتقّة، بدون side-effect في الرندر
+  const effectiveOpen = useMemo(
+    () => openGroups ?? new Set(groups.slice(0, 2).map((g) => g.key)),
+    [openGroups, groups],
+  )
 
   function toggleGroup(key: string) {
-    setOpenGroups((prev) => {
-      const next = new Set(prev)
+    setOpenGroups(() => {
+      const next = new Set(effectiveOpen)
       if (next.has(key)) next.delete(key)
       else next.add(key)
       return next
@@ -266,7 +264,7 @@ export function AssignmentsExplorer({
       ) : (
         <div className="space-y-3">
           {groups.map((group) => {
-            const isOpen = openGroups.has(group.key)
+            const isOpen = effectiveOpen.has(group.key)
             const rate = groupAvgRate(group.rows)
             return (
               <Card key={group.key} className="overflow-hidden">
@@ -332,7 +330,7 @@ export function AssignmentsExplorer({
                                 className={cn(
                                   'text-xs',
                                   row.type === 'اختبار'
-                                    ? 'border-amber-500/40 text-amber-600 dark:text-amber-400'
+                                    ? 'border-warning/40 text-warning'
                                     : 'border-primary/40 text-primary',
                                 )}
                               >
@@ -358,7 +356,7 @@ export function AssignmentsExplorer({
                             </TableCell>
                             <TableCell className="hidden lg:table-cell">
                               {row.submitted - row.graded > 0 ? (
-                                <span className="text-sm font-medium text-amber-600 dark:text-amber-400 tabular-nums">
+                                <span className="text-sm font-medium text-warning tabular-nums">
                                   {row.submitted - row.graded}
                                 </span>
                               ) : (
@@ -402,7 +400,7 @@ export function AssignmentsExplorer({
             <Pagination
               currentPage={page}
               totalPages={totalPages}
-              onPageChange={(p) => { setPage(p); setInitialised(false) }}
+              onPageChange={(p) => { setPage(p); setOpenGroups(null) }}
             />
           )}
         </div>
