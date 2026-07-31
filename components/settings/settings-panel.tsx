@@ -245,6 +245,40 @@ export function SettingsPanel({
     settings.security?.requireEmailVerification !== false,
   )
 
+  const [deviceSecurity, setDeviceSecurity] = useState(() => ({
+    enabled: settings.security?.devices?.enabled !== false,
+    enforceLimit: settings.security?.devices?.enforceLimit !== false,
+    enforceConcurrency: settings.security?.devices?.enforceConcurrency !== false,
+    autoBlock: settings.security?.devices?.autoBlock !== false,
+    maxDevices: Number(settings.security?.devices?.maxDevices) || 3,
+    blockThreshold: Number(settings.security?.devices?.blockThreshold) || 40,
+    concurrencyWindowSeconds: Number(settings.security?.devices?.concurrencyWindowSeconds) || 120,
+    cityChangeHours: Number(settings.security?.devices?.cityChangeHours) || 6,
+    maxSpeedKmh: Number(settings.security?.devices?.maxSpeedKmh) || 500,
+    ipChurnLimit: Number(settings.security?.devices?.ipChurnLimit) || 5,
+    dailyRecovery: Number(settings.security?.devices?.dailyRecovery ?? 1),
+    penalties: {
+      newDevice: Number(settings.security?.devices?.penalties?.newDevice ?? 5),
+      deviceLimit: Number(settings.security?.devices?.penalties?.deviceLimit ?? 10),
+      concurrent: Number(settings.security?.devices?.penalties?.concurrent ?? 15),
+      cityChange: Number(settings.security?.devices?.penalties?.cityChange ?? 10),
+      countryChange: Number(settings.security?.devices?.penalties?.countryChange ?? 20),
+      impossibleTravel: Number(settings.security?.devices?.penalties?.impossibleTravel ?? 25),
+      proxy: Number(settings.security?.devices?.penalties?.proxy ?? 10),
+      ipChurn: Number(settings.security?.devices?.penalties?.ipChurn ?? 10),
+    },
+  }))
+
+  const [geoSettings, setGeoSettings] = useState(() => ({
+    enabled: settings.security?.geo?.enabled === true,
+    provider: 'bigdatacloud' as const,
+    apiKey: String(settings.security?.geo?.apiKey ?? ''),
+    cacheDays: Number(settings.security?.geo?.cacheDays) || 30,
+    oncePerSession: settings.security?.geo?.oncePerSession !== false,
+  }))
+
+  const [showGeoKey, setShowGeoKey] = useState(false)
+
   const [isStreamingEnabled, setIsStreamingEnabled] = useState(
     initialPlatformSettings?.is_streaming_enabled ?? false,
   )
@@ -290,7 +324,13 @@ export function SettingsPanel({
       const newSettings = {
         profile: { firstName, lastName, email, phone, bio },
         notifications: { emailNotif, pushNotif, smsNotif, marketingNotif, weeklyReport },
-        security: { requireEmailVerification, allowRegistrations },
+        security: {
+          ...(initialSettings?.security ?? {}),
+          requireEmailVerification,
+          allowRegistrations,
+          devices: deviceSecurity,
+          geo: geoSettings,
+        },
         preferences: { darkMode, autoPublish, activeColor, neonPreset, lightPreset }
       }
 
@@ -513,6 +553,230 @@ export function SettingsPanel({
                   حفظ إعدادات الأمان
                 </Button>
               </div>
+            </div>
+
+            <Separator />
+
+            {/* قسم الأجهزة وسكور الأمان */}
+            <div className="space-y-3">
+              <div className="text-right">
+                <h4 className="text-base font-semibold text-foreground">الأجهزة وسكور الأمان</h4>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  تحكّم في حد الأجهزة ونظام التقييم الأمني للطلاب
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={deviceSecurity.enabled}
+                  onChange={(v) => setDeviceSecurity((s) => ({ ...s, enabled: v }))}
+                  label="تشغيل نظام الأجهزة"
+                  description="تتبع أجهزة الطلاب، وتسجيل الجلسات، ومنع الوصول من أجهزة زائدة."
+                />
+              </div>
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={deviceSecurity.enforceLimit}
+                  onChange={(v) => setDeviceSecurity((s) => ({ ...s, enforceLimit: v }))}
+                  label="فرض حد الأجهزة"
+                  description="لو مقفول، الجهاز الزائد بيتسجّل بس بدون منع — بيسجّل حدث أمني بس."
+                />
+              </div>
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={deviceSecurity.enforceConcurrency}
+                  onChange={(v) => setDeviceSecurity((s) => ({ ...s, enforceConcurrency: v }))}
+                  label="منع الدخول المتزامن"
+                  description="منع الطالب من فتح أكتر من جلسة نشطة في نفس الوقت."
+                />
+              </div>
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={deviceSecurity.autoBlock}
+                  onChange={(v) => setDeviceSecurity((s) => ({ ...s, autoBlock: v }))}
+                  label="الحظر التلقائي"
+                  description="يحظر الطالب تلقائيًا لو السكور نزل تحت الحد المحدد."
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <FieldLabel>الحد الأقصى للأجهزة (1–10)</FieldLabel>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={deviceSecurity.maxDevices}
+                    onChange={(e) => setDeviceSecurity((s) => ({ ...s, maxDevices: Math.min(10, Math.max(1, Number(e.target.value))) }))}
+                    className="text-left"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>حد الحظر للسكور (0–99)</FieldLabel>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={99}
+                    value={deviceSecurity.blockThreshold}
+                    onChange={(e) => setDeviceSecurity((s) => ({ ...s, blockThreshold: Math.min(99, Math.max(0, Number(e.target.value))) }))}
+                    className="text-left"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>نافذة التزامن (ثانية، min 30)</FieldLabel>
+                  <Input
+                    type="number"
+                    min={30}
+                    value={deviceSecurity.concurrencyWindowSeconds}
+                    onChange={(e) => setDeviceSecurity((s) => ({ ...s, concurrencyWindowSeconds: Math.max(30, Number(e.target.value)) }))}
+                    className="text-left"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <FieldLabel>تعافي يومي للسكور (0–10)</FieldLabel>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={10}
+                    value={deviceSecurity.dailyRecovery}
+                    onChange={(e) => setDeviceSecurity((s) => ({ ...s, dailyRecovery: Math.min(10, Math.max(0, Number(e.target.value))) }))}
+                    className="text-left"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              {/* شبكة العقوبات */}
+              <div className="rounded-xl border border-border bg-muted/30 p-4">
+                <p className="mb-3 text-right text-sm font-medium text-foreground">عقوبات السكور</p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {(
+                    [
+                      { key: 'newDevice', label: 'جهاز جديد' },
+                      { key: 'deviceLimit', label: 'تجاوز حد الأجهزة' },
+                      { key: 'concurrent', label: 'دخول متزامن' },
+                      { key: 'cityChange', label: 'تغيير المدينة' },
+                      { key: 'countryChange', label: 'تغيير الدولة' },
+                      { key: 'impossibleTravel', label: 'سفر مستحيل' },
+                      { key: 'proxy', label: 'استخدام بروكسي' },
+                      { key: 'ipChurn', label: 'تغيير IP كثير' },
+                    ] as const
+                  ).map(({ key, label }) => (
+                    <div key={key}>
+                      <FieldLabel>{label}</FieldLabel>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={50}
+                        value={deviceSecurity.penalties[key]}
+                        onChange={(e) =>
+                          setDeviceSecurity((s) => ({
+                            ...s,
+                            penalties: { ...s.penalties, [key]: Math.min(50, Math.max(0, Number(e.target.value))) },
+                          }))
+                        }
+                        className="text-left"
+                        dir="ltr"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* قسم خدمة تحديد الموقع */}
+            <div className="space-y-3">
+              <div className="text-right">
+                <h4 className="text-base font-semibold text-foreground">خدمة تحديد الموقع (IP Geolocation)</h4>
+                <p className="mt-0.5 text-sm text-muted-foreground">
+                  تحديد موقع الطالب من عنوان الـ IP لرصد النشاط المريب
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={geoSettings.enabled}
+                  onChange={(v) => setGeoSettings((s) => ({ ...s, enabled: v }))}
+                  label="تشغيل خدمة الموقع"
+                  description="تحديد مدينة ودولة الطالب من عنوان الـ IP عند كل جلسة دخول جديدة."
+                />
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <FieldLabel>المزوّد</FieldLabel>
+                  <Input value="BigDataCloud" readOnly disabled className="text-left" dir="ltr" />
+                </div>
+                <div>
+                  <FieldLabel>مفتاح API</FieldLabel>
+                  <div className="relative">
+                    <Input
+                      type={showGeoKey ? 'text' : 'password'}
+                      value={geoSettings.apiKey}
+                      onChange={(e) => setGeoSettings((s) => ({ ...s, apiKey: e.target.value }))}
+                      placeholder="أدخل مفتاح BigDataCloud"
+                      className="text-left pe-10"
+                      dir="ltr"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowGeoKey((v) => !v)}
+                      className="absolute end-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      aria-label={showGeoKey ? 'إخفاء المفتاح' : 'إظهار المفتاح'}
+                    >
+                      {showGeoKey ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-4"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <FieldLabel>مدة الكاش (أيام، min 1)</FieldLabel>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={geoSettings.cacheDays}
+                    onChange={(e) => setGeoSettings((s) => ({ ...s, cacheDays: Math.max(1, Number(e.target.value)) }))}
+                    className="text-left"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border bg-muted/40 p-4">
+                <ToggleSwitch
+                  checked={geoSettings.oncePerSession}
+                  onChange={(v) => setGeoSettings((s) => ({ ...s, oncePerSession: v }))}
+                  label="استدعاء مرة واحدة لكل جلسة"
+                  description="موصى به بشدة لتوفير رصيد الخدمة. بيمنع الاستدعاء المتكرر في نفس الجلسة."
+                />
+              </div>
+
+              <p className="rounded-xl border border-border bg-muted/20 p-3 text-right text-xs text-muted-foreground leading-relaxed">
+                اعمل حساب على{' '}
+                <a
+                  href="https://www.bigdatacloud.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary underline underline-offset-2"
+                >
+                  bigdatacloud.com
+                </a>{' '}
+                واستخدم مفتاح IP Geolocation. الاستدعاء بيحصل مرة واحدة لكل جلسة دخول ومع كاش لكل IP.
+              </p>
+            </div>
+
+            <div className="flex justify-start gap-3 pt-1">
+              <Button onClick={handleSave} disabled={isPending}>
+                حفظ إعدادات الأجهزة والموقع
+              </Button>
             </div>
           </div>
         )}

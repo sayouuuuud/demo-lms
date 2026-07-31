@@ -19,6 +19,7 @@ import { ForceGradeSelection } from '@/components/student/force-grade-selection'
 import { PresenceHeartbeat } from '@/components/student/presence-heartbeat'
 
 import { BlockedUser } from '@/components/student/blocked-user'
+import { DeviceGuard } from '@/components/student/security/device-guard'
 
 export default async function StudentLayout({ children }: { children: ReactNode }) {
   // Fetch the portal data in parallel instead of a slow sequential waterfall.
@@ -62,6 +63,7 @@ export default async function StudentLayout({ children }: { children: ReactNode 
     }}>
       <LayoutComponent>{children}</LayoutComponent>
       {profile && <PresenceHeartbeat />}
+      {profile && <DeviceGuard />}
       {profile && !profile.stageTitle && (
         <ForceGradeSelection stages={stages} />
       )}
