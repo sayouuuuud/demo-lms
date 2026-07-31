@@ -105,6 +105,10 @@ const statusLabel: Record<string, string> = {
 // ---------------------------------------------------------------
 const SHOW_WORKER_SETTINGS = false
 
+// إخفاء كارت "مكتبة الفيديوهات" من صفحة الإعدادات.
+// خلّيها true لو حبيت ترجّعها.
+const SHOW_VIDEO_LIBRARY = false
+
 // ---------------------------------------------------------------
 // SliderField — مع tooltip
 // ---------------------------------------------------------------
@@ -494,7 +498,8 @@ export function StreamingTab({
         )}
       </Card>
 
-      {/* Videos */}
+      {/* Videos — مخفي (SHOW_VIDEO_LIBRARY) */}
+      {SHOW_VIDEO_LIBRARY && (
       <Card className="overflow-hidden p-0">
         <button
           type="button"
@@ -549,6 +554,7 @@ export function StreamingTab({
           </div>
         )}
       </Card>
+      )}
 
     </div>
   )
