@@ -714,14 +714,13 @@ export function SettingsPanel({
                 </div>
                 <div>
                   <FieldLabel>مفتاح API</FieldLabel>
-                  <div className="relative">
+                  <div className="relative" dir="ltr">
                     <Input
                       type={showGeoKey ? 'text' : 'password'}
                       value={geoSettings.apiKey}
                       onChange={(e) => setGeoSettings((s) => ({ ...s, apiKey: e.target.value }))}
-                      placeholder="أدخل مفتاح BigDataCloud"
+                      placeholder="Enter BigDataCloud API key"
                       className="text-left pe-10"
-                      dir="ltr"
                     />
                     <button
                       type="button"

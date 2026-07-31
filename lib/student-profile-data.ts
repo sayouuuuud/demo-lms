@@ -82,6 +82,14 @@ export type StudentProfile = {
     lastSeenLabel: string
     lastSeenAt: string | null
   }
+  // Security score — from student_security_state.
+  security: {
+    score: number
+    label: string
+    tone: 'success' | 'warning' | 'danger'
+    blocked: boolean
+    deviceCount: number
+  }
 }
 
 // deterministic pseudo-random based on a string seed
@@ -274,6 +282,13 @@ function buildProfile(student: StudentRecord): StudentProfile {
       isOnline: rng() > 0.5,
       lastSeenLabel: `منذ ${range(rng, 1, 12)} ساعة`,
       lastSeenAt: null,
+    },
+    security: {
+      score: 100,
+      label: 'آمن',
+      tone: 'success' as const,
+      blocked: false,
+      deviceCount: 0,
     },
   }
 }

@@ -17,6 +17,7 @@ export type ResourceKey =
   | 'notifications'
   | 'coupons'
   | 'reports'
+  | 'security'
   | 'settings'
 
 export type PermissionMap = Record<ResourceKey, AccessLevel>
@@ -36,6 +37,7 @@ export const RESOURCES: { key: ResourceKey; label: string; href: string }[] = [
   { key: 'notifications', label: 'الإشعارات', href: '/admin/notifications' },
   { key: 'coupons', label: 'خصومات و الكوبونات', href: '/admin/coupons' },
   { key: 'reports', label: 'التقارير', href: '/admin/reports' },
+  { key: 'security', label: 'الأمان والأجهزة', href: '/admin/security' },
   { key: 'settings', label: 'الإعدادات', href: '/admin/settings' },
 ]
 

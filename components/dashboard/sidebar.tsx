@@ -23,6 +23,7 @@ import {
   ChevronRight,
   X,
   ShieldCheck,
+  ShieldAlert,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -58,6 +59,7 @@ const navItems: {
   { label: 'الإشعارات', icon: Bell, href: '/admin/notifications', resource: 'notifications', badge: 'notifications' },
   { label: 'خصومات و الكوبونات', icon: Tag, href: '/admin/coupons', resource: 'coupons' },
   { label: 'التقارير', icon: BarChart3, href: '/admin/reports', resource: 'reports' },
+  { label: 'الأمان والأجهزة', icon: ShieldAlert, href: '/admin/security', resource: 'security' },
   { label: 'سجل المراقبة', icon: ShieldCheck, href: '/admin/activity', resource: 'settings', adminOnly: true },
   { label: 'الإعدادات', icon: Settings, href: '/admin/settings', resource: 'settings' },
 ]

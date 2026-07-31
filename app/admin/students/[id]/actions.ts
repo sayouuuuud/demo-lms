@@ -498,6 +498,31 @@ export async function getStudentProfileData(code: string): Promise<StudentProfil
     lastSeenAt: lastSeenAt ? lastSeenAt.toISOString() : null,
   }
 
+  // Security score
+  const [securityState, activeDeviceCount] = await Promise.all([
+    prisma.student_security_state.findUnique({
+      where: { student_id: studentId },
+      select: { score: true, blocked: true },
+    }).catch(() => null),
+    prisma.student_trusted_devices.count({
+      where: { student_id: studentId, status: 'active' },
+    }).catch(() => 0),
+  ])
+
+  const secScore = securityState?.score ?? 100
+  const secBlocked = securityState?.blocked ?? false
+  const secLabel =
+    secScore >= 80 ? 'آمن' : secScore >= 55 ? 'مراقَب' : 'خطر'
+  const secTone: 'success' | 'warning' | 'danger' =
+    secScore >= 80 ? 'success' : secScore >= 55 ? 'warning' : 'danger'
+  const security = {
+    score: secScore,
+    label: secLabel,
+    tone: secTone,
+    blocked: secBlocked,
+    deviceCount: activeDeviceCount,
+  }
+
   return {
     student,
     studentDbId: studentId,
@@ -516,5 +541,6 @@ export async function getStudentProfileData(code: string): Promise<StudentProfil
     stageTitle,
     assignmentBreakdown,
     presence,
+    security,
   }
 }

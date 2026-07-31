@@ -46,7 +46,7 @@ interface StudentProfileViewProps {
 }
 
 export function StudentProfileView({ profile, studentDbId }: StudentProfileViewProps) {
-  const { student, device, presence } = profile
+  const { student, device, presence, security } = profile
   const [status, setStatus] = useState<StudentStatus>(student.status)
   const [statusOpen, setStatusOpen] = useState(false)
 
@@ -194,6 +194,19 @@ export function StudentProfileView({ profile, studentDbId }: StudentProfileViewP
                     )}
                   />
                   {presence.isOnline ? 'متصل الآن' : `آخر ظهور ${presence.lastSeenLabel}`}
+                </span>
+                {/* Security score badge */}
+                <span
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border',
+                    security.tone === 'success' && 'bg-success/10 text-success border-success/30',
+                    security.tone === 'warning' && 'bg-warning/10 text-warning border-warning/30',
+                    security.tone === 'danger' && 'bg-destructive/10 text-destructive border-destructive/30',
+                  )}
+                  title={`السكور الأمني: ${security.score}/100 · ${security.deviceCount} أجهزة`}
+                >
+                  الأمان: {security.score}
+                  {security.blocked && ' · محظور'}
                 </span>
               </div>
               <p className="mt-1 font-mono text-xs text-muted-foreground">{student.id}</p>
