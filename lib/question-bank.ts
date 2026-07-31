@@ -195,6 +195,8 @@ export function parseBulkQuestions(raw: string): ParsedBulkQuestion[] {
       type = options.length > 0 ? 'mcq' : 'essay'
     }
 
+    if (!text.trim()) errors.push('نص السؤال فاضي')
+
     if (type === 'mcq') {
       if (options.length < 2) errors.push('لازم خيارين على الأقل')
       if (!correctAnswer)     errors.push('مفيش إجابة صحيحة محددة')

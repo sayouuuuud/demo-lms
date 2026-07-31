@@ -860,6 +860,21 @@ export async function bulkCreateBankQuestions(input: {
   if (!input.questions.length || input.questions.length > 200)
     return { error: 'عدد الأسئلة لازم يكون بين 1 و200' }
 
+  // العميل مش مصدر ثقة — نتحقق من كل سؤال قبل الحفظ
+  const questions = input.questions.filter(q => {
+    if (!q.text?.trim()) return false
+    if (q.points < 1 || q.points > 100) return false
+    if (q.type === 'mcq') {
+      const opts = q.options.map(o => o.trim()).filter(Boolean)
+      if (opts.length < 2) return false
+      if (!opts.includes((q.correctAnswer ?? '').trim())) return false
+    }
+    return true
+  })
+  const invalidCount = input.questions.length - questions.length
+
+  if (!questions.length) return { error: 'مفيش أسئلة صالحة للاستيراد' }
+
   const session = await auth()
   const userId = session?.user?.id ?? null
 
