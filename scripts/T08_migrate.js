@@ -8,7 +8,6 @@ function generateSlug(text, id) {
     .replace(/[^a-z0-9\u0600-\u06FF]+/g, '-')
     .replace(/^-+|-+$/g, '') || `slug-${id}`;
 }
-
 async function main() {
   console.log('Starting Migration (T08)...');
   
