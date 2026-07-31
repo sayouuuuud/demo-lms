@@ -843,21 +843,24 @@ model exam_answers {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model exam_questions {
-  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  exam_id        String         @db.Uuid
-  question_text  String
-  options        Json?
-  correct_answer String?
-  points         Int            @default(1)
-  created_at     DateTime       @default(now()) @db.Timestamptz(6)
-  question_type  String         @default("mcq")
-  content_mode   String         @default("text")
-  image_url      String?
-  model_answer   String?
-  order_index    Int            @default(0)
-  exam_answers   exam_answers[]
-  exams          exams          @relation(fields: [exam_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                    String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  exam_id               String                        @db.Uuid
+  question_text         String
+  options               Json?
+  correct_answer        String?
+  points                Int                           @default(1)
+  created_at            DateTime                      @default(now()) @db.Timestamptz(6)
+  question_type         String                        @default("mcq")
+  content_mode          String                        @default("text")
+  image_url             String?
+  model_answer          String?
+  order_index           Int                           @default(0)
+  bank_question_id      String?                       @db.Uuid
+  exam_answers          exam_answers[]
+  exams                 exams                         @relation(fields: [exam_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  question_bank_questions question_bank_questions?    @relation(fields: [bank_question_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "exam_questions_bank_question_fk")
 
+  @@index([bank_question_id], map: "idx_exam_questions_bank")
   @@schema("public")
 }
 
@@ -1591,4 +1594,77 @@ enum one_time_token_type {
   phone_change_token
 
   @@schema("auth")
+}
+
+// ─── Question Bank ────────────────────────────────────────────────────────────
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model question_bank_questions {
+  id               String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question_text    String                         @default("")
+  question_type    String                         @default("mcq")
+  content_mode     String                         @default("text")
+  image_url        String?
+  options          Json                           @default("[]")
+  correct_answer   String?
+  model_answer     String?
+  points           Int                            @default(1)
+  difficulty       String                         @default("medium")
+  auto_difficulty  String?
+  usage_count      Int                            @default(0)
+  last_used_at     DateTime?                      @db.Timestamptz(6)
+  answers_count    Int                            @default(0)
+  correct_count    Int                            @default(0)
+  notes            String?
+  created_by       String?                        @db.Uuid
+  archived_at      DateTime?                      @db.Timestamptz(6)
+  created_at       DateTime                       @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime                       @default(now()) @db.Timestamptz(6)
+
+  scopes           question_bank_scopes[]
+  topics           question_bank_question_topics[]
+  exam_questions   exam_questions[]
+
+  @@index([archived_at, created_at(sort: Desc)], map: "idx_qbq_active")
+  @@index([difficulty], map: "idx_qbq_difficulty")
+  @@index([question_type], map: "idx_qbq_type")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model question_bank_scopes {
+  id          String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  question_id String                  @db.Uuid
+  scope_type  String
+  scope_id    String                  @db.Uuid
+  created_at  DateTime                @default(now()) @db.Timestamptz(6)
+
+  question    question_bank_questions @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([question_id, scope_type, scope_id], map: "uq_qbs_unique")
+  @@index([scope_type, scope_id], map: "idx_qbs_lookup")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model question_bank_topics {
+  id         String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title      String                         @unique(map: "uq_qbt_title")
+  created_at DateTime                       @default(now()) @db.Timestamptz(6)
+
+  questions  question_bank_question_topics[]
+
+  @@schema("public")
+}
+
+model question_bank_question_topics {
+  question_id String                  @db.Uuid
+  topic_id    String                  @db.Uuid
+
+  question    question_bank_questions @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  topic       question_bank_topics    @relation(fields: [topic_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([question_id, topic_id])
+  @@index([topic_id], map: "idx_qbqt_topic")
+  @@schema("public")
 }
