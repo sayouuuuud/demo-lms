@@ -99,6 +99,13 @@ const statusLabel: Record<string, string> = {
 }
 
 // ---------------------------------------------------------------
+// إخفاء كارت "إعدادات الـ Worker" من صفحة الإعدادات.
+// الإعدادات نفسها بتفضل شغّالة بقيمها المحفوظة (التشفير مفعّل والأرقام زي ما هي)
+// — بس مش بتتعرض ولا تتعدّل من الواجهة. خلّيها true لو حبيت ترجّعها.
+// ---------------------------------------------------------------
+const SHOW_WORKER_SETTINGS = false
+
+// ---------------------------------------------------------------
 // SliderField — مع tooltip
 // ---------------------------------------------------------------
 function SliderField({
@@ -185,9 +192,9 @@ export function StreamingTab({
 
   const [enabled,         setEnabled]         = useState(initialSettings?.enabled ?? true)
   const [cpuThreads,      setCpuThreads]      = useState(initialSettings?.workerCpuThreads ?? 2)
-  const [ramMb,           setRamMb]           = useState(initialSettings?.workerRamMb ?? 2048)
+  const [ramMb,           setRamMb]           = useState(initialSettings?.workerRamMb ?? 2560)
   const [concurrency,     setConcurrency]     = useState(initialSettings?.workerConcurrency ?? 1)
-  const [segmentDuration, setSegmentDuration] = useState(initialSettings?.segmentDurationSec ?? 4)
+  const [segmentDuration, setSegmentDuration] = useState(initialSettings?.segmentDurationSec ?? 10)
 
   const [jobsExpanded,   setJobsExpanded]   = useState(true)
   const [videosExpanded, setVideosExpanded] = useState(false)
@@ -309,7 +316,8 @@ export function StreamingTab({
         ))}
       </div>
 
-      {/* Worker settings */}
+      {/* Worker settings — مخفي (SHOW_WORKER_SETTINGS) */}
+      {SHOW_WORKER_SETTINGS && (
       <Card className="p-6">
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -421,6 +429,7 @@ export function StreamingTab({
           </Button>
         </div>
       </Card>
+      )}
 
       {/* Video Jobs */}
       <Card className="overflow-hidden p-0">
