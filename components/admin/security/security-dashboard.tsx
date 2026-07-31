@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition, useCallback } from 'react'
+import { useState, useTransition, useCallback, useEffect } from 'react'
 import {
   Monitor,
   ShieldOff,
@@ -372,12 +372,11 @@ function StudentDevicesModal({
     setLoading(false)
   }, [studentId])
 
-  useState(() => { if (open && studentId) load() })
-
-  // Load on open
-  if (open && !data && !loading && studentId) {
+  // Load details when the dialog opens (details-on-demand, not initial page data)
+  useEffect(() => {
+    if (!open || !studentId) return
     load()
-  }
+  }, [open, studentId, load])
 
   function DeviceIcon({ type }: { type: string }) {
     if (type === 'موبايل') return <Smartphone className="size-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -478,7 +477,7 @@ function StudentDevicesModal({
 
         <ConfirmDialog
           open={!!confirm}
-          title="إزالة الجهاز"
+          title="إزالة ��لجهاز"
           description={`هل تريد إزالة "${confirm?.label}"؟ سيتم إبطال جلساته.`}
           needsNote
           notePlaceholder="سبب الإزالة"
