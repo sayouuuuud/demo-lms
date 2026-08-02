@@ -1,239 +1,516 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import Image from 'next/image'
-import gsap from 'gsap'
-import { useGSAP } from '@gsap/react'
-import { ArrowLeft, Sparkles } from 'lucide-react'
-import { AnimatedNumber } from './animated-number'
-import { cn } from '@/lib/utils'
-import type { HeroContent } from '@/lib/site-content-defaults'
-import { DEFAULT_SITE_CONTENT } from '@/lib/site-content-defaults'
+import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
+import { TopographicBackground } from '@/components/topo-background'
+import { useIsDark } from '@/components/use-is-dark'
 
-// Floating math objects scattered across the hero for an energetic, on-theme
-// backdrop. Each carries a light-mode color and a dark-mode (neon) color.
-const floatSymbols = [
-  { char: '√', top: '30%', left: '4%', size: 'text-4xl', color: 'text-gold-deep/55', dark: 'dark:text-teal-glow/60' },
-  { char: 'Σ', bottom: '24%', left: '7%', size: 'text-5xl', color: 'text-navy/15', dark: 'dark:text-violet-glow/55' },
-  { char: '∞', top: '16%', left: '20%', size: 'text-3xl', color: 'text-emerald-brand/55', dark: 'dark:text-teal-glow/55' },
-  { char: 'π', top: '10%', left: '38%', size: 'text-4xl', color: 'text-gold/55', dark: 'dark:text-violet-glow/60' },
-  { char: '∫', top: '46%', left: '2%', size: 'text-5xl', color: 'text-emerald-deep/40', dark: 'dark:text-teal-deep/55' },
-  { char: '∂', bottom: '34%', left: '30%', size: 'text-3xl', color: 'text-gold-deep/45', dark: 'dark:text-violet-glow/50' },
-  { char: 'θ', top: '62%', left: '13%', size: 'text-4xl', color: 'text-navy/15', dark: 'dark:text-teal-glow/45' },
-  { char: '%', top: '6%', left: '8%', size: 'text-3xl', color: 'text-emerald-brand/45', dark: 'dark:text-teal-glow/50' },
-  { char: 'a+b', bottom: '8%', right: '4%', size: 'text-3xl', color: 'text-navy/12', dark: 'dark:text-violet-glow/45' },
-  { char: 'x²', top: '8%', left: '52%', size: 'text-4xl', color: 'text-gold/45', dark: 'dark:text-violet-glow/55' },
+/* ── Letters streaming out and clustering into a circle ── */
+const tabletLetters = [
+  { letter: 'ا', top: '58%', left: '62%', size: 'text-2xl',  opacity: 0.50, delay: '0s',    rotate: '-5deg'  },
+  { letter: 'ب', top: '55%', left: '66%', size: 'text-2xl',  opacity: 0.52, delay: '0.15s', rotate: '3deg'   },
+  { letter: 'ت', top: '52%', left: '70%', size: 'text-2xl',  opacity: 0.54, delay: '0.3s',  rotate: '-7deg'  },
+  { letter: 'ث', top: '49%', left: '74%', size: 'text-2xl',  opacity: 0.56, delay: '0.45s', rotate: '5deg'   },
+  { letter: 'ج', top: '44%', left: '78%', size: 'text-3xl',  opacity: 0.62, delay: '0.6s',  rotate: '-6deg'  },
+  { letter: 'ح', top: '40%', left: '82%', size: 'text-3xl',  opacity: 0.65, delay: '0.75s', rotate: '8deg'   },
+  { letter: 'خ', top: '36%', left: '80%', size: 'text-2xl',  opacity: 0.60, delay: '0.9s',  rotate: '-8deg'  },
+  { letter: 'د', top: '32%', left: '84%', size: 'text-2xl',  opacity: 0.58, delay: '1.05s', rotate: '4deg'   },
+  { letter: 'ر', top: '38%', left: '76%', size: 'text-2xl',  opacity: 0.62, delay: '1.2s',  rotate: '-4deg'  },
+  { letter: 'س', top: '34%', left: '82%', size: 'text-3xl',  opacity: 0.66, delay: '1.35s', rotate: '6deg'   },
+  { letter: 'ع', top: '30%', left: '78%', size: 'text-2xl',  opacity: 0.60, delay: '1.5s',  rotate: '-5deg'  },
+  { letter: 'ق', top: '36%', left: '88%', size: 'text-2xl',  opacity: 0.58, delay: '1.65s', rotate: '7deg'   },
+  { letter: 'ل', top: '40%', left: '78%', size: 'text-2xl',  opacity: 0.58, delay: '1.8s',  rotate: '-6deg'  },
+  { letter: 'م', top: '34%', left: '74%', size: 'text-2xl',  opacity: 0.60, delay: '1.95s', rotate: '3deg'   },
+  { letter: 'ن', top: '38%', left: '84%', size: 'text-2xl',  opacity: 0.62, delay: '2.1s',  rotate: '-3deg'  },
 ]
 
-export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?: HeroContent }) {
-  const root = useRef<HTMLElement>(null)
+/* ── Stats data ── */
+const statsData = [
+  {
+    target: 20, prefix: '+', suffix: '', label: 'سنة خبرة',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8" r="5"/><path d="M3 21v-2a7 7 0 0 1 14 0v2"/>
+      </svg>
+    ),
+  },
+  {
+    target: 300, prefix: '+', suffix: '', label: 'طالب',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    ),
+  },
+  {
+    target: 97, prefix: '', suffix: '٪', label: 'نسبة رضا',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>
+      </svg>
+    ),
+  },
+]
 
-  useGSAP(() => {
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
-    tl.from('.hero-stagger', { opacity: 0, y: 28, duration: 0.7, stagger: 0.1 })
-      .from('.hero-photo', { opacity: 0, y: 40, scale: 0.97, duration: 1, clearProps: 'transform' }, '-=0.7')
-      .from('.hero-axis', { opacity: 0, scaleX: 0, duration: 0.9, ease: 'power2.inOut' }, '-=0.8')
+function useCountUp(target: number, duration = 1800, start = false) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (!start) return
+    let startTime: number | null = null
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const progress = Math.min((timestamp - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(eased * target))
+      if (progress < 1) requestAnimationFrame(step)
+      else setCount(target)
+    }
+    requestAnimationFrame(step)
+  }, [target, duration, start])
+  return count
+}
 
-    gsap.utils.toArray<HTMLElement>('.float-sym').forEach((el, i) => {
-      gsap.to(el, {
-        y: i % 2 === 0 ? -45 : 45,
-        x: i % 3 === 0 ? 30 : -30,
-        rotate: i % 2 === 0 ? 25 : -25,
-        duration: 3 + (i % 3),
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: i * 0.2,
-      })
-    })
+const toArabic = (n: number) => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[+d])
 
-    gsap.utils.toArray<HTMLElement>('.float-obj').forEach((el, i) => {
-      gsap.to(el, {
-        y: i % 2 === 0 ? 35 : -35,
-        x: i % 2 === 0 ? -25 : 25,
-        rotate: i % 2 === 0 ? 15 : -15,
-        duration: 5 + i,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        delay: i * 0.35,
-      })
-    })
-  }, { scope: root })
+function StatItem({
+  target, prefix, suffix, label, icon, started,
+}: {
+  target: number; prefix: string; suffix: string; label: string; icon: React.ReactNode; started: boolean
+}) {
+  const count = useCountUp(target, 1600, started)
+  const isDark = useIsDark()
+  return (
+    <div className="flex items-center gap-3 px-5 py-3">
+      <span className="shrink-0" style={{ color: isDark ? 'oklch(0.84 0.11 88)' : 'oklch(0.58 0.10 80)' }}>{icon}</span>
+      <div className="flex flex-col leading-tight">
+        <span
+          className="text-2xl sm:text-3xl font-black tabular-nums"
+          style={{ color: isDark ? 'oklch(0.87 0.10 88)' : 'oklch(0.42 0.075 70)', fontFamily: 'var(--font-cairo), sans-serif' }}
+        >
+          {prefix}{toArabic(count)}{suffix}
+        </span>
+        <span className="text-xs font-semibold" style={{ color: isDark ? 'oklch(0.72 0.03 85)' : 'oklch(0.48 0.045 58)' }}>
+          {label}
+        </span>
+      </div>
+    </div>
+  )
+}
 
-  // Parse the title: replace {highlight} token with the highlighted word
-  const titleLine2 = content.titleLine2.replace('{highlight}', content.titleHighlight)
+function StatsBar({ started }: { started: boolean }) {
+  const isDark = useIsDark()
+  return (
+    <div
+      className="inline-flex items-stretch self-start rounded-2xl overflow-hidden"
+      style={{
+        background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.65)',
+        border: isDark ? '1px solid rgba(255,255,255,0.18)' : '1px solid oklch(0.68 0.09 82 / 35%)',
+        boxShadow: isDark
+          ? '0 8px 32px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.18)'
+          : '0 8px 28px oklch(0.55 0.06 70 / 18%), inset 0 1px 0 rgba(255,255,255,0.8)',
+        backdropFilter: 'blur(20px) saturate(1.6)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
+      }}
+    >
+      {statsData.map((s, i) => (
+        <div key={i} className="flex items-stretch">
+          <StatItem {...s} started={started} />
+          {i < statsData.length - 1 && (
+            <div
+              className="self-stretch my-2 w-px shrink-0"
+              style={{ background: isDark ? 'oklch(0.84 0.11 88 / 20%)' : 'oklch(0.58 0.09 80 / 30%)' }}
+              aria-hidden="true"
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function CircleBadge({
+  value, label, size, className, style,
+}: {
+  value: string; label?: string; size: number; className?: string; style?: React.CSSProperties
+}) {
+  const [hovered, setHovered] = useState(false)
+  const isDark = useIsDark()
+  return (
+    <div
+      className={`absolute z-[20] flex flex-col items-center justify-center rounded-full select-none ${className ?? ''}`}
+      style={{
+        width: size, height: size,
+        background: hovered
+          ? 'oklch(0.84 0.11 88 / 18%)'
+          : isDark ? 'oklch(0.12 0.022 58 / 85%)' : 'oklch(0.99 0.008 90 / 85%)',
+        border: hovered
+          ? '2px solid oklch(0.87 0.12 88 / 90%)'
+          : isDark ? '1.5px solid oklch(0.78 0.10 85 / 50%)' : '1.5px solid oklch(0.64 0.09 80 / 55%)',
+        boxShadow: hovered
+          ? '0 0 32px oklch(0.84 0.11 88 / 50%), inset 0 0 20px oklch(0.84 0.11 88 / 14%)'
+          : isDark ? '0 0 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 22%)',
+        backdropFilter: 'blur(8px)',
+        transform: hovered ? 'scale(1.14)' : 'scale(1)',
+        transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, background 0.3s ease, border 0.3s ease',
+        cursor: 'default',
+        animation: 'badgePulse 3.5s ease-in-out infinite',
+        ...style,
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span
+        className="font-black leading-none"
+        style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.87 0.10 88)' : 'oklch(0.44 0.075 72)', fontSize: size * 0.28 }}
+      >
+        {value}
+      </span>
+      {label && (
+        <span className="font-semibold mt-0.5" style={{ color: isDark ? 'oklch(0.72 0.06 85)' : 'oklch(0.46 0.045 58)', fontSize: Math.max(size * 0.10, 10) }}>
+          {label}
+        </span>
+      )}
+    </div>
+  )
+}
+
+function ArabesqueLine({ flip = false }: { flip?: boolean }) {
+  return (
+    <div className={`flex items-center gap-3 w-full ${flip ? 'scale-x-[-1]' : ''}`} aria-hidden="true">
+      <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, oklch(0.84 0.11 88 / 55%), transparent)' }} />
+      <svg width="128" height="18" viewBox="0 0 128 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="64,2 70,9 64,16 58,9" fill="oklch(0.84 0.11 88)" opacity="0.9"/>
+        <polygon points="41,2 46,9 41,16 36,9" fill="none" stroke="oklch(0.84 0.11 88)" strokeWidth="1" opacity="0.65"/>
+        <line x1="46" y1="9" x2="58" y2="9" stroke="oklch(0.84 0.11 88)" strokeWidth="1" opacity="0.55"/>
+        <circle cx="30" cy="9" r="2" fill="oklch(0.84 0.11 88)" opacity="0.5"/>
+        <line x1="10" y1="9" x2="28" y2="9" stroke="oklch(0.84 0.11 88)" strokeWidth="0.8" opacity="0.35"/>
+        <circle cx="7" cy="9" r="1.2" fill="oklch(0.84 0.11 88)" opacity="0.3"/>
+        <polygon points="87,2 92,9 87,16 82,9" fill="none" stroke="oklch(0.84 0.11 88)" strokeWidth="1" opacity="0.65"/>
+        <line x1="70" y1="9" x2="82" y2="9" stroke="oklch(0.84 0.11 88)" strokeWidth="1" opacity="0.55"/>
+        <circle cx="98" cy="9" r="2" fill="oklch(0.84 0.11 88)" opacity="0.5"/>
+        <line x1="100" y1="9" x2="118" y2="9" stroke="oklch(0.84 0.11 88)" strokeWidth="0.8" opacity="0.35"/>
+        <circle cx="121" cy="9" r="1.2" fill="oklch(0.84 0.11 88)" opacity="0.3"/>
+      </svg>
+      <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, oklch(0.84 0.11 88 / 55%), transparent)' }} />
+    </div>
+  )
+}
+
+export function HeroSection() {
+  const textRef = useRef<HTMLDivElement>(null)
+  const [textVisible, setTextVisible] = useState(false)
+  const [statsStarted, setStatsStarted] = useState(false)
+  const isDark = useIsDark()
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTextVisible(true)
+          setTimeout(() => setStatsStarted(true), 700)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.15 },
+    )
+    if (textRef.current) observer.observe(textRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <section ref={root} id="hero" className="relative overflow-hidden pt-28 md:pt-36">
-      {floatSymbols.map((s, i) => (
-        <span
-          key={i}
-          className={`float-sym pointer-events-none absolute font-mono font-bold opacity-60 md:opacity-100 ${s.size} ${s.color} ${s.dark}`}
-          style={{ top: s.top, bottom: s.bottom, left: s.left, right: s.right }}
-          aria-hidden="true"
+    <section
+      className="relative min-h-screen flex flex-col overflow-hidden"
+      aria-label="القسم الرئيسي"
+    >
+      <TopographicBackground />
+
+      <div
+        className="absolute inset-y-0 start-0 w-full lg:w-[62%] z-[1] pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background: isDark
+            ? 'radial-gradient(ellipse 90% 75% at 75% 48%, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.50) 48%, transparent 72%)'
+            : 'radial-gradient(ellipse 90% 75% at 75% 48%, oklch(0.985 0.008 90 / 92%) 0%, oklch(0.985 0.008 90 / 60%) 48%, transparent 72%)',
+        }}
+      />
+
+      <div className="relative z-10 flex-1 flex flex-col md:flex-row items-stretch pt-24 sm:pt-28 md:pt-28 w-full">
+        {/* ── TEXT SIDE ── */}
+        <div
+          ref={textRef}
+          className="relative z-20 flex flex-col justify-center gap-7 order-2 md:order-1 w-full md:w-[48%] lg:w-[50%] px-6 sm:px-10 md:ps-12 md:pe-4 pb-12 md:pb-20"
+          style={{
+            opacity: textVisible ? 1 : 0,
+            transform: textVisible ? 'translateX(0)' : 'translateX(90px)',
+            transition: 'opacity 0.9s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1)',
+          }}
         >
-          {s.char}
-        </span>
-      ))}
 
-      {/* Dark-mode-only wireframe 3D objects (cube + triangle) */}
-      <WireCube className="float-obj left-[44%] top-[20%] hidden text-violet-glow/70 dark:block" />
-      <WireTriangle className="float-obj bottom-[18%] left-[40%] hidden text-teal-glow/70 dark:block" />
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-end gap-6 px-5 md:grid-cols-12 md:gap-8 md:px-8">
-        {/* Text column */}
-        <div className="order-2 pb-16 md:order-1 md:col-span-5 md:pb-24 lg:col-span-6">
-          <span className="hero-stagger inline-flex items-center gap-2 rounded-full border border-navy/15 bg-cream/80 px-4 py-1.5 text-sm font-semibold text-navy-soft backdrop-blur dark:border-white/10 dark:bg-ink-raised/70 dark:text-teal-glow">
-            <Sparkles className="size-4 text-gold-deep dark:text-teal-glow" />
-            {content.badge}
-          </span>
-
-          <h1 className="hero-stagger mt-7 font-hero text-4xl font-normal leading-[1.7] text-navy sm:text-5xl md:text-3xl md:leading-[1.6] lg:text-[2.5rem] lg:leading-[1.6] xl:text-[3.5rem] xl:leading-[1.65] dark:text-ink-fg">
-            <span className="block">{content.titleLine1}</span>
-            <span className="block">
-              {content.titleLine2.split('{highlight}')[0]}
-              <span className="text-emerald-deep dark:text-teal-glow">{content.titleHighlight}</span>
-              {content.titleLine2.split('{highlight}')[1]}
-            </span>
-          </h1>
-
-          <p className="hero-stagger mt-6 max-w-xl text-pretty text-lg leading-relaxed text-ink-muted md:text-sm lg:text-base xl:text-lg dark:text-ink-dim">
-            {content.description}
-          </p>
-
-          <div className="hero-stagger mt-9 flex flex-col gap-3 sm:flex-row md:gap-2.5 lg:gap-3">
-            <a
-              href={content.cta1Href}
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-gold px-8 py-4 text-base font-bold text-navy-deep shadow-lg shadow-gold/30 transition-transform duration-200 hover:-translate-y-0.5 md:px-5 md:py-3 md:text-sm lg:px-8 lg:py-4 lg:text-base dark:bg-violet-glow dark:text-white dark:shadow-[0_0_30px_oklch(0.66_0.2_292_/_0.45)]"
+          {/* Headline */}
+          <div className="space-y-1">
+            <h1
+              className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-black leading-tight"
+              style={{ fontFamily: 'var(--font-reem-kufi), var(--font-cairo), sans-serif' }}
             >
-              {content.cta1Text}
-              <ArrowLeft className="size-5 transition-transform duration-200 group-hover:-translate-x-1 md:size-4 lg:size-5" />
-            </a>
-            <a
-              href={content.cta2Href}
-              className="inline-flex items-center justify-center rounded-full border border-navy/20 bg-cream/60 px-8 py-4 text-base font-bold text-navy backdrop-blur transition-colors hover:bg-navy/5 md:px-5 md:py-3 md:text-sm lg:px-8 lg:py-4 lg:text-base dark:border-white/15 dark:bg-white/5 dark:text-ink-fg dark:hover:bg-white/10"
-            >
-              {content.cta2Text}
-            </a>
+              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>كلامك عربي </span>
+              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.86 0.12 88)' : 'oklch(0.58 0.11 78)' }}>وجذوره أعمق</span>
+              <br />
+              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>مما تتصوّر</span>
+            </h1>
+            <p className="text-base sm:text-lg font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
+              تعلّمها صح — من البداية للاحتراف
+            </p>
           </div>
 
-          <dl className="hero-stagger mt-12 flex flex-wrap items-start justify-between gap-6 sm:gap-8 border-t border-navy/10 pt-8 dark:border-white/10 max-w-lg">
-            {content.miniStats.map((s) => (
-              <div key={s.label} className="flex flex-col items-center md:items-start">
-                <dt className="font-thmanyah text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-navy dark:text-teal-glow whitespace-nowrap">
-                  <AnimatedNumber value={s.value} prefix={s.prefix} suffix={s.suffix} duration={2.5} />
-                </dt>
-                <dd className="mt-2 text-base sm:text-lg font-medium text-ink-muted dark:text-ink-dim">{s.label}</dd>
-              </div>
-            ))}
-          </dl>
+          {/* Arabesque separator */}
+          <ArabesqueLine />
+
+          {/* Description */}
+          <p
+            className="text-base sm:text-lg leading-relaxed"
+            style={{ color: isDark ? 'oklch(0.84 0.02 85)' : 'oklch(0.42 0.040 56)', fontFamily: 'var(--font-cairo), sans-serif', maxWidth: '40rem' }}
+          >
+            في أكاديمية شفاء العليل، مش هنحفّظك قواعد — هنخليك تحسّ بها. من النحو والصرف للبلاغة والإملاء، كل درس مبني على الفهم الحقيقي.
+          </p>
+
+          {/* CTA */}
+          <div className="flex items-center gap-4">
+            <div className="relative inline-block">
+              <span
+                className="absolute -inset-[6px] rounded-full pointer-events-none"
+                style={{ border: '1px solid oklch(0.84 0.11 88 / 35%)', animation: 'framePulse 2.5s ease-in-out infinite' }}
+                aria-hidden="true"
+              />
+              <span
+                className="absolute -inset-[12px] rounded-full pointer-events-none"
+                style={{ border: '1px solid oklch(0.84 0.11 88 / 16%)', animation: 'framePulse 2.5s ease-in-out infinite 0.35s' }}
+                aria-hidden="true"
+              />
+              <Link
+                href="/auth"
+                className="relative overflow-hidden flex items-center gap-3 px-9 py-4 rounded-full text-base font-black transition-transform hover:scale-105 active:scale-95"
+                style={{
+                  background: 'oklch(0.84 0.11 88)',
+                  color: 'oklch(0.13 0.04 60)',
+                  boxShadow: '0 6px 32px oklch(0.84 0.11 88 / 38%)',
+                  fontFamily: 'var(--font-cairo), sans-serif',
+                }}
+              >
+                <span className="cta-shimmer-bar" aria-hidden="true" />
+                <span className="relative z-10">سجّل معانا</span>
+                <svg
+                  width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  className="relative z-10 rtl:rotate-180" aria-hidden="true"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </div>
+          </div>
+
+          <StatsBar started={statsStarted} />
         </div>
 
-        {/* Photo column */}
-        <div className="relative order-1 flex items-end justify-center self-end md:order-2 md:col-span-7 lg:col-span-6">
-          {/* soft grounding glow under the figure */}
-          <div
-            className="pointer-events-none absolute bottom-2 left-1/2 h-24 w-[78%] -translate-x-1/2 rounded-[50%] bg-navy/15 blur-2xl dark:bg-teal-glow/25"
-            aria-hidden="true"
-          />
-          {/* dark-mode radial halo behind the teacher */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[120%] w-[120%] -translate-x-1/2 -translate-y-1/2 rounded-full dark:block"
-            aria-hidden="true"
-            style={{
-              background:
-                'radial-gradient(closest-side, oklch(0.84 0.13 184 / 0.18), transparent 70%)',
-            }}
-          />
-          <div className="hero-photo relative z-10 w-full max-w-[440px] -left-4 -top-3 md:-left-8 md:-mt-20 md:-top-4 md:max-w-[580px] lg:-mt-28 lg:max-w-[560px] xl:-mt-24 xl:max-w-[580px]">
-            {/* light-mode portrait */}
-            <Image
-              src={content.teacherImageLight}
-              alt={content.teacherImageAlt}
-              width={1083}
-              height={1452}
-              priority
-              className="h-auto w-full object-contain dark:hidden"
-            />
-            {/* dark-mode portrait */}
-            <Image
-              src={content.teacherImageDark}
-              alt={content.teacherImageAlt}
-              width={772}
-              height={1024}
-              priority
-              className="mx-auto hidden h-auto w-[96%] object-contain dark:block translate-y-6"
+        {/* ── TEACHER SIDE ── */}
+        <div className="relative order-1 md:order-2 w-full md:w-[60%] md:min-h-screen overflow-hidden">
+          {/* MOBILE */}
+          <div className="md:hidden relative w-full flex justify-center px-6 pt-6 pb-4">
+            <div className="relative w-[80vw] max-w-[340px] aspect-square">
+              <div
+                className="absolute -inset-4 rounded-full pointer-events-none"
+                aria-hidden="true"
+                style={{
+                  border: isDark
+                    ? '1.5px solid oklch(0.78 0.10 85 / 55%)'
+                    : '1.5px solid oklch(0.52 0.08 175 / 60%)',
+                }}
+              />
+              <div
+                className="absolute -inset-4 rounded-full pointer-events-none"
+                aria-hidden="true"
+                style={{
+                  border: isDark
+                    ? '1px solid oklch(0.78 0.10 85 / 25%)'
+                    : '1px solid oklch(0.52 0.08 175 / 30%)',
+                  transform: 'scale(1.045)',
+                }}
+              />
+
+              <svg
+                className="absolute -inset-8 w-[calc(100%+4rem)] h-[calc(100%+4rem)] pointer-events-none"
+                viewBox="0 0 100 100"
+                fill="none"
+                aria-hidden="true"
+              >
+                <polygon points="50,1 55,8 45,8" fill="none" stroke="oklch(0.68 0.11 82)" strokeWidth="0.8" opacity="0.85" />
+                <polygon points="7,32 13,36 6,39" fill="none" stroke="oklch(0.68 0.11 82)" strokeWidth="0.7" opacity="0.6" />
+                <polygon points="94,58 88,62 94,66" fill="none" stroke="oklch(0.68 0.11 82)" strokeWidth="0.7" opacity="0.6" />
+                <polygon points="24,90 30,93 23,96" fill="none" stroke="oklch(0.68 0.11 82)" strokeWidth="0.7" opacity="0.5" />
+              </svg>
+
+              <div
+                className="absolute inset-0 rounded-full overflow-hidden"
+                style={{
+                  background: isDark
+                    ? 'radial-gradient(circle at 50% 35%, oklch(0.22 0.03 60), oklch(0.13 0.022 58))'
+                    : 'radial-gradient(circle at 50% 35%, oklch(1 0 0), oklch(0.96 0.015 90))',
+                  boxShadow: isDark
+                    ? '0 18px 48px rgba(0,0,0,0.55)'
+                    : '0 18px 48px oklch(0.55 0.06 70 / 25%)',
+                }}
+              >
+                <Image
+                  src="/teacher.webp"
+                  alt="المدرس - أكاديمية شفاء العليل في اللغة العربية"
+                  fill
+                  sizes="80vw"
+                  className="object-cover"
+                  style={{ objectPosition: '50% 18%', transform: 'scale(1.12)' }}
+                  priority
+                />
+              </div>
+
+              {[
+                { letter: 'ن', top: '58%', left: '80%', size: 'text-lg',  opacity: 0.55, delay: '0s'    },
+                { letter: 'ب', top: '44%', left: '90%', size: 'text-xl',  opacity: 0.6,  delay: '0.3s'  },
+                { letter: 'ع', top: '28%', left: '95%', size: 'text-lg',  opacity: 0.55, delay: '0.6s'  },
+                { letter: 'ق', top: '14%', left: '88%', size: 'text-xl',  opacity: 0.6,  delay: '0.9s'  },
+                { letter: 'س', top: '4%',  left: '76%', size: 'text-lg',  opacity: 0.5,  delay: '1.2s'  },
+                { letter: 'م', top: '-4%', left: '62%', size: 'text-base', opacity: 0.45, delay: '1.5s' },
+              ].map((item, i) => (
+                <span
+                  key={i}
+                  className={`absolute z-[16] font-black select-none pointer-events-none letter-rise ${item.size}`}
+                  style={{
+                    top: item.top, left: item.left,
+                    fontFamily: 'var(--font-cairo), sans-serif',
+                    color: isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.56 0.10 78)',
+                    opacity: item.opacity,
+                    animationDelay: item.delay,
+                    textShadow: isDark ? '0 0 12px oklch(0.85 0.10 88 / 45%)' : '0 0 12px oklch(0.70 0.10 82 / 40%)',
+                  }}
+                  aria-hidden="true"
+                >
+                  {item.letter}
+                </span>
+              ))}
+
+              <div
+                className="absolute z-[16] pointer-events-none"
+                style={{ bottom: '4%', left: '-7%', width: 64, animation: 'inkFloat 6s ease-in-out infinite' }}
+                aria-hidden="true"
+              >
+                <Image src="/inkwell.webp" alt="" width={160} height={283} className="w-full h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)]" />
+              </div>
+
+              <div
+                className="absolute z-[17] -top-1 -right-2 flex items-center gap-1.5 px-3.5 py-2 rounded-xl"
+                style={{
+                  background: isDark ? 'oklch(0.16 0.025 58 / 92%)' : 'oklch(0.99 0.008 90 / 95%)',
+                  border: isDark ? '1px solid oklch(0.78 0.10 85 / 35%)' : '1px solid oklch(0.68 0.09 82 / 30%)',
+                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 20%)',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.52 0.08 175)'} aria-hidden="true">
+                  <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>
+                </svg>
+                <span className="text-sm font-black" style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.88 0.06 85)' : 'oklch(0.40 0.07 175)' }}>
+                  أ/ مازن السقا
+                </span>
+              </div>
+
+              <div
+                className="absolute z-[17] bottom-[6%] -left-3 flex items-center gap-1.5 px-3.5 py-2 rounded-xl"
+                style={{
+                  background: isDark ? 'oklch(0.16 0.025 58 / 92%)' : 'oklch(0.99 0.008 90 / 95%)',
+                  border: isDark ? '1px solid oklch(0.78 0.10 85 / 35%)' : '1px solid oklch(0.68 0.09 82 / 30%)',
+                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 20%)',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.62 0.10 80)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                </svg>
+                <span className="text-sm font-black" style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.88 0.06 85)' : 'oklch(0.48 0.075 70)' }}>
+                  منهج مبسّط للثانوية
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* DESKTOP */}
+          <div className="hidden md:block absolute inset-0">
+            {tabletLetters.map((item, i) => (
+              <span
+                key={i}
+                className={`absolute z-[13] font-black select-none pointer-events-none letter-rise ${item.size}`}
+                style={{
+                  top: item.top, left: item.left,
+                  fontFamily: 'var(--font-cairo), sans-serif',
+                  color: isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.56 0.10 78)',
+                  opacity: item.opacity,
+                  animationDelay: item.delay,
+                  transform: `rotate(${item.rotate})`,
+                  textShadow: isDark ? '0 0 14px oklch(0.85 0.10 88 / 45%)' : '0 0 14px oklch(0.70 0.10 82 / 40%)',
+                }}
+                aria-hidden="true"
+              >
+                {item.letter}
+              </span>
+            ))}
+
+            <div
+              className="absolute z-[11] pointer-events-none"
+              aria-hidden="true"
+              style={{
+                top: '46%', left: '44%', width: 260, height: 260,
+                background: 'radial-gradient(circle, oklch(0.88 0.09 88 / 22%) 0%, transparent 65%)',
+                filter: 'blur(10px)',
+              }}
             />
 
-            {/* Geometric Number Line stuck to the teacher's feet.
-                The ruler is h-12 with its line at top-1/2, so a bottom offset of
-                -24px (h/2) puts the line exactly on the wrapper's bottom edge =
-                the light image's bottom. The dark image is shifted down by
-                translate-y-6 (24px); instead of pushing the ruler further down
-                (which clips against the section's overflow-hidden), we keep the
-                same -bottom-6 offset and translate the whole ruler down to match
-                the dark portrait so nothing overflows the section. */}
+
             <div
-              className="absolute -bottom-6 left-1/2 w-[85%] h-12 -translate-x-1/2 dark:translate-y-6 pointer-events-none"
+              className="absolute z-[12] pointer-events-none"
+              style={{ bottom: '-65%', right: '5%', width: 200, animation: 'gentleFloat 5s ease-in-out infinite', transform: 'rotate(-28deg)' }}
+            >
+              <Image src="/book.webp" alt="" width={200} height={133} className="w-full h-auto drop-shadow-[0_14px_35px_rgba(0,0,0,0.8)]" />
+            </div>
+
+            <div
+              className="absolute z-[9] pointer-events-none"
+              style={{ top: '28%', left: '2%', width: 170, animation: 'gentleFloat 6s ease-in-out infinite', animationDelay: '1s' }}
+            >
+              <Image src="/inkwell.webp" alt="" width={160} height={283} className="w-full h-auto drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)]" />
+            </div>
+
+            <div
+              className="absolute z-[4] pointer-events-none"
               style={{
-                WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
-                maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
+                bottom: '0%',
+                left: '50%',
+                transform: 'translateX(-52%)',
+                height: '94%',
+                width: 'max-content',
               }}
             >
-              <div className="hero-axis relative w-full h-full flex items-center">
-                <div className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 bg-gold dark:bg-teal-glow opacity-80" />
-                <div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between px-2">
-                  {Array.from({ length: 41 }).map((_, i) => {
-                    const isCenter = i === 20
-                    const isMajor = i % 10 === 0
-                    const isMedium = i % 5 === 0
-                    return (
-                      <div key={i} className="flex flex-col items-center relative">
-                        <div
-                          className={cn(
-                            'w-[2px] bg-gold dark:bg-teal-glow',
-                            isCenter ? 'h-6 opacity-100' : isMajor ? 'h-4 opacity-100' : isMedium ? 'h-2.5 opacity-80' : 'h-1.5 opacity-50',
-                          )}
-                        />
-                        {isCenter && (
-                          <span className="absolute top-5 text-sm font-mono font-bold text-gold dark:text-teal-glow">0</span>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+              <Image
+                src="/teacher.webp"
+                alt="المدرس - أكاديمية شفاء العليل في اللغة العربية"
+                width={2400}
+                height={1282}
+                className="h-full w-auto max-w-none"
+                style={{ filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.40))' }}
+                priority
+              />
             </div>
           </div>
         </div>
       </div>
+
     </section>
-  )
-}
-
-function WireCube({ className = '' }: { className?: string }) {
-  return (
-    <svg width="92" height="92" viewBox="0 0 100 100" fill="none" className={`pointer-events-none absolute ${className}`} aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="1.5" opacity="0.9">
-        <path d="M20 30 L60 18 L80 34 L40 46 Z" />
-        <path d="M20 30 L20 66 L40 82 L40 46" />
-        <path d="M40 46 L80 34 L80 70 L40 82" />
-        <path d="M20 66 L60 54 L80 70" opacity="0.45" />
-        <path d="M60 18 L60 54" opacity="0.45" />
-      </g>
-    </svg>
-  )
-}
-
-function WireTriangle({ className = '' }: { className?: string }) {
-  return (
-    <svg width="84" height="84" viewBox="0 0 100 100" fill="none" className={`pointer-events-none absolute ${className}`} aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="1.5" opacity="0.9">
-        <path d="M50 16 L86 80 L14 80 Z" />
-        <path d="M50 16 L50 80" opacity="0.4" />
-        <path d="M32 48 L68 48" opacity="0.4" />
-      </g>
-    </svg>
   )
 }

@@ -1,81 +1,73 @@
 'use client'
 
-import { useRef } from 'react'
-import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { useGSAP } from '@gsap/react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Link from 'next/link'
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
-import type { CtaContent } from '@/lib/site-content-defaults'
-import { DEFAULT_SITE_CONTENT } from '@/lib/site-content-defaults'
+import { useReveal } from '@/lib/use-reveal'
 
-// The matter-js physics canvas is heavy; load it client-side only so it never
-// blocks first paint of the landing page.
-const GravityPills = dynamic(
-  () => import('./gravity-pills').then((m) => m.GravityPills),
-  { ssr: false },
-)
+const GravityPills = dynamic(() => import('@/components/gravity-pills').then((m) => m.GravityPills), {
+  ssr: false,
+})
 
-gsap.registerPlugin(ScrollTrigger)
+const CTA = {
+  badge: 'ابدأ رحلتك دلوقتي',
+  title: 'لغتك العربية تستاهل معلّم يفهمها صح.',
+  description:
+    'انضم لأكاديمية شفاء العليل وخُد أول حصة مجانًا — من النحو والصرف للبلاغة والتعبير، هنمشي معاك خطوة بخطوة.',
+  cta1Text: 'سجّل معانا مجانًا',
+  cta1Href: '/auth',
+  cta2Text: 'اعرف أكتر عن المنصة',
+  cta2Href: '#features',
+  perks: ['أول حصة مجانًا', 'إلغاء في أي وقت', 'متابعة مع ولي الأمر'],
+}
 
-export function CtaSection({ content = DEFAULT_SITE_CONTENT.cta }: { content?: CtaContent }) {
-  const root = useRef<HTMLElement>(null)
-
-  useGSAP(
-    () => {
-      gsap.from('.cta-content', {
-        scrollTrigger: { trigger: root.current, start: 'top 85%' },
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-      })
-    },
-    { scope: root },
-  )
+export function CtaSection({ content }: { content?: any }) {
+  const contentRef = useReveal<HTMLDivElement>(undefined, { y: 40, duration: 0.8 })
 
   return (
     <section
-      ref={root}
-      // pb-0 so the physics floor lines up with the footer's roof
-      className="relative min-h-[860px] overflow-hidden pt-20 md:min-h-[820px]"
+      id="cta"
+      className="relative min-h-[860px] overflow-hidden bg-background pt-20 md:min-h-[820px]"
     >
-      {/* physics-driven math pills fall and pile up on the footer's roof */}
       <GravityPills />
 
-      {/* CTA copy sits at the top; only interactive bits catch clicks */}
-      <div className="cta-content pointer-events-none relative z-10 mx-auto max-w-2xl px-5 text-center md:px-8">
-        <span className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-gold-deep/30 bg-gold/15 px-4 py-1.5 text-sm font-semibold text-gold-deep dark:border-teal-deep/40 dark:bg-teal-glow/10 dark:text-teal-glow">
-          {content.badge}
+      <div
+        ref={contentRef}
+        className="pointer-events-none relative z-10 mx-auto max-w-2xl px-5 text-center md:px-8"
+      >
+        <span className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/15 px-4 py-1.5 text-sm font-semibold text-foreground">
+          {CTA.badge}
         </span>
 
-        <h2 className="mt-5 text-balance text-3xl font-thmanyah font-bold leading-tight text-navy md:text-5xl dark:text-ink-fg">
-          {content.title}
+        <h2 
+          className="mt-5 text-balance text-3xl font-black leading-tight text-foreground md:text-5xl"
+          style={{ fontFamily: "'Thmanyah Sans', sans-serif" }}
+        >
+          {CTA.title}
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-pretty text-lg leading-relaxed text-ink-muted dark:text-ink-dim">
-          {content.description}
+        <p className="mx-auto mt-4 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+          {CTA.description}
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href={content.cta1Href}
-            className="group pointer-events-auto inline-flex items-center gap-2 rounded-full bg-navy px-8 py-4 text-base font-bold text-cream shadow-xl shadow-navy/20 transition-transform hover:-translate-y-0.5 dark:bg-violet-glow dark:text-white dark:shadow-[0_0_28px_oklch(0.66_0.2_292_/_0.45)]"
+            href={CTA.cta1Href}
+            className="group pointer-events-auto inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-black text-primary-foreground shadow-xl shadow-primary/25 transition-transform hover:-translate-y-0.5"
           >
-            {content.cta1Text}
+            {CTA.cta1Text}
             <ArrowLeft className="size-5 transition-transform group-hover:-translate-x-1" />
           </Link>
           <a
-            href={content.cta2Href}
-            className="pointer-events-auto inline-flex items-center gap-2 rounded-full border-2 border-navy/20 bg-cream/60 px-7 py-4 text-base font-bold text-navy backdrop-blur-sm transition-colors hover:bg-cream dark:border-white/15 dark:bg-white/5 dark:text-ink-fg dark:hover:bg-white/10"
+            href={CTA.cta2Href}
+            className="pointer-events-auto inline-flex items-center gap-2 rounded-full border-2 border-border bg-card/60 px-7 py-4 text-base font-bold text-foreground backdrop-blur-sm transition-colors hover:bg-card"
           >
-            {content.cta2Text}
+            {CTA.cta2Text}
           </a>
         </div>
 
-        <ul className="mx-auto mt-9 flex max-w-xl flex-wrap items-center justify-center gap-x-7 gap-y-2 text-sm text-ink-muted dark:text-ink-dim">
-          {content.perks.map((p) => (
+        <ul className="mx-auto mt-9 flex max-w-xl flex-wrap items-center justify-center gap-x-7 gap-y-2 text-sm text-muted-foreground">
+          {CTA.perks.map((p) => (
             <li key={p} className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-emerald-brand dark:text-teal-glow" />
+              <CheckCircle2 className="size-4 text-green" />
               {p}
             </li>
           ))}

@@ -4,7 +4,7 @@ import { Cairo, Geist_Mono, Aref_Ruqaa } from 'next/font/google'
 import localFont from 'next/font/local'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
-import { MathLoader } from '@/components/landing/math-loader'
+import { SiteLoader } from '@/components/site-loader'
 import { CartProvider } from '@/components/cart/cart-provider'
 import { CartModal } from '@/components/cart/cart-modal'
 import { PageViewTracker } from '@/components/analytics/page-view-tracker'
@@ -32,6 +32,22 @@ const arefRuqaa = Aref_Ruqaa({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+})
+const reemKufi = localFont({
+  src: [
+    {
+      path: '../public/fonts/Reem_Kufi/static/ReemKufi-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/Reem_Kufi/static/ReemKufi-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-reem-kufi',
+  display: 'swap',
 })
 const lemonBrush = localFont({
   src: '../public/fonts/lemon-brush-arabic.otf',
@@ -123,7 +139,7 @@ export default async function RootLayout({
     <html
       lang="ar"
       dir="rtl"
-      className={`${cairo.variable} ${arefRuqaa.variable} ${lemonBrush.variable} ${geistMono.variable} bg-background`}
+      className={`${cairo.variable} ${arefRuqaa.variable} ${reemKufi.variable} ${lemonBrush.variable} ${geistMono.variable} bg-background`}
       suppressHydrationWarning
     >
       <head>
@@ -133,54 +149,6 @@ export default async function RootLayout({
               var t=localStorage.getItem('theme');
               var isDark = t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);
               if(isDark){document.documentElement.classList.add('dark')}
-              
-              var presets=${JSON.stringify(colorPresets)};
-              // القيمة المحفوظة في قاعدة البيانات لها الأولوية (تزامن عبر الأجهزة)،
-              // وبعدها localStorage كنسخة محلية سريعة، وأخيراً الافتراضي.
-              var serverColor=${JSON.stringify(savedColor)};
-              var c=serverColor||localStorage.getItem('color-preset')||'navy';
-              try{localStorage.setItem('color-preset',c)}catch(e){}
-              var preset=presets.find(function(p){return p.id===c});
-              if(preset){
-                var vals=isDark?preset.dark:preset.light;
-                var root=document.documentElement;
-                root.style.setProperty('--primary', vals.primary);
-                root.style.setProperty('--ring', vals.ring);
-                root.style.setProperty('--sidebar-primary', vals.sidebar);
-                root.style.setProperty('--sidebar-accent', vals.sidebar);
-                root.style.setProperty('--sidebar-ring', vals.ring);
-              }
-
-              // ألوان النيون للدارك مود — تُطبّق دائماً (لا تؤثر إلا تحت dark:)
-              var neons=${JSON.stringify(neonPresets)};
-              var serverNeon=${JSON.stringify(savedNeon)};
-              var n=serverNeon||localStorage.getItem('neon-preset')||'teal-violet';
-              try{localStorage.setItem('neon-preset',n)}catch(e){}
-              var neon=neons.find(function(p){return p.id===n});
-              if(neon){
-                var r2=document.documentElement;
-                r2.style.setProperty('--color-teal-glow', neon.tealGlow);
-                r2.style.setProperty('--color-teal-deep', neon.tealDeep);
-                r2.style.setProperty('--color-violet-glow', neon.violetGlow);
-                r2.style.setProperty('--color-violet-deep', neon.violetDeep);
-              }
-
-              // ثيمات الوضع الفاتح
-              var lights=${JSON.stringify(lightPresets)};
-              var serverLight=${JSON.stringify(savedLight)};
-              var l=serverLight||localStorage.getItem('light-preset')||'navy-gold';
-              try{localStorage.setItem('light-preset',l)}catch(e){}
-              var light=lights.find(function(p){return p.id===l});
-              if(light){
-                var r3=document.documentElement;
-                r3.style.setProperty('--color-navy', light.navy);
-                r3.style.setProperty('--color-navy-deep', light.navyDeep);
-                r3.style.setProperty('--color-navy-soft', light.navySoft);
-                r3.style.setProperty('--color-gold', light.gold);
-                r3.style.setProperty('--color-gold-deep', light.goldDeep);
-                r3.style.setProperty('--color-emerald-brand', light.emeraldBrand);
-                r3.style.setProperty('--color-emerald-deep', light.emeraldDeep);
-              }
             }catch(e){}})();`,
           }}
         />
@@ -189,7 +157,7 @@ export default async function RootLayout({
       <body className={`${cairo.className} font-sans antialiased`}>
         <ThemeProvider>
           <CartProvider>
-            <MathLoader text={seoContent?.loaderText} equation={seoContent?.loaderEquation} />
+            <SiteLoader />
             {children}
             <CartModal />
             <PageViewTracker />

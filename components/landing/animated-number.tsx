@@ -1,30 +1,65 @@
 'use client'
 
-import { motion, useMotionValue, useTransform, animate, useInView } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-interface Props {
+const toArabic = (n: number) => n.toLocaleString('ar-EG')
+
+export function AnimatedNumber({
+  value,
+  prefix = '',
+  suffix = '',
+  duration = 2000,
+}: {
   value: number
   prefix?: string
   suffix?: string
   duration?: number
-}
-
-export function AnimatedNumber({ value, prefix = '', suffix = '', duration = 2 }: Props) {
+}) {
   const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-20px' })
-  const count = useMotionValue(0)
-  
-  const display = useTransform(count, (latest) => {
-    const num = Math.round(latest).toLocaleString('ar-EG')
-    return `${prefix}${num}${suffix}`
-  })
+  const [count, setCount] = useState(0)
+  const [started, setStarted] = useState(false)
 
   useEffect(() => {
-    if (inView) {
-      animate(count, value, { duration, ease: 'easeOut' })
-    }
-  }, [count, value, duration, inView])
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStarted(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
-  return <motion.span ref={ref}>{display}</motion.span>
+  useEffect(() => {
+    if (!started) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setCount(value)
+      return
+    }
+    let startTime: number | null = null
+    let raf = 0
+    const step = (timestamp: number) => {
+      if (!startTime) startTime = timestamp
+      const progress = Math.min((timestamp - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(eased * value))
+      if (progress < 1) raf = requestAnimationFrame(step)
+      else setCount(value)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [started, value, duration])
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      {toArabic(count)}
+      {suffix}
+    </span>
+  )
 }

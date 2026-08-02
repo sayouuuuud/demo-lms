@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { Menu, X, Moon, Sun } from 'lucide-react'
+import { Sun, Moon, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTheme } from '@/components/theme-provider'
 import { CartButton } from '@/components/cart/cart-button'
@@ -11,21 +10,35 @@ import { useCart } from '@/components/cart/cart-provider'
 import type { NavbarContent } from '@/lib/site-content-defaults'
 import { DEFAULT_SITE_CONTENT } from '@/lib/site-content-defaults'
 
-function ThemeToggle({ className }: { className?: string }) {
-  const { isDark, toggleTheme } = useTheme()
+const navLinks = [
+  { label: 'المنهج', href: '#features' },
+  { label: 'المراحل', href: '#stages' },
+  { label: 'أرقامنا', href: '#stats' },
+  { label: 'آراء الطلاب', href: '#testimonials' },
+]
+
+function HamburgerIcon({ open }: { open: boolean }) {
   return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      aria-label={isDark ? 'التبديل إلى الوضع الفاتح' : 'التبديل إلى الوضع الداكن'}
-      className={cn(
-        'grid size-10 place-items-center rounded-full border border-navy/15 text-navy transition-colors hover:bg-navy/5',
-        'dark:border-white/10 dark:text-teal-glow dark:hover:bg-white/5',
-        className,
-      )}
-    >
-      {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
-    </button>
+    <span className="flex flex-col justify-center items-center size-5 gap-[5px]" aria-hidden>
+      <span
+        className={cn(
+          'block h-[1.8px] bg-current rounded-full transition-all duration-300 origin-center',
+          open ? 'w-5 rotate-45 translate-y-[7px]' : 'w-5'
+        )}
+      />
+      <span
+        className={cn(
+          'block h-[1.8px] bg-current rounded-full transition-all duration-300',
+          open ? 'w-0 opacity-0' : 'w-3.5'
+        )}
+      />
+      <span
+        className={cn(
+          'block h-[1.8px] bg-current rounded-full transition-all duration-300 origin-center',
+          open ? 'w-5 -rotate-45 -translate-y-[7px]' : 'w-5'
+        )}
+      />
+    </span>
   )
 }
 
@@ -36,147 +49,237 @@ export function LandingNavbar({
   isLoggedIn?: boolean
   content?: NavbarContent
 }) {
+  const { isDark, toggleTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const sidebarRef = useRef<HTMLDivElement>(null)
   const { loggedIn: cartLoggedIn } = useCart()
 
   const isUserLoggedIn = isLoggedIn || cartLoggedIn
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    setMounted(true)
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (!sidebarOpen) return
+    function handleClick(e: MouseEvent) {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+        setSidebarOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [sidebarOpen])
+
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [sidebarOpen])
+
+  const closeSidebar = () => setSidebarOpen(false)
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 md:pt-4">
-      <nav
-        className={cn(
-          'mx-auto flex h-14 max-w-[88rem] items-center justify-between rounded-full px-3 pr-5 transition-all duration-300 md:h-16 md:pr-6',
-          'border border-navy/15 bg-cream/50 shadow-lg shadow-navy/5 ring-1 ring-cream/40 backdrop-blur-xl backdrop-saturate-150',
-          'dark:border-white/10 dark:bg-ink-raised/50 dark:shadow-black/30 dark:ring-white/5',
-          scrolled
-            ? 'bg-cream/70 shadow-xl shadow-navy/10 dark:bg-ink-raised/70 dark:shadow-black/40'
-            : 'bg-cream/40 dark:bg-ink-raised/40',
-        )}
-      >
-        <Link href="/" className="flex items-center gap-2.5">
-          {content.logoUrl ? (
-            <Image
-              src={content.logoUrl}
-              alt={content.siteName}
-              width={36}
-              height={36}
-              className="size-9 rounded-md object-cover"
-            />
-          ) : (
-            <span className="grid size-9 place-items-center rounded-md bg-navy font-mono text-sm font-bold text-cream dark:bg-teal-glow dark:text-ink-base dark:shadow-[0_0_18px_oklch(0.84_0.13_184_/_0.5)]">
-              ƒ(x)
-            </span>
-          )}
-          <span className="font-heading text-xl font-bold text-navy dark:text-ink-fg">{content.siteName}</span>
-        </Link>
-
-        <div className="hidden items-center gap-9 md:flex">
-          {content.links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="group relative text-sm font-semibold text-navy-soft transition-colors hover:text-navy dark:text-ink-dim dark:hover:text-ink-fg"
-            >
-              {l.label}
-              <span className="absolute -bottom-1.5 right-0 h-0.5 w-0 bg-gold transition-all duration-300 group-hover:w-full dark:bg-teal-glow" />
-            </a>
-          ))}
-        </div>
-
-        <div className="hidden items-center gap-2 md:flex">
-          <CartButton className="text-navy dark:text-ink-fg" />
-          <ThemeToggle />
-          {isUserLoggedIn ? (
-            <Link
-              href="/auth"
-              className="inline-flex items-center rounded-full bg-navy px-6 py-2.5 text-sm font-bold text-cream transition-transform duration-200 hover:-translate-y-0.5 hover:bg-navy-deep dark:bg-violet-glow dark:text-white dark:hover:bg-violet-deep"
-            >
-              {content.ctaAccountText}
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/auth"
-                className="rounded-full px-5 py-2.5 text-sm font-bold text-navy transition-colors hover:bg-navy/5 dark:text-ink-fg dark:hover:bg-white/5"
-              >
-                {content.ctaLoginText}
-              </Link>
-              <Link
-                href="/auth?mode=register"
-                className="inline-flex items-center rounded-full bg-navy px-6 py-2.5 text-sm font-bold text-cream transition-transform duration-200 hover:-translate-y-0.5 hover:bg-navy-deep dark:bg-violet-glow dark:text-white dark:shadow-[0_0_22px_oklch(0.66_0.2_292_/_0.45)] dark:hover:bg-violet-deep"
-              >
-                {content.ctaRegisterText}
-              </Link>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1 md:hidden">
-          <CartButton className="text-navy dark:text-ink-fg" />
-          <ThemeToggle />
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            className="grid size-10 place-items-center rounded-md text-navy dark:text-ink-fg"
-            aria-label={open ? 'إغلاق القائمة' : 'فتح القائمة'}
+    <>
+      <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-3 sm:px-6 md:px-8 mb-4">
+        <div className="w-full max-w-full">
+          <nav
+            className={cn(
+              'flex items-center justify-between gap-4 px-6 py-3.5 rounded-2xl sm:rounded-full border transition-all duration-300',
+              'bg-card/80 backdrop-blur-md shadow-lg',
+              scrolled && 'shadow-xl',
+              'w-full'
+            )}
+            style={{ borderColor: 'rgba(200,185,154,0.4)' }}
           >
-            {open ? <X className="size-6" /> : <Menu className="size-6" />}
-          </button>
-        </div>
-      </nav>
+            {/* ── RIGHT: Logo ── */}
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <div className="size-9 rounded-full flex items-center justify-center bg-gold text-navy-deep text-sm font-bold shrink-0">
+                ش
+              </div>
+              <span className="text-base font-bold text-foreground whitespace-nowrap">
+                أكاديمية شفاء العليل
+              </span>
+            </Link>
 
-      {open && (
-        <div className="mx-auto mt-3 max-w-6xl rounded-3xl border border-cream/40 bg-cream/80 px-5 py-4 shadow-xl shadow-navy/10 backdrop-blur-xl md:hidden dark:border-white/10 dark:bg-ink-raised/90 dark:shadow-black/40">
-          <div className="flex flex-col gap-1">
-            {content.links.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-3 text-base font-semibold text-navy-soft transition-colors hover:bg-navy/5 hover:text-navy dark:text-ink-dim dark:hover:bg-white/5 dark:hover:text-ink-fg"
-              >
-                {l.label}
-              </a>
-            ))}
-            <div className="mt-2 flex gap-2">
+            {/* ── CENTER: nav links ── */}
+            <div className="flex-1 flex items-center justify-center gap-6 lg:gap-8">
+              {/* Desktop nav links */}
+              <ul className="hidden md:flex items-center gap-6">
+                {navLinks.map((link) => (
+                  <li key={link.href}>
+                    <a
+                      href={link.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* ── LEFT: actions ── */}
+            <div className="flex items-center gap-2 shrink-0">
+              <CartButton className="text-foreground" />
+              {mounted && (
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="size-9 flex items-center justify-center rounded-full border border-border/60 hover:bg-muted transition-colors"
+                  aria-label="تبديل المظهر"
+                >
+                  {isDark ? (
+                    <Sun className="size-4 text-muted-foreground" />
+                  ) : (
+                    <Moon className="size-4 text-muted-foreground" />
+                  )}
+                </button>
+              )}
+
+              {/* Desktop CTAs */}
               {isUserLoggedIn ? (
                 <Link
-                  href="/auth"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 rounded-full bg-navy px-6 py-3 text-center text-base font-bold text-cream dark:bg-violet-glow dark:text-white"
+                  href="/student"
+                  className="hidden md:block px-5 py-2 rounded-full text-sm font-semibold bg-gold text-navy-deep hover:opacity-90 transition-opacity whitespace-nowrap"
                 >
-                  {content.ctaAccountText}
+                  لوحة التحكم
                 </Link>
               ) : (
                 <>
                   <Link
                     href="/auth"
-                    onClick={() => setOpen(false)}
-                    className="flex-1 rounded-full border border-navy/15 px-6 py-3 text-center text-base font-bold text-navy dark:border-white/10 dark:text-ink-fg"
+                    className="hidden lg:block px-4 py-2 rounded-full text-sm font-medium text-foreground hover:bg-muted transition-colors whitespace-nowrap"
                   >
-                    {content.ctaLoginText}
+                    تسجيل الدخول
                   </Link>
                   <Link
-                    href="/auth?mode=register"
-                    onClick={() => setOpen(false)}
-                    className="flex-1 rounded-full bg-navy px-6 py-3 text-center text-base font-bold text-cream dark:bg-violet-glow dark:text-white"
+                    href="/auth"
+                    className="hidden md:block px-5 py-2 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity whitespace-nowrap"
                   >
-                    {content.ctaRegisterText}
+                    ابدأ الآن
                   </Link>
                 </>
               )}
+
+              {/* Hamburger — mobile only */}
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="md:hidden size-9 flex items-center justify-center rounded-full border border-border/60 hover:bg-muted transition-colors text-foreground"
+                aria-label="فتح القائمة"
+                aria-expanded={sidebarOpen}
+              >
+                <HamburgerIcon open={false} />
+              </button>
             </div>
-          </div>
+          </nav>
         </div>
-      )}
-    </header>
+      </header>
+
+      {/* ─── Mobile Sidebar ─── */}
+      <div
+        className={cn(
+          'fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden',
+          sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        )}
+        aria-hidden
+        onClick={closeSidebar}
+      />
+
+      <div
+        ref={sidebarRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="قائمة التنقل"
+        dir="rtl"
+        className={cn(
+          'fixed top-0 right-0 h-full w-72 z-[70] flex flex-col',
+          'bg-card border-l border-border/50 shadow-2xl',
+          'transition-transform duration-300 ease-in-out md:hidden',
+          sidebarOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+      >
+        <div
+          className="flex items-center justify-between px-5 py-4 border-b border-border/40"
+          style={{ borderColor: 'rgba(200,185,154,0.25)' }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="size-8 rounded-full flex items-center justify-center bg-gold text-navy-deep text-sm font-bold shrink-0">
+              ش
+            </div>
+            <span className="text-sm font-bold text-foreground">أكاديمية شفاء العليل</span>
+          </div>
+          <button
+            onClick={closeSidebar}
+            className="size-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors text-muted-foreground"
+            aria-label="إغلاق القائمة"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto px-4 py-6">
+          <ul className="flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  onClick={closeSidebar}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium',
+                    'text-muted-foreground hover:text-foreground hover:bg-muted/60',
+                    'transition-colors duration-150'
+                  )}
+                >
+                  <span
+                    className="size-1.5 rounded-full shrink-0"
+                    style={{ background: 'rgba(200,185,154,0.7)' }}
+                  />
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div
+          className="flex flex-col gap-2 px-4 py-5 border-t border-border/40"
+          style={{ borderColor: 'rgba(200,185,154,0.25)' }}
+        >
+          {isUserLoggedIn ? (
+            <Link
+              href="/student"
+              onClick={closeSidebar}
+              className="w-full text-center py-2.5 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              لوحة التحكم
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/auth"
+                onClick={closeSidebar}
+                className="w-full text-center py-2.5 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              >
+                ابدأ الآن
+              </Link>
+              <Link
+                href="/auth"
+                onClick={closeSidebar}
+                className="w-full text-center py-2.5 rounded-full text-sm font-medium text-foreground border border-border/50 hover:bg-muted transition-colors"
+              >
+                تسجيل الدخول
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </>
   )
 }

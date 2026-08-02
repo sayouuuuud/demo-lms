@@ -1,251 +1,103 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import gsap from 'gsap'
-import Image from 'next/image'
-import { ArrowLeft, ChevronDown } from 'lucide-react'
-import { type Stage } from '@/lib/landing-data'
-import { cn } from '@/lib/utils'
+import { BookOpen, GraduationCap, Award } from 'lucide-react'
+import { ParchmentCard } from '@/components/parchment-card'
 import { useReveal } from '@/lib/use-reveal'
 
-export function StagesSection({ stages = [] }: { stages?: Stage[] }) {
-  const headRef = useReveal<HTMLDivElement>(undefined, { y: 30 })
-  const [active, setActive] = useState(0)
+const DEFAULT_STAGES = [
+  {
+    id: 1,
+    name: 'الصف الأول الثانوي',
+    description: 'أساسيات اللغة العربية والقواعد الأساسية.',
+    icon: BookOpen,
+    image: '/images/arabic_manuscript.jpg',
+    units: ['النحو والقواعد الأساسية', 'القراءة والفهم', 'التعبير والكتابة'],
+  },
+  {
+    id: 2,
+    name: 'الصف الثاني الثانوي',
+    description: 'تعمّق في النحو والبلاغة والأدب.',
+    icon: GraduationCap,
+    image: '/images/golden_quill_arabic.jpg',
+    units: ['النحو المتقدم', 'البلاغة والبيان', 'الأدب العربي', 'النصوص والقراءة المتحررة'],
+  },
+  {
+    id: 3,
+    name: 'الصف الثالث الثانوي',
+    description: 'إتقان اللغة والتحضير للامتحانات.',
+    icon: Award,
+    image: '/images/arabic_books_stack.jpg',
+    units: ['النحو الشامل', 'البلاغة والنقد الأدبي', 'الأدب والنصوص', 'القصة', 'التعبير والمراجعة النهائية'],
+  },
+]
+
+export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
+  const headRef = useReveal<HTMLDivElement>()
+  const gridRef = useReveal<HTMLDivElement>('.stage-card-wrap', { y: 40, stagger: 0.18 })
+
+  const displayStages = (dbStages && dbStages.length > 0)
+    ? dbStages.map((s, idx) => ({
+        id: s.id || idx + 1,
+        name: s.title || s.name || DEFAULT_STAGES[idx % DEFAULT_STAGES.length].name,
+        description: s.subtitle || s.description || DEFAULT_STAGES[idx % DEFAULT_STAGES.length].description,
+        image: DEFAULT_STAGES[idx % DEFAULT_STAGES.length].image,
+        units: (s.branches && s.branches.length > 0)
+          ? s.branches.map((b: any) => b.title || b.name)
+          : (s.courses && s.courses.length > 0)
+            ? s.courses.map((c: any) => c.title || c.name)
+            : DEFAULT_STAGES[idx % DEFAULT_STAGES.length].units,
+      }))
+    : DEFAULT_STAGES
 
   return (
-    <section id="stages" className="relative overflow-hidden bg-navy py-20 md:py-28 dark:bg-transparent">
+    <section id="stages" className="relative overflow-hidden bg-[#eee6d5] dark:bg-[#120e0a] py-20 md:py-32">
+      {/* خلفية SVG التراثية ممتدة بعرض الشاشة بالكامل من الحافة للحافة */}
+      <div 
+        className="absolute bottom-0 w-[100vw] left-1/2 -translate-x-1/2 h-[40%] pointer-events-none z-0 mix-blend-multiply opacity-25"
+        style={{
+          maskImage: 'linear-gradient(to top, black 85%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to top, black 85%, transparent 100%)',
+        }}
+      >
+        <img 
+          src="/images/picsvg_download.svg?v=3" 
+          alt="" 
+          aria-hidden="true" 
+          className="w-[100vw] min-w-[100vw] h-full object-fill block"
+        />
+      </div>
 
-      <div className="relative mx-auto max-w-7xl px-5 md:px-8">
-
-        {/* Desktop: heading + list on the right, card sticky on the left */}
-        <div className="hidden items-start gap-10 lg:grid lg:grid-cols-[1.1fr_0.9fr]">
-          <div>
-            <div ref={headRef}>
-              <span className="text-sm font-semibold text-gold dark:text-teal-glow">
-                <span className="font-mono">{'// '}</span>
-                اختار مرحلتك
-              </span>
-              <h2 className="font-thmanyah font-bold mt-3 text-balance text-3xl leading-tight text-cream sm:text-4xl lg:text-5xl">
-                مرحلتك التعليمية
-              </h2>
-              <p className="mt-5 text-pretty text-lg leading-relaxed text-cream/65">
-                كل مرحلة فيها المواد مرتبة خطوة بخطوة. عدّي على السنة اللي انت فيها وشوف
-                اللي مستنيك جواها.
-              </p>
-            </div>
-            <ul className="mt-14 border-t border-white/10">
-            {stages.map((stage, i) => (
-              <li key={stage.id}>
-                <Link
-                  href={`/stages/${stage.id}`}
-                  onMouseEnter={() => setActive(i)}
-                  onFocus={() => setActive(i)}
-                  className="group grid grid-cols-[5rem_1fr_auto] items-center gap-4 border-b border-white/10 py-8 transition-colors"
-                >
-                  <span
-                    className={cn(
-                      'font-thmanyah text-4xl font-bold transition-colors xl:text-6xl',
-                      active === i ? 'text-gold dark:text-teal-glow' : 'text-white/15',
-                    )}
-                  >
-                    {stage.index}
-                  </span>
-                  <span>
-                    <span
-                      className={cn(
-                        'block text-2xl font-bold font-thmanyah transition-colors xl:text-3xl',
-                        active === i ? 'text-cream' : 'text-cream/70',
-                      )}
-                    >
-                      {stage.title}
-                    </span>
-                    <span className="mt-1 block text-sm text-cream/45">{stage.subtitle}</span>
-                  </span>
-                  <ArrowLeft
-                    className={cn(
-                      'size-7 transition-all',
-                      active === i
-                        ? '-translate-x-1 text-gold dark:text-teal-glow'
-                        : 'text-white/25 group-hover:text-white/50',
-                    )}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-          </div>
-
-          {stages[active] && <StagePreview stage={stages[active]} />}
-        </div>
-
-        {/* Mobile heading — only shows below lg */}
-        <div className="lg:hidden">
-          <span className="text-sm font-semibold text-gold dark:text-teal-glow">
-            <span className="font-mono">{'// '}</span>
-            اختار مرحلتك
+      <div className="relative z-10 mx-auto max-w-[1600px] px-4 md:px-10">
+        <div ref={headRef} className="max-w-3xl text-center mx-auto mb-20">
+          <span className="text-sm font-bold tracking-widest text-gold uppercase" style={{ fontFamily: 'var(--font-cairo)' }}>
+            رحلتك التعليمية
           </span>
-          <h2 className="font-thmanyah font-bold mt-3 text-balance text-3xl leading-tight text-cream sm:text-4xl">
-            إيه اللي بيخلي المنصة مختلفة؟
+          <h2
+            className="mt-4 text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl font-black"
+            style={{ fontFamily: "'Thmanyah Sans', sans-serif" }}
+          >
+            المراحل الدراسية
           </h2>
-          <p className="mt-5 text-pretty text-lg leading-relaxed text-cream/65">
-            كل مرحلة فيها المواد مرتبة خطوة بخطوة. عدّي على السنة اللي انت فيها وشوف
-            اللي مستنيك جواها.
+          <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
+            من البداية وحتى إتقان اللغة العربية، صممنا لك مساراً يضمن لك التفوق بخطوات واثقة ومستندة على جذور لغتنا الأصيلة.
           </p>
         </div>
 
-        {/* Mobile: accordion */}
-        <div className="mt-12 border-t border-white/10 lg:hidden">
-          {stages.map((stage, i) => (
-            <MobileStage
-              key={stage.id}
-              stage={stage}
-              open={active === i}
-              onToggle={() => setActive(active === i ? -1 : i)}
-            />
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 justify-items-center">
+          {displayStages.map((stage) => (
+            <div key={stage.id} className="stage-card-wrap w-full flex justify-center">
+              <ParchmentCard
+                illustrationSrc={(stage as any).image ?? '/images/math-ink.png'}
+                illustrationAlt={stage.name}
+                title={stage.name}
+                description={stage.description}
+                buttonLabel="ادخل المرحلة"
+                onAction={() => window.location.href = `/stages/${stage.id}`}
+              />
+            </div>
           ))}
         </div>
       </div>
     </section>
-  )
-}
-
-function StagePreview({ stage }: { stage: Stage }) {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    gsap.fromTo(
-      el,
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' },
-    )
-  }, [stage.id])
-
-  return (
-    <div className="relative">
-      <div className="sticky top-24">
-        <div
-          ref={ref}
-          className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm"
-        >
-          {/* stage image — rectangular (16/9), rounded to match card corners */}
-          <div className="relative aspect-video w-full overflow-hidden rounded-2xl">
-            <Image
-              src={stage.image}
-              alt={stage.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 420px"
-            />
-          </div>
-
-          <h3 className="relative mt-5 text-2xl font-extrabold text-cream">
-            {stage.title}
-          </h3>
-          <p className="relative mt-2 leading-relaxed text-cream/65">{stage.subtitle}</p>
-
-          <div className="relative mt-7">
-            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-cream/40">
-              الصفوف داخل المرحلة
-            </span>
-            <ul className="mt-3 space-y-2">
-              {stage.branches.map((branch, idx) => (
-                <li
-                  key={branch.id}
-                  className="flex items-center gap-3 rounded-xl border border-white/10 bg-navy-deep/40 px-4 py-3 text-cream/90"
-                >
-                  <span className="font-thmanyah text-sm text-gold dark:text-teal-glow">
-                    {(idx + 1).toLocaleString('ar-EG', { minimumIntegerDigits: 2 })}
-                  </span>
-                  {branch.title}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <Link
-            href={`/stages/${stage.id}`}
-            className="relative mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-4 text-base font-bold text-navy-deep transition-transform duration-200 hover:-translate-y-0.5 dark:bg-violet-glow dark:text-white dark:shadow-[0_0_24px_oklch(0.66_0.2_292_/_0.4)]"
-          >
-            ادخل المرحلة
-            <ArrowLeft className="size-5" />
-          </Link>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MobileStage({
-  stage,
-  open,
-  onToggle,
-}: {
-  stage: Stage
-  open: boolean
-  onToggle: () => void
-}) {
-  return (
-    <div className="border-b border-white/10">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex w-full items-center gap-4 py-5 text-right"
-        aria-expanded={open}
-      >
-        <span
-          className={cn(
-            'font-thmanyah text-3xl font-bold transition-colors',
-            open ? 'text-gold dark:text-teal-glow' : 'text-white/20',
-          )}
-        >
-          {stage.index}
-        </span>
-        <span className="flex-1">
-          <span className="block text-lg font-extrabold text-cream">{stage.title}</span>
-          <span className="mt-0.5 block text-xs text-cream/45">{stage.subtitle}</span>
-        </span>
-        <ChevronDown
-          className={cn(
-            'size-5 text-cream/50 transition-transform duration-300',
-            open && 'rotate-180',
-          )}
-        />
-      </button>
-
-      <div
-        className={cn(
-          'grid transition-all duration-300',
-          open ? 'grid-rows-[1fr] pb-6' : 'grid-rows-[0fr]',
-        )}
-      >
-        <div className="overflow-hidden">
-          <p className="text-pretty leading-relaxed text-cream/65">{stage.subtitle}</p>
-          <ul className="mt-4 space-y-2">
-            {stage.branches.map((branch, idx) => (
-              <li
-                key={branch.id}
-                className="flex items-center gap-3 rounded-xl border border-white/10 bg-navy-deep/40 px-4 py-3 text-sm text-cream/90"
-              >
-                <span className="font-thmanyah text-gold dark:text-teal-glow">
-                  {(idx + 1).toLocaleString('ar-EG', { minimumIntegerDigits: 2 })}
-                </span>
-                {branch.title}
-              </li>
-            ))}
-          </ul>
-          <Link
-            href={`/stages/${stage.id}`}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gold px-7 py-3.5 text-base font-bold text-navy-deep dark:bg-violet-glow dark:text-white"
-          >
-            ادخل المرحلة
-            <ArrowLeft className="size-5" />
-          </Link>
-        </div>
-      </div>
-    </div>
   )
 }

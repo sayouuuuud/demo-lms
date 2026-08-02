@@ -1,70 +1,57 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import gsap from 'gsap'
 
 type RevealOptions = {
   y?: number
   duration?: number
   stagger?: number
   delay?: number
-  ease?: string
   start?: number // 0-1, fraction of viewport height to trigger at
 }
 
 /**
- * Reliable scroll reveal: uses IntersectionObserver to fire a GSAP tween
- * once the target (or its children) enters the viewport. Avoids the stale
- * position issues of ScrollTrigger when large images load late.
- *
- * Pass a selector to animate matching children (with stagger); omit it to
- * animate the container element itself.
+ * Scroll reveal بدون مكتبات خارجية: IntersectionObserver + CSS transitions.
+ * مرّر selector لتحريك العناصر الأبناء (مع stagger)، أو اتركه لتحريك العنصر نفسه.
  */
 export function useReveal<T extends HTMLElement = HTMLDivElement>(
   childSelector?: string,
   options: RevealOptions = {},
 ) {
   const ref = useRef<T>(null)
-    const {
-      y = 40,
-      duration = 0.7,
-      stagger = 0.12,
-      delay = 0,
-      ease = 'power3.out',
-      start = 0.85,
-    } = options
+  const { y = 40, duration = 0.7, stagger = 0.12, delay = 0, start = 0.85 } = options
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
 
-    const targets: Element[] = childSelector
-      ? Array.from(el.querySelectorAll(childSelector))
+    const targets: HTMLElement[] = childSelector
+      ? (Array.from(el.querySelectorAll(childSelector)) as HTMLElement[])
       : [el]
     if (targets.length === 0) return
 
-    // Respect reduced-motion: show everything, skip the animation.
-    if (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
-      gsap.set(targets, { y: 0, opacity: 1 })
+    // احترام تفضيل تقليل الحركة
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      targets.forEach((t) => {
+        t.style.opacity = '1'
+        t.style.transform = 'none'
+      })
       return
     }
 
-    gsap.set(targets, { y, opacity: 0 })
+    targets.forEach((t) => {
+      t.style.opacity = '0'
+      t.style.transform = `translateY(${y}px)`
+    })
 
     let done = false
     const reveal = () => {
       if (done) return
       done = true
-      gsap.to(targets, {
-        y: 0,
-        opacity: 1,
-        duration,
-        stagger,
-        delay,
-        ease,
+      targets.forEach((t, i) => {
+        t.style.transition = `opacity ${duration}s cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}s, transform ${duration}s cubic-bezier(0.22,1,0.36,1) ${delay + i * stagger}s`
+        t.style.opacity = '1'
+        t.style.transform = 'translateY(0)'
       })
     }
 
@@ -83,12 +70,12 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
 
     observer.observe(el)
 
-    // Fallback: if already in view on mount, reveal immediately.
+    // fallback: لو العنصر ظاهر بالفعل عند التركيب
     const rect = el.getBoundingClientRect()
     if (rect.top < window.innerHeight * start) reveal()
 
     return () => observer.disconnect()
-  }, [childSelector, y, duration, stagger, delay, ease, start])
+  }, [childSelector, y, duration, stagger, delay, start])
 
   return ref
 }
