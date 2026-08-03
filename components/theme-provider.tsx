@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { applyColorPreset } from '@/lib/color-presets'
 
 type ThemeContextValue = {
   isDark: boolean
@@ -28,13 +27,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const toggleTheme = () => {
     setIsDark((prev) => {
       const next = !prev
-      const root = document.documentElement
-      root.classList.toggle('dark', next)
+      document.documentElement.classList.toggle('dark', next)
       localStorage.setItem('theme', next ? 'dark' : 'light')
-      // إعادة تطبيق لون الـ preset بالنسخة الصحيحة (لايت/دارك) بعد التبديل،
-      // وإلا هيفضل اللون الأساسي على نسخة الوضع القديم.
-      const presetId = root.dataset.colorPreset
-      if (presetId) applyColorPreset(presetId)
       return next
     })
   }

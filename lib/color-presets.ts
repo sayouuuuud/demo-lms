@@ -63,8 +63,7 @@ export function applyColorPreset(id: PresetId | string) {
   root.style.setProperty('--sidebar-primary', vals.sidebar)
   root.style.setProperty('--sidebar-accent', vals.sidebar)
   root.style.setProperty('--sidebar-ring', vals.ring)
-  root.dataset.colorPreset = preset.id
-
+  
   try {
     localStorage.setItem('color-preset', id)
   } catch {}
