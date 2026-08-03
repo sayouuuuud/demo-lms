@@ -1,15 +1,17 @@
 'use client'
 
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart'
 import type { RetentionPoint } from '@/app/admin/analytics/queries'
+
+const config = {
+  percent: { label: 'نسبة البقاء', color: 'var(--primary)' },
+} satisfies ChartConfig
 
 /**
  * منحنى التسريب. المحور الأفقي = موضع الفيديو (0% إلى 100%)،
@@ -42,46 +44,43 @@ export function RetentionChart({
           لا توجد بيانات مشاهدة لهذا الدرس بعد.
         </p>
       ) : (
-        <div className="mt-4 h-64 w-full" dir="ltr">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+        <div className="mt-4" dir="ltr">
+          <ChartContainer config={config} className="h-64 min-h-[256px] w-full">
+            <AreaChart data={chartData} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis
                 dataKey="at"
-                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-                stroke="var(--border)"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
                 interval={3}
               />
               <YAxis
                 domain={[0, 100]}
-                tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
-                stroke="var(--border)"
+                tickLine={false}
+                axisLine={false}
+                width={44}
                 tickFormatter={(v) => `${v}%`}
               />
-              <Tooltip
-                contentStyle={{
-                  background: 'var(--card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '0.75rem',
-                  fontSize: 12,
-                }}
-                labelFormatter={(l) => `عند ${l} من الفيديو`}
-                formatter={(value, name) =>
-                  name === 'percent'
-                    ? [`${Number(value)}%`, 'نسبة البقاء']
-                    : [Number(value), 'مشاهدون']
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    labelFormatter={(l) => `عند ${l} من الفيديو`}
+                    formatter={(value) => [`${Number(value)}%`, ' نسبة البقاء']}
+                  />
                 }
               />
               <Area
                 type="monotone"
                 dataKey="percent"
-                stroke="var(--primary)"
-                fill="var(--primary)"
+                stroke="var(--color-percent)"
+                fill="var(--color-percent)"
                 fillOpacity={0.15}
                 strokeWidth={2}
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         </div>
       )}
     </div>
