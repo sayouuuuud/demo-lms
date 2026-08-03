@@ -20,16 +20,16 @@ export function WaveDivider() {
       >
         <defs>
           <linearGradient id="gold-grad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="oklch(0.78 0.12 80)"  stopOpacity="0.2" />
-            <stop offset="25%"  stopColor="oklch(0.82 0.15 85)"  stopOpacity="1"   />
-            <stop offset="50%"  stopColor="oklch(0.88 0.18 88)"  stopOpacity="1"   />
-            <stop offset="75%"  stopColor="oklch(0.82 0.15 85)"  stopOpacity="1"   />
-            <stop offset="100%" stopColor="oklch(0.78 0.12 80)"  stopOpacity="0.2" />
+            <stop offset="0%"   stopColor="oklch(0.62 0.07 80)"  stopOpacity="0.15" />
+            <stop offset="25%"  stopColor="oklch(0.68 0.09 84)"  stopOpacity="0.75" />
+            <stop offset="50%"  stopColor="oklch(0.72 0.10 86)"  stopOpacity="0.85" />
+            <stop offset="75%"  stopColor="oklch(0.68 0.09 84)"  stopOpacity="0.75" />
+            <stop offset="100%" stopColor="oklch(0.62 0.07 80)"  stopOpacity="0.15" />
           </linearGradient>
           <linearGradient id="gold-glow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="oklch(0.92 0.22 90)"  stopOpacity="0" />
-            <stop offset="50%"  stopColor="oklch(0.92 0.22 90)"  stopOpacity="0.5" />
-            <stop offset="100%" stopColor="oklch(0.92 0.22 90)"  stopOpacity="0" />
+            <stop offset="0%"   stopColor="oklch(0.72 0.10 86)"  stopOpacity="0" />
+            <stop offset="50%"  stopColor="oklch(0.72 0.10 86)"  stopOpacity="0.2" />
+            <stop offset="100%" stopColor="oklch(0.72 0.10 86)"  stopOpacity="0" />
           </linearGradient>
         </defs>
 
