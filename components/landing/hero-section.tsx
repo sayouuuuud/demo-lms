@@ -255,7 +255,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         two ~50% columns were too narrow: the headline collided with the teacher photo
         and the stats bar overflowed, so tablets keep the stacked mobile layout.
       */}
-      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch pt-20 sm:pt-28 w-full min-w-0">
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch pt-24 sm:pt-28 w-full min-w-0">
         {/* ── TEXT SIDE ── */}
         <div
           ref={textRef}
@@ -273,7 +273,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
             <h1
               /* Arabic headline needs a slightly looser line-height on phones so
                  the diacritics of one line don't touch the line above it. */
-              className="text-balance text-[clamp(1.65rem,7.6vw,3.25rem)] lg:text-[clamp(2.25rem,4.2vw,3.75rem)] xl:text-[4.5rem] font-black leading-[1.45] sm:leading-tight"
+              className="text-balance text-[clamp(1.95rem,9vw,3.25rem)] lg:text-[clamp(2.25rem,4.2vw,3.75rem)] xl:text-[4.5rem] font-black leading-[1.4] sm:leading-tight"
               style={{ fontFamily: 'var(--font-reem-kufi), var(--font-cairo), sans-serif' }}
             >
               {/* No `whitespace-nowrap` here — the long Arabic phrases must be free to
@@ -289,7 +289,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
               ))}
             </h1>
             {content.badge && (
-              <p className="text-base sm:text-lg font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
+              <p className="text-sm sm:text-base font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
                 {content.badge}
               </p>
             )}
@@ -300,7 +300,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
 
           {/* Description */}
           <p
-            className="text-base sm:text-lg leading-relaxed"
+            className="text-[13px] sm:text-base leading-relaxed"
             style={{ color: isDark ? 'oklch(0.84 0.02 85)' : 'oklch(0.42 0.040 56)', fontFamily: 'var(--font-cairo), sans-serif', maxWidth: '40rem' }}
           >
             {content.description}
@@ -351,8 +351,8 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
           {/* MOBILE + TABLET */}
           {/* Extra horizontal padding keeps the decorative rings and the two
               floating labels inside the viewport on narrow phones. */}
-          <div className="lg:hidden relative w-full flex justify-center px-8 pt-3 pb-2 sm:px-6 sm:pt-6 sm:pb-4">
-            <div className="relative aspect-square w-[62vw] min-w-[180px] max-w-[300px] sm:w-[72vw] sm:max-w-[400px]">
+          <div className="lg:hidden relative w-full flex justify-center px-6 pt-6 pb-2 sm:px-6 sm:pt-8 sm:pb-4">
+            <div className="relative aspect-square w-[78vw] min-w-[220px] max-w-[340px] sm:w-[78vw] sm:max-w-[400px]">
               <div
                 className="absolute -inset-4 rounded-full pointer-events-none"
                 aria-hidden="true"
