@@ -226,13 +226,20 @@ export function HeroSection() {
     >
       <TopographicBackground />
 
+      {/* Light overlay */}
       <div
-        className="absolute inset-y-0 start-0 w-full lg:w-[62%] z-[1] pointer-events-none"
+        className="absolute inset-y-0 start-0 w-full lg:w-[62%] z-[1] pointer-events-none block dark:hidden"
         aria-hidden="true"
         style={{
-          background: isDark
-            ? 'radial-gradient(ellipse 90% 75% at 75% 48%, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.50) 48%, transparent 72%)'
-            : 'radial-gradient(ellipse 90% 75% at 75% 48%, oklch(0.985 0.008 90 / 92%) 0%, oklch(0.985 0.008 90 / 60%) 48%, transparent 72%)',
+          background: 'radial-gradient(ellipse 90% 75% at 75% 48%, oklch(0.985 0.008 90 / 92%) 0%, oklch(0.985 0.008 90 / 60%) 48%, transparent 72%)',
+        }}
+      />
+      {/* Dark overlay */}
+      <div
+        className="absolute inset-y-0 start-0 w-full lg:w-[62%] z-[1] pointer-events-none hidden dark:block"
+        aria-hidden="true"
+        style={{
+          background: 'radial-gradient(ellipse 90% 75% at 75% 48%, rgba(0,0,0,0.84) 0%, rgba(0,0,0,0.50) 48%, transparent 72%)',
         }}
       />
 

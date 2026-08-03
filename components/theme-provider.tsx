@@ -16,11 +16,16 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // القيمة الأولية تُقرأ من الكلاس اللي طبّقه السكريبت في <head> قبل أول رسم،
-  // فمفيش وميض ومفيش رجوع للايت مود.
-  const [isDark, setIsDark] = useState(false)
+  // نقرأ الكلاس مباشرة من <html> كـ initial state عشان مفيش وميض —
+  // السكريبت في <head> بيضيف 'dark' قبل أول رسم فالقيمة هتكون صح من أول لحظة.
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    typeof window !== 'undefined'
+      ? document.documentElement.classList.contains('dark')
+      : false,
+  )
 
   useEffect(() => {
+    // نزامن بعد hydration للتأكد
     setIsDark(document.documentElement.classList.contains('dark'))
   }, [])
 

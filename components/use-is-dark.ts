@@ -11,16 +11,21 @@ import { useEffect, useState } from 'react'
  * نظامه دارك هيفضل دارك حتى لما المستخدم يختار اللايت مود.
  */
 export function useIsDark() {
-  const [isDark, setIsDark] = useState(false)
+  // نبدأ بقراءة الكلاس مباشرة من الـ DOM لتفادي وميض اللون عند أول رسم.
+  // typeof window check عشان ميكسرش الـ SSR.
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    typeof window !== 'undefined'
+      ? document.documentElement.classList.contains('dark')
+      : false,
+  )
 
   useEffect(() => {
-    const update = () => {
+    // نزامن مباشرة بعد mount (مهم لو الكلاس اتغير بين SSR وhydration)
+    setIsDark(document.documentElement.classList.contains('dark'))
+
+    const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains('dark'))
-    }
-
-    update()
-
-    const observer = new MutationObserver(update)
+    })
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
 
     return () => observer.disconnect()
