@@ -863,14 +863,13 @@ export function SettingsPanel({
               </p>
             </div>
 
-            {/* Dark-mode neon accents picker */}
+            {/* Public-page dark theme picker */}
             <div className="mt-4 rounded-xl border border-border bg-muted/30 p-4">
               <p className="mb-3 text-right text-sm font-medium text-foreground">
-                ألوان الوضع الليلي (النيون)
+                ثيمات الصفحات العامة — الوضع الداكن
               </p>
               <p className="mb-4 text-right text-xs text-muted-foreground">
-                تتحكم في الألوان المتوهجة اللي بتظهر في الوضع الليلي: الأرقام، الرموز
-                الرياضية، والتوهّج حول عناصر الصفحة الرئيسية.
+                اختر لوحة الألوان المناسبة للصفحة الرئيسية والصفحات العامة عند تفعيل الوضع الداكن.
               </p>
               <div className="flex flex-wrap gap-3">
                 {neonPresets.map((preset) => (
@@ -895,20 +894,20 @@ export function SettingsPanel({
                 ))}
               </div>
               <p className="mt-3 text-right text-xs text-muted-foreground">
-                التدرّج الحالي:{' '}
+                الثيم الحالي:{' '}
                 <span className="font-semibold text-foreground">
                   {neonPresets.find((p) => p.id === neonPreset)?.label}
                 </span>
               </p>
             </div>
 
-            {/* Light-mode landing accents picker */}
+            {/* Public-page light theme picker */}
             <div className="mt-4 rounded-xl border border-border bg-muted/30 p-4">
               <p className="mb-3 text-right text-sm font-medium text-foreground">
-                ثيمات الوضع الفاتح
+                ثيمات الصفحات العامة — الوضع الفاتح
               </p>
               <p className="mb-4 text-right text-xs text-muted-foreground">
-                تتحكم في الألوان الرئيسية لصفحة الهبوط (Landing page) عندما يكون الوضع الفاتح مفعلاً.
+                اختر لوحة الألوان المناسبة للصفحة الرئيسية والصفحات العامة عند تفعيل الوضع الفاتح.
               </p>
               <div className="flex flex-wrap gap-3">
                 {lightPresets.map((preset) => (
