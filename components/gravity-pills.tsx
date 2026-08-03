@@ -45,7 +45,7 @@ export function GravityPills() {
     // الحجم يتناسب مع عرض المشهد نفسه، فتبقى الكثافة البصرية ثابتة على أي شاشة
     // (درجة ثابتة للديسكتوب كانت تبان ضخمة على 1100px وصغيرة على 1900px).
     // الحد الأدنى يمنعها من الاختفاء على الموبايل، والأقصى يمنعها من التضخّم.
-    const scale = Math.min(1.45, Math.max(0.5, w / 1300))
+    const scale = Math.min(1.3, Math.max(0.46, w / 1450))
 
     pillRefs.current.forEach((el, i) => {
       if (!el) return
