@@ -74,14 +74,14 @@ function LectureRow({
   }
 
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-[#eee6d5]/60 dark:border-border dark:bg-card dark:hover:bg-ink-base/60">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-border bg-[#eee6d5] font-mono text-sm font-bold text-foreground dark:border-border dark:bg-[#120e0a] dark:text-foreground">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-3 rounded-2xl border border-border bg-card p-3 transition-colors hover:bg-[#eee6d5]/60 sm:gap-4 sm:p-4 dark:border-border dark:bg-card dark:hover:bg-ink-base/60">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-[#eee6d5] font-mono text-xs font-bold text-foreground sm:size-10 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-foreground">
         {String(index + 1).padStart(2, '0')}
       </span>
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-40">
         <div className="flex flex-wrap items-center gap-2">
-          <h4 className="truncate font-heading text-base font-bold text-foreground dark:text-foreground">
+          <h4 className="min-w-0 text-pretty break-words font-heading text-sm font-bold text-foreground sm:text-base dark:text-foreground">
             {lecture.title}
           </h4>
           {free && (
@@ -100,14 +100,14 @@ function LectureRow({
       {freeAccess ? (
         <Link
           href={watchHref}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-deep px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-emerald-brand dark:bg-teal-glow dark:text-ink-base dark:hover:bg-teal-glow/90"
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-emerald-deep px-4 py-2.5 text-xs font-bold text-primary-foreground transition-colors hover:bg-emerald-brand sm:text-sm dark:bg-teal-glow dark:text-ink-base dark:hover:bg-teal-glow/90"
         >
           <Play className="size-4" />
           شاهد الآن
         </Link>
       ) : (
-        <div className="flex shrink-0 items-center gap-3">
-          <div className="hidden flex-col items-end sm:flex">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex flex-col items-end">
             {lecture.oldPrice ? (
               <span className="text-xs text-foreground-soft/60 line-through dark:text-muted-foreground/60">
                 {formatEGP(lecture.oldPrice)}
@@ -122,7 +122,7 @@ function LectureRow({
             type="button"
             onClick={handleBuyLecture}
             disabled={!lecture.dbId}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-deep disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary dark:text-white dark:hover:bg-violet-deep"
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2.5 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary-deep disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-sm dark:bg-primary dark:text-white dark:hover:bg-violet-deep"
           >
             {lectureInCart ? (
               <>
@@ -174,9 +174,9 @@ export function CourseLanding({
           className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-gold/10 blur-3xl"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 md:px-8 md:pb-24 md:pt-32">
+        <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-24 md:pt-32">
           {/* breadcrumb */}
-          <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground-soft dark:text-muted-foreground">
+          <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-foreground-soft sm:text-sm dark:text-muted-foreground">
             <Link href="/#stages" className="transition-colors hover:text-foreground dark:hover:text-ink-fg">
               المراحل
             </Link>
@@ -195,38 +195,38 @@ export function CourseLanding({
             <span className="text-foreground dark:text-foreground">{course.title}</span>
           </nav>
 
-          <div className="mt-8 grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">
-            <div>
+          <div className="mt-6 grid items-center gap-8 sm:mt-8 md:gap-12 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="min-w-0">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/5 px-4 py-1.5 text-sm font-semibold text-gold-deep backdrop-blur dark:border-white/10 dark:bg-card/5 dark:text-teal-glow">
                 <Sparkles className="size-4" />
                 محاضرة من {branch.title}
               </span>
-              <h1 className="mt-5 text-balance font-heading text-4xl font-extrabold leading-tight text-foreground md:text-6xl dark:text-foreground">
+              <h1 className="mt-4 text-balance font-heading text-[clamp(1.75rem,7vw,2.5rem)] font-extrabold leading-tight text-foreground sm:mt-5 md:text-5xl lg:text-6xl dark:text-foreground">
                 {course.title}
               </h1>
-              <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-foreground-soft dark:text-muted-foreground">
+              <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-foreground-soft sm:mt-4 sm:text-lg dark:text-muted-foreground">
                 {course.description}
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <Layers className="size-4 text-gold-deep dark:text-teal-glow" />
+              <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <Layers className="size-4 shrink-0 text-gold-deep dark:text-teal-glow" />
                   {course.lectures.length} محاضرة
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <PlayCircle className="size-4 text-emerald-deep dark:text-emerald-brand" />
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <PlayCircle className="size-4 shrink-0 text-emerald-deep dark:text-emerald-brand" />
                   {totalLessons} درس
                 </span>
                 {freeCount > 0 && (
-                  <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-brand/30 bg-emerald-brand/10 px-4 py-2.5 text-sm text-emerald-deep dark:text-emerald-brand">
-                    <Play className="size-4 text-emerald-deep dark:text-emerald-brand" />
+                  <span className="inline-flex items-center gap-2 rounded-xl border border-emerald-brand/30 bg-emerald-brand/10 px-3 py-2 text-xs text-emerald-deep sm:px-4 sm:py-2.5 sm:text-sm dark:text-emerald-brand">
+                    <Play className="size-4 shrink-0 text-emerald-deep dark:text-emerald-brand" />
                     {freeCount} محاضرة مجانية
                   </span>
                 )}
               </div>
 
               {/* price + subscribe */}
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              <div className="mt-6 flex flex-wrap items-center gap-4 sm:mt-8">
                 <div className="flex items-baseline gap-2">
                   {course.oldPrice && (
                     <span className="text-lg text-foreground-soft/60 line-through dark:text-muted-foreground/60">
@@ -258,7 +258,7 @@ export function CourseLanding({
               </div>
             </div>
 
-            <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border border-border shadow-2xl shadow-navy/10 lg:aspect-[4/5] dark:border-border">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-border shadow-2xl shadow-navy/10 sm:aspect-[16/9] md:rounded-[2rem] lg:aspect-[4/5] dark:border-border">
               <Image
                 src={course.image || course.lectures[0]?.image || '/lessons/complex-numbers.png'}
                 alt={course.title}
@@ -281,7 +281,7 @@ export function CourseLanding({
       </section>
 
       {/* ── Curriculum ───────────────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-4xl px-5 py-12 md:px-8 md:py-16">
+      <section className="relative mx-auto max-w-4xl px-4 py-10 sm:px-5 sm:py-12 md:px-8 md:py-16">
         <div className="flex flex-col items-center text-center">
           <span className="text-sm font-semibold text-gold-deep dark:text-teal-glow">
             <span className="font-mono">{'// '}</span>

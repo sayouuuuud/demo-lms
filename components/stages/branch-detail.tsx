@@ -79,8 +79,8 @@ function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
       </div>
 
       {/* body */}
-      <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-heading text-xl font-bold text-foreground dark:text-foreground">{lecture.title}</h3>
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <h3 className="text-balance font-heading text-lg font-bold text-foreground sm:text-xl dark:text-foreground">{lecture.title}</h3>
         <p className="mt-2 text-pretty text-sm leading-relaxed text-foreground-soft dark:text-muted-foreground">
           {lecture.description}
         </p>
@@ -91,11 +91,11 @@ function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
           onClick={() => setOpen(true)}
           className="mt-5 flex w-full items-center justify-between rounded-2xl border border-border bg-[#eee6d5]/60 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-[#eee6d5] dark:border-border dark:bg-[#120e0a]/60 dark:text-foreground dark:hover:bg-ink-base"
         >
-          <span className="inline-flex items-center gap-2">
-            <Layers className="size-4 text-emerald-deep" />
+          <span className="inline-flex min-w-0 items-center gap-2 text-start">
+            <Layers className="size-4 shrink-0 text-emerald-deep" />
             محتوى المحاضرة ({lecture.lessons.length} محاضرة)
           </span>
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-deep">
+          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-emerald-deep">
             عرض
             <ArrowRight className="size-3.5 -rotate-180" />
           </span>
@@ -225,10 +225,10 @@ function MonthlyCourseCard({ course, index, href }: { course: MonthlyCourse; ind
         {course.badge && <span className="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-xs font-bold text-foreground">{course.badge}</span>}
         {freeCount > 0 && <span className="absolute bottom-4 right-4 inline-flex items-center gap-1 rounded-full bg-emerald-deep px-3 py-1 text-xs font-bold text-primary-foreground"><Play className="size-3" />{freeCount} مجانية</span>}
       </Link>
-      <div className="flex flex-1 flex-col gap-4 p-6">
+      <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
         <div className="flex flex-col gap-2">
           <Link href={href}>
-            <h3 className="font-heading text-xl font-bold text-foreground transition-colors hover:text-emerald-deep dark:text-foreground dark:hover:text-teal-glow">{course.title}</h3>
+            <h3 className="text-balance font-heading text-lg font-bold text-foreground transition-colors hover:text-emerald-deep sm:text-xl dark:text-foreground dark:hover:text-teal-glow">{course.title}</h3>
           </Link>
           <p className="text-pretty text-sm leading-relaxed text-foreground-soft dark:text-muted-foreground">{course.description}</p>
         </div>
@@ -237,11 +237,11 @@ function MonthlyCourseCard({ course, index, href }: { course: MonthlyCourse; ind
           <span className="rounded-lg bg-[#eee6d5] px-3 py-2 dark:bg-[#120e0a]">{lessonsCount} درس</span>
         </div>
         <Link href={href} className="flex items-center justify-between rounded-2xl border border-border bg-[#eee6d5]/60 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-[#eee6d5] dark:border-border dark:bg-[#120e0a] dark:text-foreground dark:hover:bg-ink-raised">
-          <span>عرض تفاصيل الكورس والمحاضرات</span><ArrowRight className="size-4 -rotate-180" />
+          <span className="min-w-0 flex-1 text-start">عرض تفاصيل الكورس والمحاضرات</span><ArrowRight className="size-4 shrink-0 -rotate-180" />
         </Link>
-        <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4 dark:border-border">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 dark:border-border">
           <div><strong className="font-heading text-xl text-foreground dark:text-foreground">{formatEGP(course.price)}</strong> <span className="text-xs font-bold text-gold-deep">ج.م</span></div>
-          <button type="button" onClick={() => handleAdd(true)} className="rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground dark:bg-primary">{added ? 'أكمل الشراء' : 'اشترك في الكورس'}</button>
+          <button type="button" onClick={() => handleAdd(true)} className="flex-1 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground sm:flex-none sm:px-5 dark:bg-primary">{added ? 'أكمل الشراء' : 'اشترك في الكورس'}</button>
         </div>
       </div>
     </article>
@@ -261,9 +261,9 @@ export function BranchDetail({ stage, branch }: { stage: Stage; branch: Branch }
           className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-gold/10 blur-3xl"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 md:px-8 md:pb-24 md:pt-32">
+        <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-24 md:pt-32">
           {/* breadcrumb */}
-          <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground-soft dark:text-muted-foreground">
+          <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-foreground-soft sm:text-sm dark:text-muted-foreground">
             <Link href="/#stages" className="transition-colors hover:text-foreground dark:hover:text-ink-fg">
               المراحل
             </Link>
@@ -275,32 +275,32 @@ export function BranchDetail({ stage, branch }: { stage: Stage; branch: Branch }
             <span className="text-foreground dark:text-foreground">{branch.title}</span>
           </nav>
 
-          <div className="mt-8 grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">
-            <div>
+          <div className="mt-6 grid items-center gap-8 sm:mt-8 md:gap-12 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="min-w-0">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/5 px-4 py-1.5 text-sm font-semibold text-gold-deep backdrop-blur dark:border-white/10 dark:bg-card/5 dark:text-teal-glow">
                 <Sparkles className="size-4" />
                 فرع من {stage.title}
               </span>
-              <h1 className="mt-5 text-balance font-heading text-4xl font-extrabold leading-tight text-foreground md:text-6xl dark:text-foreground">
+              <h1 className="mt-4 text-balance font-heading text-[clamp(1.75rem,7vw,2.5rem)] font-extrabold leading-tight text-foreground sm:mt-5 md:text-5xl lg:text-6xl dark:text-foreground">
                 {branch.title}
               </h1>
-              <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-foreground-soft dark:text-muted-foreground">
+              <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-foreground-soft sm:mt-4 sm:text-lg dark:text-muted-foreground">
                 {branch.description}
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <Layers className="size-4 text-gold-deep dark:text-teal-glow" />
+              <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <Layers className="size-4 shrink-0 text-gold-deep dark:text-teal-glow" />
                   {courses.length} كورس
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <PlayCircle className="size-4 text-emerald-deep dark:text-emerald-brand" />
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <PlayCircle className="size-4 shrink-0 text-emerald-deep dark:text-emerald-brand" />
                   {totalLessons} محاضرة
                 </span>
               </div>
             </div>
 
-            <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border border-border shadow-2xl shadow-navy/10 lg:aspect-[4/5] dark:border-border">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-border shadow-2xl shadow-navy/10 sm:aspect-[16/9] md:rounded-[2rem] lg:aspect-[4/5] dark:border-border">
               <Image
                 src={branch.image}
                 alt={branch.title}
@@ -324,22 +324,22 @@ export function BranchDetail({ stage, branch }: { stage: Stage; branch: Branch }
       </section>
 
       {/* ── Monthly courses ─────────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
+      <section className="relative mx-auto max-w-6xl px-4 py-10 sm:px-5 sm:py-12 md:px-8 md:py-16">
         <div className="flex flex-col items-center text-center">
           <span className="text-sm font-semibold text-gold-deep dark:text-teal-glow">
             <span className="font-mono">{'// '}</span>
             كورسات الفرع
           </span>
-          <h2 className="mt-3 text-balance font-heading text-3xl font-extrabold text-foreground md:text-4xl dark:text-foreground">
+          <h2 className="mt-3 text-balance font-heading text-[clamp(1.5rem,6vw,2rem)] font-extrabold text-foreground md:text-4xl dark:text-foreground">
             اختار الكورس اللي محتاجه
           </h2>
-          <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-foreground-soft dark:text-muted-foreground">
+          <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-foreground-soft sm:text-base dark:text-muted-foreground">
             كل كورس بيجمع محاضرات الشهر بالترتيب، وتقدر تعرض تفاصيله وتشترك فيه كاملًا.
           </p>
         </div>
 
         {courses.length > 0 ? (
-          <div className="mt-12 grid gap-7 sm:grid-cols-2">
+          <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-7">
             {courses.map((course, index) => <MonthlyCourseCard key={course.dbId ?? course.id} course={course} index={index} href={`/stages/${stage.id}/${branch.id}/${course.id}`} />)}
           </div>
         ) : (

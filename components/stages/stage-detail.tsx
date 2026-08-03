@@ -104,21 +104,21 @@ export function StageDetail({
       </section>
 
       {/* ── Branches ──────────────────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+      <section className="relative mx-auto max-w-7xl px-4 py-10 sm:px-5 sm:py-12 md:px-8 md:py-16">
         <div className="flex flex-col items-center text-center">
           <span className="text-sm font-semibold text-gold-deep dark:text-teal-glow">
             <span className="font-mono">{'// '}</span>
             فروع المادة
           </span>
-          <h2 className="mt-3 text-balance font-heading text-3xl font-extrabold text-foreground md:text-4xl dark:text-foreground">
+          <h2 className="mt-3 text-balance font-heading text-[clamp(1.5rem,6vw,2rem)] font-extrabold text-foreground md:text-4xl dark:text-foreground">
             اختار الفرع اللي محتاجه، أو خد المرحلة كاملة
           </h2>
-          <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-foreground-soft dark:text-muted-foreground">
+          <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-foreground-soft sm:text-base dark:text-muted-foreground">
             كل فرع مشروح من الصفر خطوة بخطوة، وكل محاضرة وراها امتحان يثبّت المعلومة.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-7 md:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-7 lg:grid-cols-3">
           {stage.branches.map((branch, i) => (
             <Link
               key={branch.id}
@@ -138,16 +138,16 @@ export function StageDetail({
                   className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/70 via-navy/10 to-transparent"
                   aria-hidden="true"
                 />
-                <span className="absolute right-4 top-4 grid size-11 place-items-center rounded-2xl border border-white/20 bg-primary/80 font-mono text-sm font-bold text-primary-foreground backdrop-blur">
+                <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-xl border border-white/20 bg-primary/80 font-mono text-xs font-bold text-primary-foreground backdrop-blur sm:right-4 sm:top-4 sm:size-11 sm:rounded-2xl sm:text-sm">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 {/* title sits over the image bottom */}
-                <h3 className="absolute inset-x-5 bottom-4 font-heading text-2xl font-extrabold text-primary-foreground drop-shadow">
+                <h3 className="absolute inset-x-4 bottom-3 text-balance font-heading text-xl font-extrabold text-primary-foreground drop-shadow sm:inset-x-5 sm:bottom-4 sm:text-2xl">
                   {branch.title}
                 </h3>
               </div>
 
-              <div className="flex flex-1 flex-col p-6">
+              <div className="flex flex-1 flex-col p-5 sm:p-6">
                 <p className="text-pretty text-sm leading-relaxed text-foreground-soft dark:text-muted-foreground">
                   {branch.description}
                 </p>
@@ -181,7 +181,7 @@ export function StageDetail({
                   <span className="text-sm font-semibold text-foreground-soft dark:text-muted-foreground">
                     شوف الكورسات والأسعار
                   </span>
-                  <span className="inline-flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all duration-200 group-hover:bg-gold group-hover:text-foreground-deep dark:bg-[#120e0a] dark:text-foreground dark:group-hover:bg-violet-glow dark:group-hover:text-white">
+                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground sm:size-11 transition-all duration-200 group-hover:bg-gold group-hover:text-foreground-deep dark:bg-[#120e0a] dark:text-foreground dark:group-hover:bg-violet-glow dark:group-hover:text-white">
                     <ArrowRight className="size-5" />
                   </span>
                 </div>

@@ -247,11 +247,16 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         }}
       />
 
-      <div className="relative z-10 flex-1 flex flex-col md:flex-row items-stretch pt-24 sm:pt-28 md:pt-28 w-full min-w-0">
+      {/*
+        The two columns only sit side-by-side from `lg`. At tablet widths (768–1023px)
+        two ~50% columns were too narrow: the headline collided with the teacher photo
+        and the stats bar overflowed, so tablets keep the stacked mobile layout.
+      */}
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch pt-24 sm:pt-28 w-full min-w-0">
         {/* ── TEXT SIDE ── */}
         <div
           ref={textRef}
-          className="relative z-20 flex min-w-0 flex-col justify-center gap-5 sm:gap-7 order-2 md:order-1 w-full md:w-[46%] lg:w-[50%] px-5 sm:px-10 md:ps-12 md:pe-4 pb-12 md:pb-20"
+          className="relative z-20 flex min-w-0 flex-col justify-center gap-5 sm:gap-7 order-2 lg:order-1 w-full lg:w-[50%] px-5 sm:px-10 lg:ps-12 lg:pe-4 pb-12 lg:pb-20"
           style={{
             opacity: textVisible ? 1 : 0,
             transform: textVisible ? 'translateX(0)' : 'translateX(90px)',
@@ -263,13 +268,15 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
           {/* Headline */}
           <div className="space-y-1">
             <h1
-              className="text-balance text-[clamp(1.9rem,8.5vw,2.75rem)] sm:text-5xl md:text-[clamp(2rem,4.4vw,3rem)] lg:text-6xl xl:text-[4.5rem] font-black leading-tight"
+              className="text-balance text-[clamp(1.9rem,8.5vw,3.25rem)] lg:text-[clamp(2.25rem,4.2vw,3.75rem)] xl:text-[4.5rem] font-black leading-tight"
               style={{ fontFamily: 'var(--font-reem-kufi), var(--font-cairo), sans-serif' }}
             >
-              <span className="sm:whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{content.titleLine1} </span>
+              {/* No `whitespace-nowrap` here — the long Arabic phrases must be free to
+                  wrap, otherwise they overflow the hero on tablet widths. */}
+              <span style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{content.titleLine1} </span>
               {content.titleLine2.split('{highlight}').map((part, i, arr) => (
                 <span key={i}>
-                  <span className="sm:whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{part}</span>
+                  <span style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{part}</span>
                   {i < arr.length - 1 && (
                     <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.86 0.12 88)' : 'oklch(0.58 0.11 78)' }}>{content.titleHighlight}</span>
                   )}
@@ -334,10 +341,10 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         </div>
 
         {/* ── TEACHER SIDE ── */}
-        <div className="relative order-1 md:order-2 w-full md:w-[54%] lg:w-[50%] md:min-h-[70vh] lg:min-h-screen overflow-hidden">
-          {/* MOBILE */}
-          <div className="md:hidden relative w-full flex justify-center px-6 pt-6 pb-4">
-            <div className="relative w-[80vw] max-w-[340px] aspect-square">
+        <div className="relative order-1 lg:order-2 w-full lg:w-[50%] lg:min-h-screen overflow-hidden">
+          {/* MOBILE + TABLET */}
+          <div className="lg:hidden relative w-full flex justify-center px-6 pt-6 pb-4">
+            <div className="relative aspect-square w-[78vw] max-w-[340px] sm:max-w-[400px]">
               <div
                 className="absolute -inset-4 rounded-full pointer-events-none"
                 aria-hidden="true"
@@ -460,7 +467,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block absolute inset-0">
+          <div className="hidden lg:block absolute inset-0">
             {tabletLetters.map((item, i) => (
               <span
                 key={i}
