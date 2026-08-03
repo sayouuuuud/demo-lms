@@ -111,17 +111,8 @@ function StatsBar({ started, stats = [] }: { started: boolean, stats?: HeroConte
     /* Phones: an equal-width grid so the stats never wrap into a lopsided
        second row. From `sm`: the original inline row. */
     <div
-      className="grid w-full max-w-full items-stretch self-start overflow-hidden rounded-2xl sm:inline-flex sm:w-auto sm:flex-nowrap sm:items-stretch"
-      style={{
-        gridTemplateColumns: `repeat(${displayStats.length}, minmax(0, 1fr))`,
-        background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.65)',
-        border: isDark ? '1px solid rgba(255,255,255,0.18)' : '1px solid oklch(0.68 0.09 82 / 35%)',
-        boxShadow: isDark
-          ? '0 8px 32px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.18)'
-          : '0 8px 28px oklch(0.55 0.06 70 / 18%), inset 0 1px 0 rgba(255,255,255,0.8)',
-        backdropFilter: 'blur(20px) saturate(1.6)',
-        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-      }}
+      className="grid w-full max-w-full items-stretch self-start sm:inline-flex sm:w-auto sm:flex-nowrap sm:items-stretch"
+      style={{ gridTemplateColumns: `repeat(${displayStats.length}, minmax(0, 1fr))` }}
     >
       {displayStats.map((s, i) => {
         // If s has an icon (from hardcoded statsData), use it. Otherwise fall
