@@ -30,6 +30,22 @@
 | موجود بالفعل | `components/ui/chart.tsx`, `table.tsx`, `tabs.tsx`, `select.tsx` |
 | **غير موجود** | `components/ui/progress.tsx` → استخدم `div` عادي لأشرطة التقدّم |
 | Next.js | 16 — `params` و `cookies()` و `headers()` **يجب** `await` |
+| `PageHeader` | **لا يقبل props** ونصوصه ثابتة — **لا تستخدمه** في صفحة الإحصائيات |
+| `videoRef` في `video-player.tsx` | موجود فعلًا (سطر 116) باسم `videoRef` |
+| `Eye` في `sidebar.tsx` | **غير مستورد** حاليًا — لازم تضيفه (`BarChart3` مستورد بالفعل) |
+| صلاحيات الأدمن في `layout.tsx` | الأدمن يستلم `permissions === undefined` ⇒ بلا فلترة |
+
+### تم التحقّق عمليًا من قاعدة البيانات ✅
+
+هذه ليست تخمينات — تم تشغيلها فعليًا على القاعدة المتصلة:
+
+- **كل استعلامات SQL في هذه الخطة (14 استعلامًا) نُفِّذت بنجاح** داخل transaction
+  ثم `ROLLBACK` (السكربت: `scripts/V01_smoke.mjs`). صفر أخطاء، صفر بيانات محفوظة.
+- **العزل عن الطلاب تم إثباته** (السكربت: `scripts/V01_rls_check.mjs`):
+  الدور `authenticated` يفشل في `SELECT` و`INSERT` على الجداول الثلاثة بالخطأ
+  `42501 permission denied`. النتيجة: `PASS`.
+- تقدر تعيد تشغيل الاثنين في أي وقت للتأكد:
+  `node --env-file-if-exists=/vercel/share/.env.project scripts/V01_smoke.mjs`
 
 ### قواعد إلزامية
 
@@ -167,7 +183,7 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 // يسجّل مشاهدة واحدة لكل (مستخدم، درس، شبّاك 30 دقيقة).
-// منع التكرار يحدث في القاعدة عبر uq_lecture_views_dedupe، فلا يمكن تضخيم الأرقام.
+// منع التكرار يح��ث في القاعدة عبر uq_lecture_views_dedupe، فلا يمكن تضخيم الأرقام.
 // المخرج دائمًا { ok: true } — لا يُرجَّع أي رقم للعميل مطلقًا.
 export async function POST(request: Request) {
   try {
@@ -1760,7 +1776,7 @@ await c.end()})().catch(e=>{console.log('ERR',e.message);process.exit(1)})
 
 - [ ] `lib/view-tracking.ts` مُنشأ
 - [ ] `app/api/lecture-view/route.ts` مُنشأ ويرجّع `{ ok: true }` فقط
-- [ ] `app/api/lecture-progress/route.ts` مُنشأ ويحصر كل مدخلات العميل
+- [ ] `app/api/lecture-progress/route.ts` مُنشأ ويحصر ��ل مدخلات العميل
 - [ ] `components/analytics/lecture-view-tracker.tsx` مُنشأ
 - [ ] `lib/use-watch-tracker.ts` مُنشأ
 - [ ] `video-player.tsx`: prop `lessonId` مُضاف + الهوك مُنادى **قبل** فرع يوتيوب
