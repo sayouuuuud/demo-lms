@@ -83,16 +83,19 @@ function StatItem({
   const count = useCountUp(target, 1600, started)
   const isDark = useIsDark()
   return (
-    <div className="flex items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-5 sm:py-3">
+    /* On phones each stat becomes a narrow centred column (icon on top) so all
+       three fit on a single row even at ~310px; from `sm` it goes back to the
+       original icon-beside-text row. */
+    <div className="flex w-full flex-col items-center gap-1 px-1.5 py-2.5 text-center sm:w-auto sm:flex-row sm:items-center sm:gap-3 sm:px-5 sm:py-3 sm:text-start">
       <span className="shrink-0" style={{ color: isDark ? 'oklch(0.84 0.11 88)' : 'oklch(0.58 0.10 80)' }}>{icon}</span>
-      <div className="flex flex-col leading-tight">
+      <div className="flex min-w-0 flex-col items-center leading-tight sm:items-start">
         <span
-          className="text-xl sm:text-3xl font-black tabular-nums"
+          className="text-base sm:text-3xl font-black tabular-nums whitespace-nowrap"
           style={{ color: isDark ? 'oklch(0.87 0.10 88)' : 'oklch(0.42 0.075 70)', fontFamily: 'var(--font-cairo), sans-serif' }}
         >
           {prefix}{toArabic(count)}{suffix}
         </span>
-        <span className="text-xs font-semibold" style={{ color: isDark ? 'oklch(0.72 0.03 85)' : 'oklch(0.48 0.045 58)' }}>
+        <span className="text-[11px] sm:text-xs font-semibold leading-tight" style={{ color: isDark ? 'oklch(0.72 0.03 85)' : 'oklch(0.48 0.045 58)' }}>
           {label}
         </span>
       </div>
@@ -105,27 +108,18 @@ function StatsBar({ started, stats = [] }: { started: boolean, stats?: HeroConte
   const isDark = useIsDark()
   const displayStats = stats && stats.length > 0 ? stats : statsData
   return (
+    /* Phones: an equal-width grid so the stats never wrap into a lopsided
+       second row. From `sm`: the original inline row. */
     <div
-      className="flex w-full max-w-full flex-wrap items-stretch justify-start self-start overflow-hidden rounded-2xl sm:inline-flex sm:w-auto sm:flex-nowrap"
-      style={{
-        background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.65)',
-        border: isDark ? '1px solid rgba(255,255,255,0.18)' : '1px solid oklch(0.68 0.09 82 / 35%)',
-        boxShadow: isDark
-          ? '0 8px 32px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.18)'
-          : '0 8px 28px oklch(0.55 0.06 70 / 18%), inset 0 1px 0 rgba(255,255,255,0.8)',
-        backdropFilter: 'blur(20px) saturate(1.6)',
-        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-      }}
+      className="grid w-full max-w-full items-stretch self-start sm:inline-flex sm:w-auto sm:flex-nowrap sm:items-stretch"
+      style={{ gridTemplateColumns: `repeat(${displayStats.length}, minmax(0, 1fr))` }}
     >
       {displayStats.map((s, i) => {
-        // If s has an icon (from hardcoded statsData), use it. Otherwise, fallback to a default icon based on index or omit.
-        const icon = 'icon' in s ? (s as any).icon : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="8" r="5"/><path d="M3 21v-2a7 7 0 0 1 14 0v2"/>
-          </svg>
-        );
+        // If s has an icon (from hardcoded statsData), use it. Otherwise fall
+        // back to the matching default icon so the stats don't all look alike.
+        const icon = 'icon' in s ? (s as any).icon : (statsData[i % statsData.length].icon)
         return (
-          <div key={i} className="flex items-stretch">
+          <div key={i} className="flex min-w-0 items-stretch">
             <StatItem target={(s as any).value || (s as any).target || 0} prefix={s.prefix} suffix={s.suffix} label={s.label} icon={icon} started={started} />
             {i < displayStats.length - 1 && (
               <div
@@ -256,7 +250,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         {/* ── TEXT SIDE ── */}
         <div
           ref={textRef}
-          className="relative z-20 flex min-w-0 flex-col justify-center gap-5 sm:gap-7 order-2 lg:order-1 w-full lg:w-[50%] px-5 sm:px-10 lg:ps-12 lg:pe-4 pb-12 lg:pb-20"
+          className="relative z-20 flex min-w-0 flex-col justify-center gap-4 sm:gap-7 order-2 lg:order-1 w-full lg:w-[50%] px-4 sm:px-10 lg:ps-12 lg:pe-4 pb-10 sm:pb-12 lg:pb-20"
           style={{
             opacity: textVisible ? 1 : 0,
             transform: textVisible ? 'translateX(0)' : 'translateX(90px)',
@@ -268,7 +262,9 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
           {/* Headline */}
           <div className="space-y-1">
             <h1
-              className="text-balance text-[clamp(1.9rem,8.5vw,3.25rem)] lg:text-[clamp(2.25rem,4.2vw,3.75rem)] xl:text-[4.5rem] font-black leading-tight"
+              /* Arabic headline needs a slightly looser line-height on phones so
+                 the diacritics of one line don't touch the line above it. */
+              className="text-balance text-[clamp(1.95rem,9vw,3.25rem)] lg:text-[clamp(2.25rem,4.2vw,3.75rem)] xl:text-[4.5rem] font-black leading-[1.4] sm:leading-tight"
               style={{ fontFamily: 'var(--font-reem-kufi), var(--font-cairo), sans-serif' }}
             >
               {/* No `whitespace-nowrap` here — the long Arabic phrases must be free to
@@ -284,7 +280,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
               ))}
             </h1>
             {content.badge && (
-              <p className="text-base sm:text-lg font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
+              <p className="text-sm sm:text-base font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
                 {content.badge}
               </p>
             )}
@@ -295,7 +291,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
 
           {/* Description */}
           <p
-            className="text-base sm:text-lg leading-relaxed"
+            className="text-[13px] sm:text-base leading-relaxed"
             style={{ color: isDark ? 'oklch(0.84 0.02 85)' : 'oklch(0.42 0.040 56)', fontFamily: 'var(--font-cairo), sans-serif', maxWidth: '40rem' }}
           >
             {content.description}
@@ -303,7 +299,8 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
 
           {/* CTA */}
           <div className="flex items-center gap-4">
-            <div className="relative inline-block">
+            {/* Full-width tap target on phones, intrinsic width from `sm`. */}
+            <div className="relative block w-full sm:inline-block sm:w-auto">
               <span
                 className="absolute -inset-[6px] rounded-full pointer-events-none"
                 style={{ border: '1px solid oklch(0.84 0.11 88 / 35%)', animation: 'framePulse 2.5s ease-in-out infinite' }}
@@ -316,7 +313,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
               />
               <Link
                 href={content.cta1Href}
-                className="relative overflow-hidden flex items-center gap-3 px-9 py-4 rounded-full text-base font-black transition-transform hover:scale-105 active:scale-95"
+                className="relative overflow-hidden flex items-center justify-center gap-3 px-6 py-3.5 sm:px-9 sm:py-4 rounded-full text-[15px] sm:text-base font-black transition-transform hover:scale-105 active:scale-95"
                 style={{
                   background: 'oklch(0.84 0.11 88)',
                   color: 'oklch(0.13 0.04 60)',
@@ -343,8 +340,10 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         {/* ── TEACHER SIDE ── */}
         <div className="relative order-1 lg:order-2 w-full lg:w-[50%] lg:min-h-screen overflow-hidden">
           {/* MOBILE + TABLET */}
-          <div className="lg:hidden relative w-full flex justify-center px-6 pt-6 pb-4">
-            <div className="relative aspect-square w-[78vw] max-w-[340px] sm:max-w-[400px]">
+          {/* Extra horizontal padding keeps the decorative rings and the two
+              floating labels inside the viewport on narrow phones. */}
+          <div className="lg:hidden relative w-full flex justify-center px-6 pt-6 pb-2 sm:px-6 sm:pt-8 sm:pb-4">
+            <div className="relative aspect-square w-[78vw] min-w-[220px] max-w-[340px] sm:w-[78vw] sm:max-w-[400px]">
               <div
                 className="absolute -inset-4 rounded-full pointer-events-none"
                 aria-hidden="true"
@@ -409,7 +408,9 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
               ].map((item, i) => (
                 <span
                   key={i}
-                  className={`absolute z-[16] font-black select-none pointer-events-none letter-rise ${item.size}`}
+                  /* Hidden on the narrowest phones: these letters sit at 76–95%
+                     of the circle, so they spill outside the viewport there. */
+                  className={`absolute z-[16] hidden font-black select-none pointer-events-none letter-rise sm:block ${item.size}`}
                   style={{
                     top: item.top, left: item.left,
                     fontFamily: 'var(--font-cairo), sans-serif',
@@ -425,44 +426,14 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
               ))}
 
               <div
-                className="absolute z-[16] pointer-events-none"
+                className="absolute z-[16] hidden pointer-events-none sm:block"
                 style={{ bottom: '4%', left: '-7%', width: 64, animation: 'inkFloat 6s ease-in-out infinite' }}
                 aria-hidden="true"
               >
                 <Image src="/inkwell.webp" alt="" width={160} height={283} className="w-full h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)]" />
               </div>
 
-              <div
-                className="absolute z-[17] -top-1 -right-2 flex items-center gap-1.5 px-3.5 py-2 rounded-xl"
-                style={{
-                  background: isDark ? 'oklch(0.16 0.025 58 / 92%)' : 'oklch(0.99 0.008 90 / 95%)',
-                  border: isDark ? '1px solid oklch(0.78 0.10 85 / 35%)' : '1px solid oklch(0.68 0.09 82 / 30%)',
-                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 20%)',
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill={isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.52 0.08 175)'} aria-hidden="true">
-                  <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>
-                </svg>
-                <span className="text-sm font-black" style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.88 0.06 85)' : 'oklch(0.40 0.07 175)' }}>
-                  أ/ مازن السقا
-                </span>
-              </div>
 
-              <div
-                className="absolute z-[17] bottom-[6%] -left-3 flex items-center gap-1.5 px-3.5 py-2 rounded-xl"
-                style={{
-                  background: isDark ? 'oklch(0.16 0.025 58 / 92%)' : 'oklch(0.99 0.008 90 / 95%)',
-                  border: isDark ? '1px solid oklch(0.78 0.10 85 / 35%)' : '1px solid oklch(0.68 0.09 82 / 30%)',
-                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 20%)',
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.62 0.10 80)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                </svg>
-                <span className="text-sm font-black" style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.88 0.06 85)' : 'oklch(0.48 0.075 70)' }}>
-                  منهج مبسّط للثانوية
-                </span>
-              </div>
             </div>
           </div>
 

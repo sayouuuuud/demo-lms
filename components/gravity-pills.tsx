@@ -42,8 +42,10 @@ export function GravityPills() {
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const w = scene.clientWidth
-    // ثلاث درجات: موبايل ضيق، موبايل عريض، ديسكتوب
-    const scale = w <= 380 ? 0.44 : w <= 520 ? 0.54 : 1
+    // الحجم يتناسب مع عرض المشهد نفسه، فتبقى الكثافة البصرية ثابتة على أي شاشة
+    // (درجة ثابتة للديسكتوب كانت تبان ضخمة على 1100px وصغيرة على 1900px).
+    // الحد الأدنى يمنعها من الاختفاء على الموبايل، والأقصى يمنعها من التضخّم.
+    const scale = Math.min(1.3, Math.max(0.46, w / 1450))
 
     pillRefs.current.forEach((el, i) => {
       if (!el) return

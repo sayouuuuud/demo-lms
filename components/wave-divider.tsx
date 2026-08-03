@@ -20,16 +20,16 @@ export function WaveDivider() {
       >
         <defs>
           <linearGradient id="gold-grad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="oklch(0.78 0.12 80)"  stopOpacity="0.2" />
-            <stop offset="25%"  stopColor="oklch(0.82 0.15 85)"  stopOpacity="1"   />
-            <stop offset="50%"  stopColor="oklch(0.88 0.18 88)"  stopOpacity="1"   />
-            <stop offset="75%"  stopColor="oklch(0.82 0.15 85)"  stopOpacity="1"   />
-            <stop offset="100%" stopColor="oklch(0.78 0.12 80)"  stopOpacity="0.2" />
+            <stop offset="0%"   stopColor="oklch(0.52 0.04 78)"  stopOpacity="0.0"  />
+            <stop offset="25%"  stopColor="oklch(0.58 0.05 82)"  stopOpacity="0.35" />
+            <stop offset="50%"  stopColor="oklch(0.62 0.06 84)"  stopOpacity="0.45" />
+            <stop offset="75%"  stopColor="oklch(0.58 0.05 82)"  stopOpacity="0.35" />
+            <stop offset="100%" stopColor="oklch(0.52 0.04 78)"  stopOpacity="0.0"  />
           </linearGradient>
           <linearGradient id="gold-glow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="oklch(0.92 0.22 90)"  stopOpacity="0" />
-            <stop offset="50%"  stopColor="oklch(0.92 0.22 90)"  stopOpacity="0.5" />
-            <stop offset="100%" stopColor="oklch(0.92 0.22 90)"  stopOpacity="0" />
+            <stop offset="0%"   stopColor="oklch(0.62 0.06 84)"  stopOpacity="0"    />
+            <stop offset="50%"  stopColor="oklch(0.62 0.06 84)"  stopOpacity="0.08" />
+            <stop offset="100%" stopColor="oklch(0.62 0.06 84)"  stopOpacity="0"    />
           </linearGradient>
         </defs>
 
@@ -44,7 +44,7 @@ export function WaveDivider() {
           d="M0,36 C180,64 360,8 540,36 C720,64 900,8 1080,36 C1260,64 1380,22 1440,36"
           fill="none"
           stroke="url(#gold-grad)"
-          strokeWidth="2.5"
+          strokeWidth="1.5"
           strokeLinecap="round"
         />
 
@@ -53,9 +53,9 @@ export function WaveDivider() {
           d="M0,36 C180,64 360,8 540,36 C720,64 900,8 1080,36 C1260,64 1380,22 1440,36"
           fill="none"
           stroke="url(#gold-glow)"
-          strokeWidth="8"
+          strokeWidth="6"
           strokeLinecap="round"
-          opacity="0.4"
+          opacity="0.15"
         />
       </svg>
     </div>
