@@ -442,37 +442,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
                 <Image src="/inkwell.webp" alt="" width={160} height={283} className="w-full h-auto drop-shadow-[0_6px_16px_rgba(0,0,0,0.45)]" />
               </div>
 
-              <div
-                className="absolute z-[17] top-0 -right-5 flex items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-1.5 sm:-top-1 sm:-right-2 sm:px-3.5 sm:py-2"
-                style={{
-                  background: isDark ? 'oklch(0.16 0.025 58 / 92%)' : 'oklch(0.99 0.008 90 / 95%)',
-                  border: isDark ? '1px solid oklch(0.78 0.10 85 / 35%)' : '1px solid oklch(0.68 0.09 82 / 30%)',
-                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 20%)',
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill={isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.52 0.08 175)'} aria-hidden="true">
-                  <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>
-                </svg>
-                <span className="text-[11px] font-black sm:text-sm" style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.88 0.06 85)' : 'oklch(0.40 0.07 175)' }}>
-                  أ/ مازن السقا
-                </span>
-              </div>
 
-              <div
-                className="absolute z-[17] bottom-[4%] -left-5 flex items-center gap-1.5 whitespace-nowrap rounded-xl px-2.5 py-1.5 sm:bottom-[6%] sm:-left-3 sm:px-3.5 sm:py-2"
-                style={{
-                  background: isDark ? 'oklch(0.16 0.025 58 / 92%)' : 'oklch(0.99 0.008 90 / 95%)',
-                  border: isDark ? '1px solid oklch(0.78 0.10 85 / 35%)' : '1px solid oklch(0.68 0.09 82 / 30%)',
-                  boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px oklch(0.55 0.06 70 / 20%)',
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={isDark ? 'oklch(0.85 0.10 88)' : 'oklch(0.62 0.10 80)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                </svg>
-                <span className="text-[11px] font-black sm:text-sm" style={{ fontFamily: 'var(--font-cairo), sans-serif', color: isDark ? 'oklch(0.88 0.06 85)' : 'oklch(0.48 0.075 70)' }}>
-                  منهج مبسّط للثانوية
-                </span>
-              </div>
             </div>
           </div>
 
