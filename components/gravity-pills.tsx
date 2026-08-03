@@ -42,8 +42,8 @@ export function GravityPills() {
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const w = scene.clientWidth
-    // ثلاث درجات: موبايل ضيق، موبايل عريض، ديسكتوب
-    const scale = w <= 380 ? 0.44 : w <= 520 ? 0.54 : 1
+    // أربع درجات: موبايل ضيق، موبايل عريض، تابلت، ديسكتوب
+    const scale = w <= 380 ? 0.44 : w <= 520 ? 0.54 : w <= 900 ? 0.80 : 1.35
 
     pillRefs.current.forEach((el, i) => {
       if (!el) return
@@ -200,9 +200,9 @@ export function GravityPills() {
           } ${p.className}`}
           style={{
             opacity: 0,
-            height: p.shape === 'circle' ? (p.big ? 128 : 96) : p.big ? 104 : 84,
-            width: p.shape === 'circle' ? (p.big ? 128 : 96) : undefined,
-            fontSize: p.big ? 40 : 30,
+            height: p.shape === 'circle' ? (p.big ? 173 : 130) : p.big ? 140 : 113,
+            width: p.shape === 'circle' ? (p.big ? 173 : 130) : undefined,
+            fontSize: p.big ? 54 : 40,
           }}
         >
           {p.label}
