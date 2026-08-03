@@ -211,15 +211,15 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
     return (
       <div className="w-full">
         <div className="mb-8 flex flex-col items-center text-center">
-          <span className="grid size-14 place-items-center rounded-2xl bg-navy/5 text-navy dark:bg-violet-glow/15 dark:text-violet-glow">
+          <span className="grid size-14 place-items-center rounded-2xl bg-primary/5 text-foreground dark:bg-primary/15 dark:text-violet-glow">
             <ShieldCheck className="size-7" />
           </span>
-          <h2 className="mt-4 text-xl font-extrabold text-navy dark:text-ink-fg">
+          <h2 className="mt-4 text-xl font-extrabold text-foreground dark:text-foreground">
             فعّل حسابك
           </h2>
-          <p className="mt-2 text-sm text-navy-soft dark:text-ink-dim">
+          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
             بعتنالك كود تفعيل على{' '}
-            <span className="font-bold text-navy dark:text-ink-fg" dir="ltr">
+            <span className="font-bold text-foreground dark:text-foreground" dir="ltr">
               {email}
             </span>
           </p>
@@ -247,7 +247,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
 
         <form onSubmit={handleVerify} className="space-y-4">
           <div className="space-y-1.5">
-            <label htmlFor="code" className="block text-sm font-semibold text-navy dark:text-ink-fg">
+            <label htmlFor="code" className="block text-sm font-semibold text-foreground dark:text-foreground">
               كود التفعيل
             </label>
             <input
@@ -262,8 +262,8 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
               dir="ltr"
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
               className={cn(
-                'h-14 w-full rounded-xl border border-navy/15 bg-cream/60 px-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-navy outline-none transition-colors dark:border-ink-line dark:bg-ink-base/60 dark:text-ink-fg',
-                'placeholder:text-navy-soft/40 focus:border-gold focus:ring-4 focus:ring-gold/15 dark:placeholder:text-ink-dim/40 dark:focus:border-teal-glow dark:focus:ring-teal-glow/15',
+                'h-14 w-full rounded-xl border border-border bg-background px-4 text-center font-mono text-2xl font-bold tracking-[0.35em] text-foreground outline-none transition-colors dark:border-border dark:bg-background dark:text-foreground',
+                'placeholder:text-muted-foreground/40 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:placeholder:text-ink-dim/40 dark:focus:border-primary dark:focus:ring-primary/20',
               )}
             />
           </div>
@@ -272,8 +272,8 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
             type="submit"
             disabled={submitting || code.length < 6}
             className={cn(
-              'mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-navy text-sm font-bold text-cream transition-all dark:bg-violet-glow dark:text-white',
-              'hover:bg-navy-deep active:translate-y-px disabled:opacity-70 dark:hover:bg-violet-deep',
+              'mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-bold text-primary-foreground transition-all dark:bg-primary dark:text-white',
+              'hover:bg-primary-deep active:translate-y-px disabled:opacity-70 dark:hover:bg-primary/90',
             )}
           >
             {submitting && <Loader2 className="size-4 animate-spin" />}
@@ -282,13 +282,13 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
         </form>
 
         <div className="mt-6 flex flex-col items-center gap-3 text-center text-sm">
-          <p className="text-navy-soft dark:text-ink-dim">
+          <p className="text-muted-foreground dark:text-muted-foreground">
             ماوصلكش الكود؟{' '}
             <button
               type="button"
               onClick={handleResend}
               disabled={resending}
-              className="font-bold text-gold-deep hover:underline disabled:opacity-60 dark:text-teal-glow"
+              className="font-bold text-primary hover:underline disabled:opacity-60 dark:text-primary"
             >
               {resending ? 'بنبعت...' : 'ابعت كود تاني'}
             </button>
@@ -296,7 +296,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
           <button
             type="button"
             onClick={() => switchTab('register')}
-            className="inline-flex items-center gap-1.5 font-semibold text-navy-soft transition-colors hover:text-navy dark:text-ink-dim dark:hover:text-ink-fg"
+            className="inline-flex items-center gap-1.5 font-semibold text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-ink-fg"
           >
             <ArrowRight className="size-4" />
             الرجوع للتسجيل
@@ -309,10 +309,10 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
   return (
     <div className="w-full">
       {/* Tabs */}
-      <div className="relative grid grid-cols-2 rounded-full border border-navy/10 bg-cream-deep/60 p-1 dark:border-ink-line dark:bg-ink-base/60">
+      <div className="relative grid grid-cols-2 rounded-full border border-border bg-background-deep/60 p-1 dark:border-border dark:bg-background">
         <span
           className={cn(
-            'absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-full bg-navy shadow-sm transition-transform duration-300 dark:bg-violet-glow',
+            'absolute inset-y-1 w-[calc(50%-0.25rem)] rounded-full bg-primary shadow-sm transition-transform duration-300 dark:bg-primary',
             tab === 'login' ? 'translate-x-0' : '-translate-x-full',
           )}
           aria-hidden="true"
@@ -322,7 +322,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
           onClick={() => switchTab('login')}
           className={cn(
             'relative z-10 rounded-full py-2.5 text-sm font-bold transition-colors',
-            tab === 'login' ? 'text-cream' : 'text-navy-soft hover:text-navy dark:text-ink-dim dark:hover:text-ink-fg',
+            tab === 'login' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-ink-fg',
           )}
         >
           تسجيل الدخول
@@ -332,7 +332,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
           onClick={() => switchTab('register')}
           className={cn(
             'relative z-10 rounded-full py-2.5 text-sm font-bold transition-colors',
-            tab === 'register' ? 'text-cream' : 'text-navy-soft hover:text-navy dark:text-ink-dim dark:hover:text-ink-fg',
+            tab === 'register' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-ink-fg',
           )}
         >
           حساب جديد
@@ -401,11 +401,11 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
             />
 
             <div className="space-y-1.5">
-              <label htmlFor="grade" className="block text-sm font-semibold text-navy dark:text-ink-fg">
+              <label htmlFor="grade" className="block text-sm font-semibold text-foreground dark:text-foreground">
                 الصف الدراسي
               </label>
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-navy-soft dark:text-ink-dim">
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground dark:text-muted-foreground">
                   <GraduationCap className="size-4" />
                 </span>
                 <select
@@ -414,16 +414,16 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
                   value={grade}
                   onChange={(e) => setGrade(e.target.value)}
                   className={cn(
-                    'h-12 w-full appearance-none rounded-xl border border-navy/15 bg-cream/60 pr-10 pl-4 text-sm font-medium text-navy outline-none transition-colors dark:border-ink-line dark:bg-ink-base/60 dark:text-ink-fg',
-                    'focus:border-gold focus:ring-4 focus:ring-gold/15 dark:focus:border-teal-glow dark:focus:ring-teal-glow/15',
-                    grade === '' && 'text-navy-soft dark:text-ink-dim',
+                    'h-12 w-full appearance-none rounded-xl border border-border bg-background pr-10 pl-4 text-sm font-medium text-foreground outline-none transition-colors dark:border-border dark:bg-background dark:text-foreground',
+                    'focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:border-primary dark:focus:ring-primary/20',
+                    grade === '' && 'text-muted-foreground dark:text-muted-foreground',
                   )}
                 >
                   <option value="" disabled>
                     اختار صفك
                   </option>
                   {grades.map((g) => (
-                    <option key={g.value} value={g.value} className="text-navy">
+                    <option key={g.value} value={g.value} className="text-foreground">
                       {g.label}
                     </option>
                   ))}
@@ -438,26 +438,26 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
           <div className="flex items-center justify-between">
             <label
               htmlFor="password"
-              className="flex flex-wrap items-center gap-2 text-sm font-semibold text-navy dark:text-ink-fg"
+              className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground dark:text-foreground"
             >
               كلمة السر
               {tab === 'login' && (
                 <span
                   dir="ltr"
-                  className="rounded-md bg-gold/15 px-1.5 py-0.5 font-mono text-xs font-bold text-gold-deep dark:bg-teal-glow/15 dark:text-teal-glow"
+                  className="rounded-md bg-primary/15 px-1.5 py-0.5 font-mono text-xs font-bold text-primary dark:bg-primary/15 dark:text-primary"
                 >
                   {DEMO_ADMIN.password}
                 </span>
               )}
             </label>
             {tab === 'login' && (
-              <button type="button" className="text-xs font-semibold text-gold-deep hover:underline dark:text-teal-glow">
+              <button type="button" className="text-xs font-semibold text-primary hover:underline dark:text-primary">
                 نسيت كلمة السر؟
               </button>
             )}
           </div>
           <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-navy-soft dark:text-ink-dim">
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground dark:text-muted-foreground">
               <Lock className="size-4" />
             </span>
             <input
@@ -471,14 +471,14 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
               }
               autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
               className={cn(
-                'h-12 w-full rounded-xl border border-navy/15 bg-cream/60 pr-10 pl-11 text-sm font-medium text-navy outline-none transition-colors dark:border-ink-line dark:bg-ink-base/60 dark:text-ink-fg',
-                'placeholder:text-navy-soft/60 focus:border-gold focus:ring-4 focus:ring-gold/15 dark:placeholder:text-ink-dim/60 dark:focus:border-teal-glow dark:focus:ring-teal-glow/15',
+                'h-12 w-full rounded-xl border border-border bg-background pr-10 pl-11 text-sm font-medium text-foreground outline-none transition-colors dark:border-border dark:bg-background dark:text-foreground',
+                'placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:placeholder:text-ink-dim/60 dark:focus:border-primary dark:focus:ring-primary/20',
               )}
             />
             <button
               type="button"
               onClick={() => setShowPassword((s) => !s)}
-              className="absolute inset-y-0 left-3 flex items-center text-navy-soft transition-colors hover:text-navy dark:text-ink-dim dark:hover:text-ink-fg"
+              className="absolute inset-y-0 left-3 flex items-center text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-ink-fg"
               aria-label={showPassword ? 'إخفاء كلمة السر' : 'إظهار كلمة السر'}
             >
               {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -490,8 +490,8 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
           type="submit"
           disabled={submitting}
           className={cn(
-            'mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-navy text-sm font-bold text-cream transition-all dark:bg-violet-glow dark:text-white',
-            'hover:bg-navy-deep active:translate-y-px disabled:opacity-70 dark:hover:bg-violet-deep',
+            'mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-bold text-primary-foreground transition-all dark:bg-primary dark:text-white',
+            'hover:bg-primary-deep active:translate-y-px disabled:opacity-70 dark:hover:bg-primary/90',
           )}
         >
           {submitting && <Loader2 className="size-4 animate-spin" />}
@@ -500,14 +500,14 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
       </form>
 
       {/* Footer switch */}
-      <p className="mt-6 text-center text-sm text-navy-soft dark:text-ink-dim">
+      <p className="mt-6 text-center text-sm text-muted-foreground dark:text-muted-foreground">
         {tab === 'login' ? (
           <>
             لسه ماعندكش حساب؟{' '}
             <button
               type="button"
               onClick={() => switchTab('register')}
-              className="font-bold text-gold-deep hover:underline dark:text-teal-glow"
+              className="font-bold text-primary hover:underline dark:text-primary"
             >
               اعمل حساب جديد
             </button>
@@ -518,7 +518,7 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
             <button
               type="button"
               onClick={() => switchTab('login')}
-              className="font-bold text-gold-deep hover:underline dark:text-teal-glow"
+              className="font-bold text-primary hover:underline dark:text-primary"
             >
               سجّل دخولك
             </button>
@@ -526,13 +526,13 @@ export function AuthForm({ initialTab = 'login' }: { initialTab?: Tab }) {
         )}
       </p>
 
-      <p className="mt-4 text-center text-xs text-navy-soft/70 dark:text-ink-dim/70">
+      <p className="mt-4 text-center text-xs text-muted-foreground/70 dark:text-muted-foreground/70">
         بإنشائك حساب فإنك توافق على{' '}
-        <Link href="#" className="underline hover:text-navy dark:hover:text-ink-fg">
+        <Link href="#" className="underline hover:text-foreground dark:hover:text-ink-fg">
           الشروط والأحكام
         </Link>{' '}
         و
-        <Link href="#" className="underline hover:text-navy dark:hover:text-ink-fg">
+        <Link href="#" className="underline hover:text-foreground dark:hover:text-ink-fg">
           سياسة الخصوصية
         </Link>
         .
@@ -568,20 +568,20 @@ function Field({
     <div className="space-y-1.5">
       <label
         htmlFor={id}
-        className="flex flex-wrap items-center gap-2 text-sm font-semibold text-navy dark:text-ink-fg"
+        className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground dark:text-foreground"
       >
         {label}
         {hint && (
           <span
             dir="ltr"
-            className="rounded-md bg-gold/15 px-1.5 py-0.5 font-mono text-xs font-bold text-gold-deep dark:bg-teal-glow/15 dark:text-teal-glow"
+            className="rounded-md bg-primary/15 px-1.5 py-0.5 font-mono text-xs font-bold text-primary dark:bg-primary/15 dark:text-primary"
           >
             {hint}
           </span>
         )}
       </label>
       <div className="relative">
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-navy-soft dark:text-ink-dim">
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-muted-foreground dark:text-muted-foreground">
           {icon}
         </span>
         <input
@@ -594,8 +594,8 @@ function Field({
           onChange={(e) => onChange(e.target.value)}
           autoComplete={autoComplete}
           className={cn(
-            'h-12 w-full rounded-xl border border-navy/15 bg-cream/60 pr-10 pl-4 text-sm font-medium text-navy outline-none transition-colors dark:border-ink-line dark:bg-ink-base/60 dark:text-ink-fg',
-            'placeholder:text-navy-soft/60 focus:border-gold focus:ring-4 focus:ring-gold/15 dark:placeholder:text-ink-dim/60 dark:focus:border-teal-glow dark:focus:ring-teal-glow/15',
+            'h-12 w-full rounded-xl border border-border bg-background pr-10 pl-4 text-sm font-medium text-foreground outline-none transition-colors dark:border-border dark:bg-background dark:text-foreground',
+            'placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/20 dark:placeholder:text-ink-dim/60 dark:focus:border-primary dark:focus:ring-primary/20',
             dir === 'ltr' && 'text-left placeholder:text-right',
           )}
         />

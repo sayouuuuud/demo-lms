@@ -172,16 +172,25 @@ export async function submitAssignmentProgress(
     if (isUuid) {
       asgRow = await prisma.assignments.findUnique({
         where: { id: assignmentCode },
-        select: { id: true }
+        select: { id: true, due_date: true }
       })
     } else {
       asgRow = await prisma.assignments.findFirst({
         where: { code: assignmentCode },
-        select: { id: true }
+        select: { id: true, due_date: true }
       })
     }
     
     if (!asgRow) return { error: 'الواجب غير موجود.' }
+
+    // ── التحقق من الموعد النهائي ──
+    if (asgRow.due_date) {
+      const deadline = new Date(asgRow.due_date)
+      deadline.setHours(23, 59, 59, 999) // السماح بالتسليم حتى نهاية اليوم
+      if (Date.now() > deadline.getTime()) {
+        return { error: 'فات ميعاد تسليم الواجب.' }
+      }
+    }
 
     await prisma.assignment_submissions.upsert({
       where: {

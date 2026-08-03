@@ -20,7 +20,7 @@ export function DashboardLayout({
   const { isDark, toggleTheme } = useTheme()
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="theme-dashboard flex min-h-screen bg-background text-foreground">
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}

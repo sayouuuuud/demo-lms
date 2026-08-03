@@ -28,9 +28,9 @@ export function LandingPage({
       <div className="relative z-10">
         <LandingNavbar isLoggedIn={isLoggedIn} content={siteContent.navbar} />
         <main>
-          <HeroSection />
+          <HeroSection content={siteContent.hero} />
           <WaveDivider />
-          <FeaturesSection />
+          <FeaturesSection content={siteContent.features} />
           <StagesSection stages={stages} />
           <StatsSection content={siteContent.stats} />
           <CtaSection content={siteContent.cta} />

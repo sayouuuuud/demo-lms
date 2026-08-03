@@ -40,13 +40,21 @@ export default async function AuthPage({
   const panel = siteContent.login_panel
 
   return (
-    <main className="relative min-h-screen bg-cream lg:grid lg:grid-cols-2 dark:bg-ink-base">
-      {/* graph paper backdrop */}
-      <div className="graph-paper pointer-events-none absolute inset-0 opacity-60 dark:opacity-30" aria-hidden="true" />
+    <main className="relative min-h-screen bg-background lg:grid lg:grid-cols-2 dark:bg-background">
+      {/* calligraphy backdrop */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-60 dark:opacity-70 mix-blend-multiply dark:mix-blend-screen"
+        style={{ backgroundImage: "url('/images/footer-calligraphy.png')" }}
+        aria-hidden="true"
+      />
 
       {/* Brand / visual panel */}
-      <aside className="relative hidden overflow-hidden bg-navy lg:block dark:bg-ink-raised">
-        <div className="graph-paper-light pointer-events-none absolute inset-0" aria-hidden="true" />
+      <aside className="relative hidden overflow-hidden bg-primary lg:block dark:bg-card">
+        <div
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-70 dark:opacity-60 mix-blend-multiply dark:mix-blend-plus-lighter"
+          style={{ backgroundImage: "url('/images/footer-calligraphy.png')" }}
+          aria-hidden="true"
+        />
         <div className="relative flex h-full flex-col justify-between p-12">
           <Link href="/" className="flex items-center gap-2.5">
             {panel.logoUrl ? (
@@ -58,11 +66,11 @@ export default async function AuthPage({
                 className="size-10 rounded-md object-contain"
               />
             ) : (
-              <span className="grid size-10 place-items-center rounded-md bg-cream font-mono text-sm font-bold text-navy">
+              <span className="grid size-10 place-items-center rounded-md bg-background font-mono text-sm font-bold text-foreground">
                 ƒ(x)
               </span>
             )}
-            <span className="font-heading text-2xl font-bold text-cream">{panel.brandName}</span>
+            <span className="font-heading text-2xl font-bold text-background">{panel.brandName}</span>
           </Link>
 
           <div className="max-w-md">
@@ -70,12 +78,12 @@ export default async function AuthPage({
               <span className="font-mono">{'// '}</span>
               {panel.badge}
             </span>
-            <h1 className="mt-4 text-balance font-heading text-4xl font-bold leading-tight text-cream">
+            <h1 className="mt-4 text-balance font-heading text-4xl font-bold leading-tight text-background">
               {panel.headline}
             </h1>
             <ul className="mt-8 space-y-4">
               {panel.perks.map((p) => (
-                <li key={p} className="flex items-center gap-3 text-cream/85">
+                <li key={p} className="flex items-center gap-3 text-background/90">
                   <span className="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-brand/20 text-emerald-brand">
                     <Check className="size-3.5" />
                   </span>
@@ -85,10 +93,10 @@ export default async function AuthPage({
             </ul>
           </div>
 
-          <div className="flex items-center gap-6 text-cream/70">
+          <div className="flex items-center gap-6 text-background/80">
             {panel.stats.map((s, i) => (
               <Fragment key={s.label}>
-                {i > 0 && <span className="h-8 w-px bg-cream/15" />}
+                {i > 0 && <span className="h-8 w-px bg-background/15" />}
                 <Stat value={s.value} label={s.label} />
               </Fragment>
             ))}
@@ -97,11 +105,11 @@ export default async function AuthPage({
       </aside>
 
       {/* Form panel */}
-      <section className="relative flex min-h-screen flex-col px-5 py-8 sm:px-8 lg:px-12">
+      <section className="relative flex min-h-screen flex-col bg-white px-5 py-8 sm:px-8 lg:px-12 dark:bg-background">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-navy-soft transition-colors hover:text-navy dark:text-ink-dim dark:hover:text-ink-fg"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-ink-fg"
           >
             <ArrowLeft className="size-4" />
             الرجوع للرئيسية
@@ -117,21 +125,21 @@ export default async function AuthPage({
                 className="size-8 rounded-md object-contain"
               />
             ) : (
-              <span className="grid size-8 place-items-center rounded-md bg-navy font-mono text-xs font-bold text-cream dark:bg-violet-glow dark:text-white">
+              <span className="grid size-8 place-items-center rounded-md bg-primary font-mono text-xs font-bold text-primary-foreground dark:bg-primary dark:text-white">
                 ƒ(x)
               </span>
             )}
-            <span className="font-heading text-lg font-bold text-navy dark:text-ink-fg">{panel.brandName}</span>
+            <span className="font-heading text-lg font-bold text-foreground dark:text-foreground">{panel.brandName}</span>
           </Link>
         </div>
 
         <div className="flex flex-1 items-center justify-center py-10">
           <div className="w-full max-w-md">
             <div className="mb-8 text-center">
-              <h2 className="text-balance text-2xl font-extrabold text-navy sm:text-3xl dark:text-ink-fg">
+              <h2 className="text-balance text-2xl font-extrabold text-foreground sm:text-3xl dark:text-foreground">
                 أهلاً بيك من جديد
               </h2>
-              <p className="mt-2 text-sm text-navy-soft dark:text-ink-dim">
+              <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
                 سجّل دخولك أو اعمل حساب جديد وابدأ رحلتك في التفوق.
               </p>
             </div>

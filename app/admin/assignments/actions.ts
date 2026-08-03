@@ -533,7 +533,7 @@ export async function gradeAssignmentSubmission(input: {
 
   const student = await prisma.students.findUnique({
     where: { id: input.studentId },
-    select: { name: true },
+    select: { name: true, user_id: true },
   })
 
   await prisma.assignment_submissions.upsert({
@@ -553,6 +553,32 @@ export async function gradeAssignmentSubmission(input: {
     },
   })
 
+  // ── تحديث student_content_progress لتنعكس الدرجة في واجهة الطالب ──
+  if (student?.user_id) {
+    await prisma.student_content_progress.upsert({
+      where: {
+        user_id_item_type_item_id: {
+          user_id: student.user_id,
+          item_type: 'assignment',
+          item_id: input.assignmentId,
+        },
+      },
+      create: {
+        user_id: student.user_id,
+        item_type: 'assignment',
+        item_id: input.assignmentId,
+        status: 'مصحّح',
+        score: input.score,
+        updated_at: new Date(),
+      },
+      update: {
+        status: 'مصحّح',
+        score: input.score,
+        updated_at: new Date(),
+      },
+    })
+  }
+
   logActivity({
     action: 'update',
     resource: 'assignments',
@@ -563,6 +589,7 @@ export async function gradeAssignmentSubmission(input: {
   revalidatePath('/admin/assignments')
   revalidatePath(`/admin/assignments/${input.assignmentId}`)
   revalidatePath('/student', 'layout')
+  revalidatePath('/student/assignments')
 
   return { success: true }
 }

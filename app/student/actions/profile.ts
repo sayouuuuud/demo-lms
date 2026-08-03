@@ -101,7 +101,7 @@ export async function updateStudentPreferences(
     data: { color_preset: colorPreset, notif_prefs: notifPrefs }
   })
 
-  revalidatePath('/student/settings')
+  revalidatePath('/', 'layout')
   return { success: true }
 }
 

@@ -216,7 +216,7 @@ async function getProgress(userId: string): Promise<Progress> {
   return { completedLessonIds, assignmentStatus }
 }
 
-async function getPurchasedLectureIds(userId: string): Promise<string[]> {
+export async function getPurchasedLectureIds(userId: string): Promise<string[]> {
   const data = await prisma.orders.findMany({
     where: { student_id: userId, status: 'approved' },
     select: { order_items: { select: { lecture_id: true, monthly_course_id: true, term_id: true, item_type: true } } }

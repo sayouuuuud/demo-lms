@@ -59,6 +59,7 @@ export function AssignmentDetail({
   // Legacy free-form submission (assignments with no structured questions).
   const [text, setText] = useState('')
   const [files, setFiles] = useState<string[]>([])
+  const [submitError, setSubmitError] = useState('')
 
   const mcqQuestions = questions.filter((q) => q.kind === 'mcq')
   const correctCount = mcqQuestions.filter(
@@ -97,12 +98,22 @@ export function AssignmentDetail({
     setAnswers((p) => ({ ...p, [qid]: { ...p[qid], file: name } }))
 
   const persist = (next: 'تم التسليم' | 'مصحّح', score?: number) => {
+    setSubmitError('')
     startTransition(async () => {
-      await submitAssignmentProgress(assignment.id, {
+      const result = await submitAssignmentProgress(assignment.id, {
         status: next,
         score,
         courseSlug: course?.id,
       })
+      if (result && 'error' in result && result.error) {
+        setSubmitError(result.error)
+        setSubmitted(false)
+        setStatus(assignment.status)
+        return
+      }
+      // نجح التسليم — نحدّث الحالة
+      setSubmitted(true)
+      setStatus(next)
       // Refresh so the next item in the lecture unlocks.
       router.refresh()
     })
@@ -110,18 +121,16 @@ export function AssignmentDetail({
 
   const handleSubmitQuestions = () => {
     if (!allAnswered) return
-    setSubmitted(true)
+    setSubmitError('')
     // إذا كانت كل الأسئلة اختيار من متعدد، نصحّح فوراً. غير ذلك ننتظر المدرّب.
     const allMcq = questions.every((q) => q.kind === 'mcq')
     const next: 'تم التسليم' | 'مصحّح' = allMcq ? 'مصحّح' : 'تم التسليم'
-    setStatus(next)
     persist(next, allMcq ? mcqScore : undefined)
   }
 
   const handleSubmitFreeform = () => {
     if (!text.trim() && files.length === 0) return
-    setSubmitted(true)
-    setStatus('تم التسليم')
+    setSubmitError('')
     persist('تم التسليم')
   }
 
@@ -391,18 +400,26 @@ export function AssignmentDetail({
           </ol>
 
           {!submitted && (
-            <Button
-              onClick={handleSubmitQuestions}
-              disabled={!allAnswered || isPending}
-              className="mt-6 w-fit"
-            >
-              {isPending ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Send className="size-4" />
+            <div className="mt-6 flex flex-col gap-2">
+              {submitError && (
+                <div className="flex items-center gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+                  <XCircle className="size-4 shrink-0" />
+                  {submitError}
+                </div>
               )}
-              تسليم الواجب
-            </Button>
+              <Button
+                onClick={handleSubmitQuestions}
+                disabled={!allAnswered || isPending}
+                className="w-fit"
+              >
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Send className="size-4" />
+                )}
+                تسليم الواجب
+              </Button>
+            </div>
           )}
         </Card>
       ) : (
@@ -467,6 +484,12 @@ export function AssignmentDetail({
                   </ul>
                 )}
               </div>
+              {submitError && (
+                <div className="flex items-center gap-2 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+                  <XCircle className="size-4 shrink-0" />
+                  {submitError}
+                </div>
+              )}
               <Button
                 onClick={handleSubmitFreeform}
                 disabled={(!text.trim() && files.length === 0) || isPending}

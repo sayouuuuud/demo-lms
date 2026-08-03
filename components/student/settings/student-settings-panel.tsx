@@ -145,6 +145,22 @@ export function StudentSettingsPanel({ profile: initProfile }: { profile?: any }
         : null)) ?? 'navy',
   )
 
+  function applyColorPreset(id: PresetId) {
+    const preset = colorPresets.find((p) => p.id === id)
+    if (!preset) return
+    
+    let styleEl = document.getElementById('dynamic-theme') as HTMLStyleElement
+    if (!styleEl) {
+      styleEl = document.createElement('style')
+      styleEl.id = 'dynamic-theme'
+      document.head.appendChild(styleEl)
+    }
+    
+    styleEl.innerHTML = `.theme-dashboard { --primary: ${preset.light.primary}; --ring: ${preset.light.ring}; --sidebar-primary: ${preset.light.sidebar}; --sidebar-accent: ${preset.light.sidebar}; --sidebar-ring: ${preset.light.ring}; }
+.dark .theme-dashboard { --primary: ${preset.dark.primary}; --ring: ${preset.dark.ring}; --sidebar-primary: ${preset.dark.sidebar}; --sidebar-accent: ${preset.dark.sidebar}; --sidebar-ring: ${preset.dark.ring}; }`
+    localStorage.setItem('color-preset', id)
+  }
+
   function handleColorChange(id: PresetId) {
     setActiveColor(id)
     applyColorPreset(id)

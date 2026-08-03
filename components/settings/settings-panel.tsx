@@ -94,14 +94,16 @@ type PresetId = (typeof colorPresets)[number]['id']
 function applyColorPreset(id: PresetId) {
   const preset = colorPresets.find((p) => p.id === id)
   if (!preset) return
-  const isDark = document.documentElement.classList.contains('dark')
-  const vals = isDark ? preset.dark : preset.light
-  const root = document.documentElement
-  root.style.setProperty('--primary', vals.primary)
-  root.style.setProperty('--ring', vals.ring)
-  root.style.setProperty('--sidebar-primary', vals.sidebar)
-  root.style.setProperty('--sidebar-accent', vals.sidebar)
-  root.style.setProperty('--sidebar-ring', vals.ring)
+  
+  let styleEl = document.getElementById('dynamic-theme') as HTMLStyleElement
+  if (!styleEl) {
+    styleEl = document.createElement('style')
+    styleEl.id = 'dynamic-theme'
+    document.head.appendChild(styleEl)
+  }
+  
+  styleEl.innerHTML = `.theme-dashboard { --primary: ${preset.light.primary}; --ring: ${preset.light.ring}; --sidebar-primary: ${preset.light.sidebar}; --sidebar-accent: ${preset.light.sidebar}; --sidebar-ring: ${preset.light.ring}; }
+.dark .theme-dashboard { --primary: ${preset.dark.primary}; --ring: ${preset.dark.ring}; --sidebar-primary: ${preset.dark.sidebar}; --sidebar-accent: ${preset.dark.sidebar}; --sidebar-ring: ${preset.dark.ring}; }`
   localStorage.setItem('color-preset', id)
 }
 

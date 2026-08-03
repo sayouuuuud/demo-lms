@@ -5,6 +5,7 @@ import { getCurrentStudent } from '@/lib/auth-guard'
 import { getStudentTargeting } from './notifications'
 import type { AssignmentStatus } from '@/lib/student-types'
 import { normalizeStatus } from '@/lib/assignments-shared'
+import { getPurchasedLectureIds } from '@/lib/student-lectures-data'
 
 export async function getStudentExams() {
   const student = await getCurrentStudent()
@@ -93,12 +94,20 @@ export async function getStudentAssignments() {
         : { id: '00000000-0000-0000-0000-000000000000' },
     select: { id: true },
   })
-  const lectureIds = lectures.map((l) => l.id)
+  const lectureIds = new Set(lectures.map((l) => l.id))
 
-  if (lectureIds.length === 0 && legacyCourseIds.length === 0) return []
+  // المحاضرات المشتراة عبر الأوردرات
+  if (student.user_id) {
+    const purchasedLectureIds = await getPurchasedLectureIds(student.user_id)
+    for (const lid of purchasedLectureIds) lectureIds.add(lid)
+  }
+
+  const allLectureIds = [...lectureIds]
+
+  if (allLectureIds.length === 0 && legacyCourseIds.length === 0) return []
 
   const orClauses = [
-    ...(lectureIds.length > 0 ? [{ lecture_id: { in: lectureIds } }] : []),
+    ...(allLectureIds.length > 0 ? [{ lecture_id: { in: allLectureIds } }] : []),
     ...(legacyCourseIds.length > 0 ? [{ course_id: { in: legacyCourseIds } }] : []),
   ]
 

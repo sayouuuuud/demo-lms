@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { TopographicBackground } from '@/components/topo-background'
 import { useIsDark } from '@/components/use-is-dark'
-
+import type { HeroContent } from '@/lib/site-content-defaults'
+import { DEFAULT_SITE_CONTENT } from '@/lib/site-content-defaults'
 /* ── Letters streaming out and clustering into a circle ── */
 const tabletLetters = [
   { letter: 'ا', top: '58%', left: '62%', size: 'text-2xl',  opacity: 0.50, delay: '0s',    rotate: '-5deg'  },
@@ -99,8 +100,10 @@ function StatItem({
   )
 }
 
-function StatsBar({ started }: { started: boolean }) {
+
+function StatsBar({ started, stats = [] }: { started: boolean, stats?: HeroContent['miniStats'] }) {
   const isDark = useIsDark()
+  const displayStats = stats && stats.length > 0 ? stats : statsData
   return (
     <div
       className="inline-flex items-stretch self-start rounded-2xl overflow-hidden"
@@ -114,18 +117,26 @@ function StatsBar({ started }: { started: boolean }) {
         WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
       }}
     >
-      {statsData.map((s, i) => (
-        <div key={i} className="flex items-stretch">
-          <StatItem {...s} started={started} />
-          {i < statsData.length - 1 && (
-            <div
-              className="self-stretch my-2 w-px shrink-0"
-              style={{ background: isDark ? 'oklch(0.84 0.11 88 / 20%)' : 'oklch(0.58 0.09 80 / 30%)' }}
-              aria-hidden="true"
-            />
-          )}
-        </div>
-      ))}
+      {displayStats.map((s, i) => {
+        // If s has an icon (from hardcoded statsData), use it. Otherwise, fallback to a default icon based on index or omit.
+        const icon = 'icon' in s ? (s as any).icon : (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="5"/><path d="M3 21v-2a7 7 0 0 1 14 0v2"/>
+          </svg>
+        );
+        return (
+          <div key={i} className="flex items-stretch">
+            <StatItem target={(s as any).value || (s as any).target || 0} prefix={s.prefix} suffix={s.suffix} label={s.label} icon={icon} started={started} />
+            {i < displayStats.length - 1 && (
+              <div
+                className="self-stretch my-2 w-px shrink-0"
+                style={{ background: isDark ? 'oklch(0.84 0.11 88 / 20%)' : 'oklch(0.58 0.09 80 / 30%)' }}
+                aria-hidden="true"
+              />
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -198,7 +209,7 @@ function ArabesqueLine({ flip = false }: { flip?: boolean }) {
   )
 }
 
-export function HeroSection() {
+export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?: HeroContent }) {
   const textRef = useRef<HTMLDivElement>(null)
   const [textVisible, setTextVisible] = useState(false)
   const [statsStarted, setStatsStarted] = useState(false)
@@ -255,14 +266,21 @@ export function HeroSection() {
               className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-black leading-tight"
               style={{ fontFamily: 'var(--font-reem-kufi), var(--font-cairo), sans-serif' }}
             >
-              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>كلامك عربي </span>
-              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.86 0.12 88)' : 'oklch(0.58 0.11 78)' }}>وجذوره أعمق</span>
-              <br />
-              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>مما تتصوّر</span>
+              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{content.titleLine1} </span>
+              {content.titleLine2.split('{highlight}').map((part, i, arr) => (
+                <span key={i}>
+                  <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{part}</span>
+                  {i < arr.length - 1 && (
+                    <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.86 0.12 88)' : 'oklch(0.58 0.11 78)' }}>{content.titleHighlight}</span>
+                  )}
+                </span>
+              ))}
             </h1>
-            <p className="text-base sm:text-lg font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
-              تعلّمها صح — من البداية للاحتراف
-            </p>
+            {content.badge && (
+              <p className="text-base sm:text-lg font-bold pt-1" style={{ color: isDark ? 'oklch(0.82 0.10 150)' : 'oklch(0.48 0.10 155)' }}>
+                {content.badge}
+              </p>
+            )}
           </div>
 
           {/* Arabesque separator */}
@@ -273,7 +291,7 @@ export function HeroSection() {
             className="text-base sm:text-lg leading-relaxed"
             style={{ color: isDark ? 'oklch(0.84 0.02 85)' : 'oklch(0.42 0.040 56)', fontFamily: 'var(--font-cairo), sans-serif', maxWidth: '40rem' }}
           >
-            في أكاديمية شفاء العليل، مش هنحفّظك قواعد — هنخليك تحسّ بها. من النحو والصرف للبلاغة والإملاء، كل درس مبني على الفهم الحقيقي.
+            {content.description}
           </p>
 
           {/* CTA */}
@@ -290,7 +308,7 @@ export function HeroSection() {
                 aria-hidden="true"
               />
               <Link
-                href="/auth"
+                href={content.cta1Href}
                 className="relative overflow-hidden flex items-center gap-3 px-9 py-4 rounded-full text-base font-black transition-transform hover:scale-105 active:scale-95"
                 style={{
                   background: 'oklch(0.84 0.11 88)',
@@ -300,7 +318,7 @@ export function HeroSection() {
                 }}
               >
                 <span className="cta-shimmer-bar" aria-hidden="true" />
-                <span className="relative z-10">سجّل معانا</span>
+                <span className="relative z-10">{content.cta1Text}</span>
                 <svg
                   width="18" height="18" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
@@ -312,7 +330,7 @@ export function HeroSection() {
             </div>
           </div>
 
-          <StatsBar started={statsStarted} />
+          <StatsBar started={statsStarted} stats={content.miniStats} />
         </div>
 
         {/* ── TEACHER SIDE ── */}
@@ -364,8 +382,8 @@ export function HeroSection() {
                 }}
               >
                 <Image
-                  src="/teacher.webp"
-                  alt="المدرس - أكاديمية شفاء العليل في اللغة العربية"
+                  src={isDark ? (content.teacherImageDark || content.teacherImageLight) : content.teacherImageLight}
+                  alt={content.teacherImageAlt}
                   fill
                   sizes="80vw"
                   className="object-cover"

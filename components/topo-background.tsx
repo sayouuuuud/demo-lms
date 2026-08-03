@@ -7,7 +7,13 @@ import { useIsDark } from '@/components/use-is-dark'
  * Light mode: topo-light.png (warm white with gold lines)
  * Dark mode: topo-dark.png (brown/black with gold lines)
  */
-export function TopographicBackground() {
+export function TopographicBackground({
+  lightOpacity = 0.2,
+  darkOpacity = 0.12,
+}: {
+  lightOpacity?: number
+  darkOpacity?: number
+}) {
   const isDark = useIsDark()
 
   return (
@@ -26,7 +32,8 @@ export function TopographicBackground() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          opacity: isDark ? 0.12 : 0.2,
+          backgroundAttachment: 'fixed',
+          opacity: isDark ? darkOpacity : lightOpacity,
         }}
       />
       {/* Subtle darkening vignette (dark mode only) */}

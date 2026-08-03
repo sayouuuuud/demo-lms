@@ -149,6 +149,48 @@ export default async function RootLayout({
               var t=localStorage.getItem('theme');
               var isDark = t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);
               if(isDark){document.documentElement.classList.add('dark')}
+              
+              var presets=${JSON.stringify(colorPresets)};
+              var serverColor=${JSON.stringify(savedColor)};
+              var c=serverColor||localStorage.getItem('color-preset')||'navy';
+              try{localStorage.setItem('color-preset',c)}catch(e){}
+              var preset=presets.find(function(p){return p.id===c});
+              if(preset){
+                var style = document.createElement('style');
+                style.id = 'dynamic-theme';
+                style.innerHTML = '.theme-dashboard { --primary: ' + preset.light.primary + '; --ring: ' + preset.light.ring + '; --sidebar-primary: ' + preset.light.sidebar + '; --sidebar-accent: ' + preset.light.sidebar + '; --sidebar-ring: ' + preset.light.ring + '; } ' +
+                                  '.dark .theme-dashboard { --primary: ' + preset.dark.primary + '; --ring: ' + preset.dark.ring + '; --sidebar-primary: ' + preset.dark.sidebar + '; --sidebar-accent: ' + preset.dark.sidebar + '; --sidebar-ring: ' + preset.dark.ring + '; }';
+                document.head.appendChild(style);
+              }
+
+              var neons=${JSON.stringify(neonPresets)};
+              var serverNeon=${JSON.stringify(savedNeon)};
+              var n=serverNeon||localStorage.getItem('neon-preset')||'teal-violet';
+              try{localStorage.setItem('neon-preset',n)}catch(e){}
+              var neon=neons.find(function(p){return p.id===n});
+              if(neon){
+                var r2=document.documentElement;
+                r2.style.setProperty('--color-teal-glow', neon.tealGlow);
+                r2.style.setProperty('--color-teal-deep', neon.tealDeep);
+                r2.style.setProperty('--color-violet-glow', neon.violetGlow);
+                r2.style.setProperty('--color-violet-deep', neon.violetDeep);
+              }
+
+              var lights=${JSON.stringify(lightPresets)};
+              var serverLight=${JSON.stringify(savedLight)};
+              var l=serverLight||localStorage.getItem('light-preset')||'navy-gold';
+              try{localStorage.setItem('light-preset',l)}catch(e){}
+              var light=lights.find(function(p){return p.id===l});
+              if(light){
+                var r3=document.documentElement;
+                r3.style.setProperty('--color-navy', light.navy);
+                r3.style.setProperty('--color-navy-deep', light.navyDeep);
+                r3.style.setProperty('--color-navy-soft', light.navySoft);
+                r3.style.setProperty('--color-gold', light.gold);
+                r3.style.setProperty('--color-gold-deep', light.goldDeep);
+                r3.style.setProperty('--color-emerald-brand', light.emeraldBrand);
+                r3.style.setProperty('--color-emerald-deep', light.emeraldDeep);
+              }
             }catch(e){}})();`,
           }}
         />

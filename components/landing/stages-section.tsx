@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, GraduationCap, Award } from 'lucide-react'
+import { BookOpen, GraduationCap, Award, Feather, PenTool, Sparkles, Compass, Library } from 'lucide-react'
 import { ParchmentCard } from '@/components/parchment-card'
 import { useReveal } from '@/lib/use-reveal'
 
@@ -40,7 +40,7 @@ export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
         id: s.id || idx + 1,
         name: s.title || s.name || DEFAULT_STAGES[idx % DEFAULT_STAGES.length].name,
         description: s.subtitle || s.description || DEFAULT_STAGES[idx % DEFAULT_STAGES.length].description,
-        image: DEFAULT_STAGES[idx % DEFAULT_STAGES.length].image,
+        image: s.image || DEFAULT_STAGES[idx % DEFAULT_STAGES.length].image,
         units: (s.branches && s.branches.length > 0)
           ? s.branches.map((b: any) => b.title || b.name)
           : (s.courses && s.courses.length > 0)
@@ -67,19 +67,28 @@ export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
         />
       </div>
 
+      {/* Floating decorative objects (Icons) */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <Feather className="float-letter-1 absolute top-[15%] left-[8%] size-24 text-gold/30 dark:text-gold/20 blur-[1px] opacity-60" />
+        <PenTool className="float-letter-2 absolute top-[25%] right-[12%] size-16 text-brown/30 dark:text-brown/20 opacity-50" />
+        <BookOpen className="float-letter-3 absolute bottom-[20%] left-[18%] size-32 text-gold/25 dark:text-gold/15 blur-[2px] opacity-40" />
+        <Compass className="float-letter-4 absolute top-[50%] right-[5%] size-20 text-brown/30 dark:text-brown/20 opacity-50" />
+        <GraduationCap className="float-letter-5 absolute bottom-[35%] right-[22%] size-28 text-gold/30 dark:text-gold/20 blur-[1px] opacity-40" />
+        <Sparkles className="float-letter-6 absolute top-[10%] left-[45%] size-12 text-brown/25 dark:text-brown/15 opacity-50" />
+        <Library className="float-letter-7 absolute bottom-[10%] right-[40%] size-24 text-gold/25 dark:text-gold/15 blur-[3px] opacity-40" />
+      </div>
+
       <div className="relative z-10 mx-auto max-w-[1600px] px-4 md:px-10">
         <div ref={headRef} className="max-w-3xl text-center mx-auto mb-20">
-          <span className="text-sm font-bold tracking-widest text-gold uppercase" style={{ fontFamily: 'var(--font-cairo)' }}>
-            رحلتك التعليمية
-          </span>
+          <span className="text-sm font-semibold text-gold">المراحل الدراسية</span>
           <h2
-            className="mt-4 text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl font-black"
+            className="mt-3 text-3xl font-black text-foreground sm:text-4xl lg:text-5xl"
             style={{ fontFamily: "'Thmanyah Sans', sans-serif" }}
           >
-            المراحل الدراسية
+            رحلتك التعليمية معانا
           </h2>
-          <p className="mt-5 text-lg text-muted-foreground leading-relaxed">
-            من البداية وحتى إتقان اللغة العربية، صممنا لك مساراً يضمن لك التفوق بخطوات واثقة ومستندة على جذور لغتنا الأصيلة.
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            اختار مرحلتك وابدأ مسارك الصح في فهم وإتقان اللغة العربية.
           </p>
         </div>
 

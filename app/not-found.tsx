@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { TopographicBackground } from '@/components/topo-background'
 import { Home, ArrowRight } from 'lucide-react'
 import { getCurriculum } from '@/lib/curriculum'
 
@@ -12,8 +13,9 @@ export default async function NotFound() {
   }
 
   return (
-    <main className="graph-paper min-h-screen bg-cream dark:bg-ink-base flex items-center justify-center px-5 py-20">
-      <div className="w-full max-w-xl text-center">
+    <main className="relative min-h-screen bg-cream dark:bg-ink-base flex items-center justify-center px-5 py-20">
+      <TopographicBackground lightOpacity={0.4} darkOpacity={0.3} />
+      <div className="relative z-10 w-full max-w-xl text-center">
         {/* رقم الخطأ */}
         <div className="font-mono text-8xl font-black text-navy/10 dark:text-ink-fg/5 select-none mb-2">
           404
