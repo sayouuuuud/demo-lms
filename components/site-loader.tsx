@@ -10,7 +10,9 @@ const PRELOAD_IMAGES = [
   '/inkwell.webp',
 ]
 
-const MIN_DURATION = 1000
+const MIN_DURATION = 60000
+const FADE_MS = 420
+const SWEEP_MS = 620
 
 function preload(src: string) {
   return new Promise<void>((resolve) => {
@@ -36,7 +38,7 @@ export function SiteLoader() {
       setTimeout(() => {
         if (cancelled) return
         setLeaving(true)
-        setTimeout(() => !cancelled && setHidden(true), 650)
+        setTimeout(() => !cancelled && setHidden(true), FADE_MS)
       }, wait)
     })
 
@@ -52,81 +54,117 @@ export function SiteLoader() {
       aria-hidden={leaving}
       role="status"
       aria-label="جارٍ تحميل الموقع"
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5"
       style={{
         background: 'var(--background)',
         opacity: leaving ? 0 : 1,
-        transition: 'opacity 0.6s ease',
+        transition: `opacity ${FADE_MS}ms ease`,
         pointerEvents: leaving ? 'none' : 'auto',
       }}
     >
-      <div className="relative flex items-center justify-center">
-        <span
-          className="absolute rounded-full"
-          style={{
-            width: 96,
-            height: 96,
-            border: '1.5px solid var(--brand-gold)',
-            opacity: 0.5,
-            animation: 'loaderRing 1.6s ease-out infinite',
-          }}
-        />
-        <span
-          className="absolute rounded-full"
-          style={{
-            width: 96,
-            height: 96,
-            border: '1.5px solid var(--brand-gold)',
-            opacity: 0.3,
-            animation: 'loaderRing 1.6s ease-out infinite 0.5s',
-          }}
-        />
-        <div
-          className="flex items-center justify-center size-20 rounded-full text-3xl font-black"
-          style={{
-            background: 'var(--primary)',
-            color: 'var(--primary-foreground)',
-            fontFamily: 'var(--font-cairo)',
-            boxShadow: '0 8px 32px oklch(0.72 0.10 85 / 35%)',
-          }}
-        >
-          ش
-        </div>
-      </div>
+      <span className="sr-only">جارٍ تحميل الموقع</span>
 
-      <div className="flex flex-col items-center gap-1">
-        <span
-          className="text-lg font-black"
-          style={{ color: 'var(--foreground)', fontFamily: 'var(--font-cairo)' }}
-        >
-          أكاديمية شفاء العليل
-        </span>
-        <span className="text-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>
-          في اللغة العربية
-        </span>
-      </div>
-
-      <div
-        className="relative h-1 w-40 overflow-hidden rounded-full"
-        style={{ background: 'oklch(0.72 0.10 85 / 18%)' }}
+      <svg
+        viewBox="0 0 520 132"
+        role="presentation"
+        className="w-[min(78vw,420px)] overflow-visible"
       >
-        <span
-          className="absolute inset-y-0 w-1/3 rounded-full"
-          style={{
-            background: 'var(--brand-gold)',
-            animation: 'loaderBar 1.1s ease-in-out infinite',
-          }}
+        <defs>
+          <clipPath id="loaderReveal">
+            {/* يُكشف من اليمين لليسار ليحاكي اتجاه الكتابة العربية */}
+            <rect x="0" y="0" width="520" height="132" className="loader-sweep" />
+          </clipPath>
+        </defs>
+
+        <g clipPath="url(#loaderReveal)">
+          <text
+            x="260"
+            y="72"
+            textAnchor="middle"
+            direction="rtl"
+            style={{
+              fontFamily: 'var(--font-ruqaa)',
+              fontSize: 46,
+              fill: 'var(--foreground)',
+              stroke: 'var(--brand-gold)',
+              strokeWidth: 0.7,
+              paintOrder: 'stroke',
+            }}
+          >
+            أكاديمية شفاء العليل
+          </text>
+        </g>
+
+        {/* سنّ القلم: يتحرك مع حدّ الكشف */}
+        <circle
+          cx="0"
+          cy="72"
+          r="3"
+          className="loader-nib"
+          style={{ fill: 'var(--brand-gold)' }}
         />
-      </div>
+
+        {/* خط المِداد أسفل الاسم */}
+        <rect
+          x="150"
+          y="94"
+          width="220"
+          height="1.5"
+          rx="0.75"
+          className="loader-underline"
+          style={{ fill: 'var(--brand-gold)' }}
+        />
+      </svg>
+
+      <span
+        className="loader-subtitle text-xs font-semibold tracking-wide"
+        style={{ color: 'var(--muted-foreground)' }}
+      >
+        في اللغة العربية
+      </span>
 
       <style>{`
-        @keyframes loaderRing {
-          0%   { transform: scale(0.85); opacity: 0.55; }
-          100% { transform: scale(1.5);  opacity: 0; }
+        .loader-sweep {
+          transform: scaleX(0);
+          transform-box: fill-box;
+          transform-origin: right center;
+          animation: loaderSweep ${SWEEP_MS}ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
-        @keyframes loaderBar {
-          0%   { inset-inline-start: -35%; }
-          100% { inset-inline-start: 100%; }
+        .loader-nib {
+          opacity: 0;
+          transform: translateX(500px);
+          animation: loaderNib ${SWEEP_MS}ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+        .loader-underline {
+          transform: scaleX(0);
+          transform-box: fill-box;
+          transform-origin: right center;
+          animation: loaderSweep 520ms cubic-bezier(0.65, 0, 0.35, 1) ${SWEEP_MS - 120}ms forwards;
+        }
+        .loader-subtitle {
+          opacity: 0;
+          animation: loaderFadeUp 460ms ease-out ${SWEEP_MS - 60}ms forwards;
+        }
+
+        @keyframes loaderSweep {
+          to { transform: scaleX(1); }
+        }
+        @keyframes loaderNib {
+          0%   { transform: translateX(500px); opacity: 0; }
+          12%  { opacity: 1; }
+          88%  { opacity: 1; }
+          100% { transform: translateX(20px); opacity: 0; }
+        }
+        @keyframes loaderFadeUp {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .loader-sweep,
+          .loader-underline { transform: scaleX(1); animation: none; }
+          .loader-subtitle { opacity: 1; animation: none; }
+          .loader-nib { display: none; }
         }
       `}</style>
     </div>
