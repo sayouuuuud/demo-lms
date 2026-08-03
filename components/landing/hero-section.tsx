@@ -83,11 +83,11 @@ function StatItem({
   const count = useCountUp(target, 1600, started)
   const isDark = useIsDark()
   return (
-    <div className="flex items-center gap-3 px-5 py-3">
+    <div className="flex items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-5 sm:py-3">
       <span className="shrink-0" style={{ color: isDark ? 'oklch(0.84 0.11 88)' : 'oklch(0.58 0.10 80)' }}>{icon}</span>
       <div className="flex flex-col leading-tight">
         <span
-          className="text-2xl sm:text-3xl font-black tabular-nums"
+          className="text-xl sm:text-3xl font-black tabular-nums"
           style={{ color: isDark ? 'oklch(0.87 0.10 88)' : 'oklch(0.42 0.075 70)', fontFamily: 'var(--font-cairo), sans-serif' }}
         >
           {prefix}{toArabic(count)}{suffix}
@@ -106,7 +106,7 @@ function StatsBar({ started, stats = [] }: { started: boolean, stats?: HeroConte
   const displayStats = stats && stats.length > 0 ? stats : statsData
   return (
     <div
-      className="inline-flex items-stretch self-start rounded-2xl overflow-hidden"
+      className="flex w-full max-w-full flex-wrap items-stretch justify-start self-start overflow-hidden rounded-2xl sm:inline-flex sm:w-auto sm:flex-nowrap"
       style={{
         background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.65)',
         border: isDark ? '1px solid rgba(255,255,255,0.18)' : '1px solid oklch(0.68 0.09 82 / 35%)',
@@ -247,11 +247,11 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         }}
       />
 
-      <div className="relative z-10 flex-1 flex flex-col md:flex-row items-stretch pt-24 sm:pt-28 md:pt-28 w-full">
+      <div className="relative z-10 flex-1 flex flex-col md:flex-row items-stretch pt-24 sm:pt-28 md:pt-28 w-full min-w-0">
         {/* ── TEXT SIDE ── */}
         <div
           ref={textRef}
-          className="relative z-20 flex flex-col justify-center gap-7 order-2 md:order-1 w-full md:w-[48%] lg:w-[50%] px-6 sm:px-10 md:ps-12 md:pe-4 pb-12 md:pb-20"
+          className="relative z-20 flex min-w-0 flex-col justify-center gap-5 sm:gap-7 order-2 md:order-1 w-full md:w-[46%] lg:w-[50%] px-5 sm:px-10 md:ps-12 md:pe-4 pb-12 md:pb-20"
           style={{
             opacity: textVisible ? 1 : 0,
             transform: textVisible ? 'translateX(0)' : 'translateX(90px)',
@@ -263,13 +263,13 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
           {/* Headline */}
           <div className="space-y-1">
             <h1
-              className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-[4.5rem] font-black leading-tight"
+              className="text-balance text-[clamp(1.9rem,8.5vw,2.75rem)] sm:text-5xl md:text-[clamp(2rem,4.4vw,3rem)] lg:text-6xl xl:text-[4.5rem] font-black leading-tight"
               style={{ fontFamily: 'var(--font-reem-kufi), var(--font-cairo), sans-serif' }}
             >
-              <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{content.titleLine1} </span>
+              <span className="sm:whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{content.titleLine1} </span>
               {content.titleLine2.split('{highlight}').map((part, i, arr) => (
                 <span key={i}>
-                  <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{part}</span>
+                  <span className="sm:whitespace-nowrap" style={{ color: isDark ? 'oklch(0.98 0.008 85)' : 'oklch(0.28 0.045 55)' }}>{part}</span>
                   {i < arr.length - 1 && (
                     <span className="whitespace-nowrap" style={{ color: isDark ? 'oklch(0.86 0.12 88)' : 'oklch(0.58 0.11 78)' }}>{content.titleHighlight}</span>
                   )}
@@ -334,7 +334,7 @@ export function HeroSection({ content = DEFAULT_SITE_CONTENT.hero }: { content?:
         </div>
 
         {/* ── TEACHER SIDE ── */}
-        <div className="relative order-1 md:order-2 w-full md:w-[60%] md:min-h-screen overflow-hidden">
+        <div className="relative order-1 md:order-2 w-full md:w-[54%] lg:w-[50%] md:min-h-[70vh] lg:min-h-screen overflow-hidden">
           {/* MOBILE */}
           <div className="md:hidden relative w-full flex justify-center px-6 pt-6 pb-4">
             <div className="relative w-[80vw] max-w-[340px] aspect-square">

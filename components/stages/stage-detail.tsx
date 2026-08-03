@@ -42,7 +42,7 @@ export function StageDetail({
           className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-gold/10 blur-3xl"
           aria-hidden="true"
         />
-        <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-28 md:px-8 md:pb-24 md:pt-32">
+        <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-5 sm:pb-16 sm:pt-28 md:px-8 md:pb-24 md:pt-32">
           <Link
             href="/#stages"
             className="inline-flex items-center gap-2 text-sm font-semibold text-foreground-soft transition-colors hover:text-foreground dark:text-muted-foreground dark:hover:text-ink-fg"
@@ -51,36 +51,36 @@ export function StageDetail({
             رجوع للمراحل
           </Link>
 
-          <div className="mt-8 grid items-center gap-12 lg:grid-cols-[1.3fr_0.7fr]">
-            <div>
+          <div className="mt-6 grid items-center gap-8 sm:mt-8 md:gap-12 lg:grid-cols-[1.3fr_0.7fr]">
+            <div className="min-w-0">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-primary/5 px-4 py-1.5 text-sm font-semibold text-gold-deep backdrop-blur dark:border-white/10 dark:bg-card/5 dark:text-teal-glow">
                 <Sparkles className="size-4" />
                 المرحلة {stage.index}
               </span>
-              <h1 className="mt-5 text-balance font-heading text-4xl font-extrabold leading-tight text-foreground md:text-6xl dark:text-foreground">
+              <h1 className="mt-4 text-balance font-heading text-[clamp(1.75rem,7vw,2.5rem)] font-extrabold leading-tight text-foreground sm:mt-5 md:text-5xl lg:text-6xl dark:text-foreground">
                 {stage.title}
               </h1>
-              <p className="mt-4 max-w-2xl text-pretty text-lg leading-relaxed text-foreground-soft dark:text-muted-foreground">
+              <p className="mt-3 max-w-2xl text-pretty text-base leading-relaxed text-foreground-soft sm:mt-4 sm:text-lg dark:text-muted-foreground">
                 {stage.subtitle}
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <Sparkles className="size-4 text-gold-deep dark:text-teal-glow" />
+              <div className="mt-6 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <Sparkles className="size-4 shrink-0 text-gold-deep dark:text-teal-glow" />
                   {stage.branches.length} فروع للمادة
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <Layers className="size-4 text-emerald-deep dark:text-emerald-brand" />
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <Layers className="size-4 shrink-0 text-emerald-deep dark:text-emerald-brand" />
                   {totalCourses} كورس
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-4 py-2.5 text-sm text-foreground-soft dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
-                  <PlayCircle className="size-4 text-emerald-deep dark:text-emerald-brand" />
+                <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-[#eee6d5]/60 px-3 py-2 text-xs text-foreground-soft sm:px-4 sm:py-2.5 sm:text-sm dark:border-border dark:bg-[#120e0a] dark:text-muted-foreground">
+                  <PlayCircle className="size-4 shrink-0 text-emerald-deep dark:text-emerald-brand" />
                   {totalLessons} محاضرة
                 </span>
               </div>
             </div>
 
-            <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] border border-border shadow-2xl shadow-navy/10 lg:aspect-[4/5] dark:border-border">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-border shadow-2xl shadow-navy/10 sm:aspect-[16/9] md:rounded-[2rem] lg:aspect-[4/5] dark:border-border">
               <Image
                 src={stage.image}
                 alt={stage.title}

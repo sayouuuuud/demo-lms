@@ -91,7 +91,7 @@ export function LandingNavbar({
         <div className="w-full max-w-full">
           <nav
             className={cn(
-              'flex items-center justify-between gap-4 px-6 py-3.5 rounded-2xl sm:rounded-full border transition-all duration-300',
+              'flex items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-3.5 rounded-2xl sm:rounded-full border transition-all duration-300',
               'bg-card/80 backdrop-blur-md shadow-lg',
               scrolled && 'shadow-xl',
               'w-full'
@@ -99,17 +99,17 @@ export function LandingNavbar({
             style={{ borderColor: 'rgba(200,185,154,0.4)' }}
           >
             {/* ── RIGHT: Logo ── */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <div className="size-9 rounded-full flex items-center justify-center bg-gold text-navy-deep text-sm font-bold shrink-0">
+            <Link href="/" className="flex min-w-0 items-center gap-2">
+              <div className="size-8 sm:size-9 rounded-full flex items-center justify-center bg-gold text-navy-deep text-sm font-bold shrink-0">
                 ش
               </div>
-              <span className="text-base font-bold text-foreground whitespace-nowrap">
+              <span className="hidden truncate text-sm font-bold text-foreground min-[380px]:inline sm:text-base sm:whitespace-nowrap">
                 أكاديمية شفاء العليل
               </span>
             </Link>
 
             {/* ── CENTER: nav links ── */}
-            <div className="flex-1 flex items-center justify-center gap-6 lg:gap-8">
+            <div className="hidden flex-1 items-center justify-center gap-6 md:flex lg:gap-8">
               {/* Desktop nav links */}
               <ul className="hidden md:flex items-center gap-6">
                 {navLinks.map((link) => (

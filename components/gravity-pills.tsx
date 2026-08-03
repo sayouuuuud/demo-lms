@@ -51,7 +51,12 @@ export function GravityPills() {
       const base = p.shape === 'circle' ? (p.big ? 128 : 96) : p.big ? 104 : 84
       const h = Math.round(base * scale)
       el.style.height = `${h}px`
-      if (p.shape === 'circle') el.style.width = `${h}px`
+      if (p.shape === 'circle') {
+        el.style.width = `${h}px`
+      } else {
+        const pad = Math.max(12, Math.round(32 * scale))
+        el.style.paddingInline = `${pad}px`
+      }
       el.style.fontSize = `${Math.round((p.big ? 40 : 30) * scale)}px`
     })
 
