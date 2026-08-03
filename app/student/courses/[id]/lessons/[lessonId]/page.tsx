@@ -13,10 +13,6 @@ export default async function Page({
   const data = await getPurchasedLesson(id, lessonId)
   if (!data) notFound()
 
-  console.log('--- LESSON RENDER ---');
-  console.log('Lesson ID:', data.lesson.lessonId);
-  console.log('Attachments:', JSON.stringify(data.lesson.attachments, null, 2));
-
   // Sequential gating: disabled for lessons to prevent stuck loops.
   // if (data.lesson.locked) redirect(`/student/courses/${id}`)
 

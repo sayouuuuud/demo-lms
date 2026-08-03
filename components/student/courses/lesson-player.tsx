@@ -21,6 +21,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { VideoPlayer } from '@/components/student/courses/video-player'
+import { LectureViewTracker } from '@/components/analytics/lecture-view-tracker'
 import { markLessonComplete } from '@/app/student/progress/actions'
 import { getCourseItems, type CourseDetail, type Lesson } from '@/lib/student-types'
 
@@ -97,6 +98,7 @@ export function LessonPlayer({
 
   return (
     <div className="flex flex-col gap-6">
+      <LectureViewTracker lessonId={lesson.lessonId} />
       {/* Breadcrumb */}
       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         <Link
@@ -114,7 +116,12 @@ export function LessonPlayer({
           <Card className="overflow-hidden p-0">
             <div className="relative aspect-video w-full bg-black">
               {lesson.type === 'فيديو' ? (
-                <VideoPlayer key={lesson.id} src={lesson.videoUrl} poster={course.image} />
+                <VideoPlayer
+                  key={lesson.id}
+                  src={lesson.videoUrl}
+                  poster={course.image}
+                  lessonId={lesson.lessonId}
+                />
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/80">
                   <FileText className="size-12" />

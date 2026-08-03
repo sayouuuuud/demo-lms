@@ -17,6 +17,7 @@ import {
   Tag,
   Layers,
   BarChart3,
+  Eye,
   Settings,
   LogOut,
   ChevronLeft,
@@ -111,6 +112,7 @@ const navItems: NavItemOrGroup[] = [
     icon: BarChart3,
     items: [
       { label: 'التقارير', icon: BarChart3, href: '/admin/reports', resource: 'reports' },
+      { label: 'إحصائيات المشاهدة', icon: Eye, href: '/admin/analytics', resource: 'reports', adminOnly: true },
       { label: 'الأمان والأجهزة', icon: ShieldAlert, href: '/admin/security', resource: 'security' },
       { label: 'سجل المراقبة', icon: ShieldCheck, href: '/admin/activity', resource: 'settings', adminOnly: true },
     ]
