@@ -135,6 +135,38 @@ export default async function RootLayout({
     // لو فشل الجلب نكمّل بالقيم الافتراضية
   }
 
+  // نحضّر قيم الـ presets المحفوظة عشان نطبّقها في سكريبت inline قبل أول رسم،
+  // وإلا الموقع هيرجع للألوان الافتراضية بعد كل ريفريش.
+  const colorPreset = colorPresets.find((p) => p.id === savedColor) ?? colorPresets[0]
+  const neonPreset = neonPresets.find((p) => p.id === savedNeon) ?? neonPresets[0]
+  const lightPreset = lightPresets.find((p) => p.id === savedLight) ?? lightPresets[0]
+
+  const themeScript = `(function(){try{
+    var r=document.documentElement;
+    var t=localStorage.getItem('theme');
+    var isDark = t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if(isDark){r.classList.add('dark')}
+    var c=${JSON.stringify({ light: colorPreset.light, dark: colorPreset.dark })};
+    var v=isDark?c.dark:c.light;
+    r.style.setProperty('--primary',v.primary);
+    r.style.setProperty('--ring',v.ring);
+    r.style.setProperty('--sidebar-primary',v.sidebar);
+    r.style.setProperty('--sidebar-accent',v.sidebar);
+    r.style.setProperty('--sidebar-ring',v.ring);
+    r.dataset.colorPreset=${JSON.stringify(colorPreset.id)};
+    r.style.setProperty('--color-teal-glow',${JSON.stringify(neonPreset.tealGlow)});
+    r.style.setProperty('--color-teal-deep',${JSON.stringify(neonPreset.tealDeep)});
+    r.style.setProperty('--color-violet-glow',${JSON.stringify(neonPreset.violetGlow)});
+    r.style.setProperty('--color-violet-deep',${JSON.stringify(neonPreset.violetDeep)});
+    r.style.setProperty('--color-navy',${JSON.stringify(lightPreset.navy)});
+    r.style.setProperty('--color-navy-deep',${JSON.stringify(lightPreset.navyDeep)});
+    r.style.setProperty('--color-navy-soft',${JSON.stringify(lightPreset.navySoft)});
+    r.style.setProperty('--color-gold',${JSON.stringify(lightPreset.gold)});
+    r.style.setProperty('--color-gold-deep',${JSON.stringify(lightPreset.goldDeep)});
+    r.style.setProperty('--color-emerald-brand',${JSON.stringify(lightPreset.emeraldBrand)});
+    r.style.setProperty('--color-emerald-deep',${JSON.stringify(lightPreset.emeraldDeep)});
+  }catch(e){}})();`
+
   return (
     <html
       lang="ar"
@@ -143,15 +175,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{
-              var t=localStorage.getItem('theme');
-              var isDark = t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-              if(isDark){document.documentElement.classList.add('dark')}
-            }catch(e){}})();`,
-          }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
 
       </head>
       <body className={`${cairo.className} font-sans antialiased`}>
