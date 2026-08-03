@@ -25,14 +25,15 @@ export function TopographicBackground({
       }}
     >
       {/* Topo pattern — lines softened in dark mode */}
+      {/*
+        `background-attachment: fixed` is intentionally avoided — it is broken /
+        janky on iOS Safari and most mobile browsers, which made the pattern jump
+        while scrolling and shift the layout on small screens.
+      */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat lg:[background-attachment:fixed]"
         style={{
           backgroundImage: isDark ? 'url(/topo-dark.webp)' : 'url(/topo-light.webp)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
           opacity: isDark ? darkOpacity : lightOpacity,
         }}
       />

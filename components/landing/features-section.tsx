@@ -23,16 +23,16 @@ export function FeaturesSection({ content = DEFAULT_SITE_CONTENT.features }: { c
   return (
     <section id="features" className="relative overflow-hidden bg-background py-12 md:py-16">
       <SectionBackdrop variant="features" />
-      <div className="relative mx-auto max-w-7xl px-5 md:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
         <div ref={headRef} className="max-w-2xl">
           <span className="text-sm font-semibold text-green">{content.badge}</span>
           <h2 
-            className="mt-3 text-balance text-3xl font-black leading-tight text-foreground sm:text-4xl lg:text-5xl"
+            className="mt-3 text-balance text-[clamp(1.5rem,6.5vw,1.875rem)] font-black leading-tight text-foreground sm:text-4xl lg:text-5xl"
             style={{ fontFamily: "'Thmanyah Sans', sans-serif" }}
           >
             {content.title}
           </h2>
-          <p className="mt-5 text-pretty text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-4 text-pretty text-base leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
             {content.description}
           </p>
         </div>
@@ -43,19 +43,19 @@ export function FeaturesSection({ content = DEFAULT_SITE_CONTENT.features }: { c
             return (
               <div
                 key={idx}
-                className="feature-row group grid grid-cols-[auto_1fr] items-start gap-5 border-b border-border py-5 md:py-6 transition-colors hover:bg-secondary/40 md:grid-cols-[6rem_3rem_1fr] md:items-center md:gap-8 md:px-4"
+                className="feature-row group grid grid-cols-[auto_1fr] items-start gap-x-4 gap-y-3 border-b border-border py-5 sm:gap-5 md:py-6 transition-colors hover:bg-secondary/40 md:grid-cols-[6rem_3rem_1fr] md:items-center md:gap-8 md:px-4"
               >
-                <span className="text-3xl font-black text-foreground/15 transition-colors group-hover:text-gold md:text-5xl">
+                <span className="text-2xl font-black text-foreground/15 transition-colors group-hover:text-gold sm:text-3xl md:text-5xl">
                   {f.step}
                 </span>
 
-                <span className="row-start-1 grid size-12 place-items-center rounded-xl bg-gold text-navy-deep transition-transform duration-300 group-hover:-translate-y-1 md:row-auto">
-                  <IconComponent className="size-6" />
+                <span className="row-start-1 grid size-10 place-items-center rounded-xl bg-gold text-navy-deep transition-transform duration-300 group-hover:-translate-y-1 sm:size-12 md:row-auto">
+                  <IconComponent className="size-5 sm:size-6" />
                 </span>
 
-                <div className="col-span-2 md:col-span-1">
-                  <h3 className="text-xl font-bold text-foreground md:text-2xl">{f.title}</h3>
-                  <p className="mt-2 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
+                <div className="col-span-2 min-w-0 md:col-span-1">
+                  <h3 className="text-pretty text-lg font-bold text-foreground sm:text-xl md:text-2xl">{f.title}</h3>
+                  <p className="mt-2 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
                     {f.description}
                   </p>
                 </div>

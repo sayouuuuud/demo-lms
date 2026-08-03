@@ -50,7 +50,7 @@ export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
     : DEFAULT_STAGES
 
   return (
-    <section id="stages" className="relative overflow-hidden bg-[#eee6d5] dark:bg-[#120e0a] py-20 md:py-32">
+    <section id="stages" className="relative overflow-hidden bg-[#eee6d5] dark:bg-[#120e0a] py-14 sm:py-20 md:py-32">
       {/* خلفية SVG التراثية ممتدة بعرض الشاشة بالكامل من الحافة للحافة */}
       <div 
         className="absolute bottom-0 w-[100vw] left-1/2 -translate-x-1/2 h-[40%] pointer-events-none z-0 mix-blend-multiply opacity-25"
@@ -68,7 +68,7 @@ export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
       </div>
 
       {/* Floating decorative objects (Icons) */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+      <div className="pointer-events-none absolute inset-0 hidden overflow-hidden md:block" aria-hidden="true">
         <Feather className="float-letter-1 absolute top-[15%] left-[8%] size-24 text-gold/30 dark:text-gold/20 blur-[1px] opacity-60" />
         <PenTool className="float-letter-2 absolute top-[25%] right-[12%] size-16 text-brown/30 dark:text-brown/20 opacity-50" />
         <BookOpen className="float-letter-3 absolute bottom-[20%] left-[18%] size-32 text-gold/25 dark:text-gold/15 blur-[2px] opacity-40" />
@@ -78,8 +78,8 @@ export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
         <Library className="float-letter-7 absolute bottom-[10%] right-[40%] size-24 text-gold/25 dark:text-gold/15 blur-[3px] opacity-40" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1600px] px-4 md:px-10">
-        <div ref={headRef} className="max-w-3xl text-center mx-auto mb-20">
+      <div className="relative z-10 mx-auto max-w-[1600px] px-4 sm:px-6 md:px-10">
+        <div ref={headRef} className="max-w-3xl text-center mx-auto mb-12 sm:mb-16 md:mb-20">
           <span className="text-sm font-semibold text-gold">المراحل الدراسية</span>
           <h2
             className="mt-3 text-3xl font-black text-foreground sm:text-4xl lg:text-5xl"
@@ -92,7 +92,7 @@ export function StagesSection({ stages: dbStages }: { stages?: any[] }) {
           </p>
         </div>
 
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 justify-items-center">
+        <div ref={gridRef} className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-10 xl:gap-12 justify-items-center">
           {displayStages.map((stage) => (
             <div key={stage.id} className="stage-card-wrap w-full flex justify-center">
               <ParchmentCard

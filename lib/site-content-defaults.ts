@@ -179,8 +179,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     cta2Text: 'اعرف أكتر عن المنصة',
     cta2Href: '#features',
     trustPoints: ['أول حصة مجانًا', 'إلغاء في أي وقت', 'متابعة مع ولي الأمر'],
-    teacherImageLight: '/teacher-abdelsalam.webp',
-    teacherImageDark: '/teacher-abdelsalam-dark.webp',
+    teacherImageLight: '/teacher.webp',
+    teacherImageDark: '/teacher.webp',
     teacherImageAlt: 'الأستاذ عبد السلام، مدرس الرياضيات',
     pillLabels: ['تكامل', 'تفاضل', 'جبر', 'إحصاء'],
     miniStats: [
@@ -236,7 +236,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
       { value: 25, suffix: '+', label: 'سنة خبرة في تدريس الرياضيات' },
       { value: 48000, suffix: '+', label: 'طالب وطالبة على المنصة' },
       { value: 1200, suffix: '+', label: 'فيديو ودرس تعليمي' },
-      { value: 98, suffix: '%', label: 'نسبة رضا الطلاب' },
+      { value: 98, suffix: '%', label: 'نسبة رضا الط��اب' },
     ],
   },
 
