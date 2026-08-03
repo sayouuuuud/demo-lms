@@ -72,11 +72,11 @@ export function ParchmentCard({
         />
 
         {/* Content flows normally inside the paper's safe area (percentages keep it proportional) */}
-        <div className="relative flex min-h-[76cqw] flex-col items-center overflow-hidden rounded-[inherit] px-[11%] pb-[9%] pt-[17%] text-center">
+        <div className="relative flex min-h-[76cqw] flex-col items-center px-[11%] pb-[9%] pt-[12%] text-center">
           {children ?? (
             <>
               {illustrationSrc ? (
-                <div className="w-full shrink-0 overflow-hidden rounded-[3cqw]" style={{ contain: 'paint' }}>
+                <div className="mt-[6cqw] w-full shrink-0 overflow-hidden rounded-[3cqw]" style={{ contain: 'paint' }}>
                   <img
                     src={illustrationSrc || '/placeholder.svg'}
                     alt={illustrationAlt}
