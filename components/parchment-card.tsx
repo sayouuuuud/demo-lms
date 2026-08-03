@@ -57,7 +57,7 @@ export function ParchmentCard({
       style={{ perspective: '1200px' }}
     >
       <div
-        className="relative w-full transition-transform duration-200 ease-out"
+        className="relative w-full overflow-hidden rounded-[8px] transition-transform duration-200 ease-out"
         style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
       >
         {/*
@@ -72,11 +72,11 @@ export function ParchmentCard({
         />
 
         {/* Content flows normally inside the paper's safe area (percentages keep it proportional) */}
-        <div className="relative flex min-h-[76cqw] flex-col items-center px-[11%] pb-[9%] pt-[9%] text-center">
+        <div className="relative flex min-h-[76cqw] flex-col items-center overflow-hidden rounded-[inherit] px-[11%] pb-[9%] pt-[13%] text-center">
           {children ?? (
             <>
               {illustrationSrc ? (
-                <div className="w-full shrink-0 overflow-hidden rounded-[3cqw]">
+                <div className="w-full shrink-0 overflow-hidden rounded-[3cqw]" style={{ contain: 'paint' }}>
                   <img
                     src={illustrationSrc || '/placeholder.svg'}
                     alt={illustrationAlt}
