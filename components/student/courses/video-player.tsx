@@ -10,6 +10,7 @@ import {
   VolumeX,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useWatchTracker } from '@/lib/use-watch-tracker'
 
 const SPEEDS = [0.5, 1, 1.5, 2] as const
 
@@ -107,10 +108,13 @@ export function VideoPlayer({
   src,
   poster,
   className,
+  lessonId,
 }: {
   src?: string
   poster?: string
   className?: string
+  /** UUID درس حقيقي. لو غير مُمرَّر، التتبّع مُعطَّل بالكامل. */
+  lessonId?: string
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -125,6 +129,9 @@ export function VideoPlayer({
   const [retryKey, setRetryKey] = useState(0)
   const onFatalHlsError = useCallback(() => setError(true), [])
   const { isHls } = useHls(src, videoRef, retryKey, onFatalHlsError)
+
+  // يجب أن يُنادى قبل أي `return` مشروط (قاعدة الهوكس).
+  useWatchTracker({ videoRef, lessonId })
 
   const isYoutube = src && (src.includes('youtube.com/') || src.includes('youtu.be/'))
   const getYoutubeId = (url: string) => {
