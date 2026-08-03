@@ -1174,6 +1174,66 @@ model orders {
   @@schema("public")
 }
 
+/// Lecture view events. One row per (user, lesson, 30-min bucket) thanks to uq_lecture_views_dedupe.
+/// RLS is ON with zero policies and zero grants to anon/authenticated => invisible to students.
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model lecture_views {
+  id          BigInt   @id @default(autoincrement())
+  lecture_id  String   @db.Uuid
+  lesson_id   String   @db.Uuid
+  user_id     String   @db.Uuid
+  student_id  String?  @db.Uuid
+  device      String   @default("desktop")
+  view_bucket String
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([user_id, lesson_id, view_bucket], map: "uq_lecture_views_dedupe")
+  @@index([created_at(sort: Desc)], map: "idx_lecture_views_created")
+  @@index([lecture_id, created_at(sort: Desc)], map: "idx_lecture_views_lecture")
+  @@index([lesson_id, created_at(sort: Desc)], map: "idx_lecture_views_lesson")
+  @@index([student_id, created_at(sort: Desc)], map: "idx_lecture_views_student")
+  @@schema("public")
+}
+
+/// Rolled-up watch state: exactly one row per (user, lesson).
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model lesson_watch_progress {
+  user_id          String   @db.Uuid
+  lesson_id        String   @db.Uuid
+  lecture_id       String   @db.Uuid
+  student_id       String?  @db.Uuid
+  max_percent      Int      @default(0) @db.SmallInt
+  watched_seconds  Int      @default(0)
+  duration_seconds Int      @default(0)
+  views_count      Int      @default(0)
+  completed        Boolean  @default(false)
+  first_viewed_at  DateTime @default(now()) @db.Timestamptz(6)
+  last_viewed_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  @@id([user_id, lesson_id])
+  @@index([lecture_id, last_viewed_at(sort: Desc)], map: "idx_lwp_lecture")
+  @@index([lesson_id], map: "idx_lwp_lesson")
+  @@index([student_id, last_viewed_at(sort: Desc)], map: "idx_lwp_student")
+  @@schema("public")
+}
+
+/// Retention/drop-off map. Each video is split into 20 segments (0..19).
+/// One row per (lesson, segment, user) => COUNT(*) per segment = unique viewers of that segment.
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model lesson_segment_viewers {
+  lesson_id     String   @db.Uuid
+  segment_index Int      @db.SmallInt
+  user_id       String   @db.Uuid
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@id([lesson_id, segment_index, user_id])
+  @@index([lesson_id, segment_index], map: "idx_lsv_lesson_segment")
+  @@schema("public")
+}
+
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model page_views {
@@ -1601,7 +1661,7 @@ enum one_time_token_type {
   @@schema("auth")
 }
 
-// ─── Question Bank ─────────────────────────────────────────���──────────────────
+// ─── Question Bank ───────────────��─────────────────────────���──────────────────
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model question_bank_questions {
