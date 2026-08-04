@@ -10,11 +10,12 @@ const PRELOAD_IMAGES = [
   '/inkwell.webp',
 ]
 
-const MIN_DURATION = 1100
+const MIN_DURATION = 1500
 
 function preload(src: string) {
   return new Promise<void>((resolve) => {
     const img = new Image()
+    img.crossOrigin = 'anonymous'
     img.onload = () => resolve()
     img.onerror = () => resolve()
     img.src = src
@@ -56,7 +57,7 @@ export function SiteLoader() {
     <div
       aria-hidden={leaving}
       role="status"
-      aria-label="جارٍ تحميل الموقع"
+      aria-label="جارٍ تحميل أكاديمية شفاء العليل"
       aria-busy={!leaving}
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-background text-foreground"
       style={{
@@ -65,92 +66,69 @@ export function SiteLoader() {
         pointerEvents: leaving ? 'none' : 'auto',
       }}
     >
-      <div className="flex w-full max-w-sm flex-col items-center gap-7 px-6 text-center">
-        <div className="loader-mark relative flex size-28 items-center justify-center" aria-hidden="true">
-          <span className="loader-corner loader-corner-tr" />
-          <span className="loader-corner loader-corner-tl" />
-          <span className="loader-corner loader-corner-br" />
-          <span className="loader-corner loader-corner-bl" />
-
-          <div className="loader-monogram flex size-20 items-center justify-center rounded-2xl border border-primary/30 bg-primary text-4xl font-black text-primary-foreground shadow-lg shadow-primary/15">
-            ش
+      <div className="flex w-full items-center justify-center px-6 text-center">
+        <div className="loader-signature relative py-5" aria-hidden="true">
+          {/*
+            بنحرّك عرض طبقة فيها الجملة كاملة بدل ما نقسّمها لحروف؛ تقسيم النص
+            العربي بيفصل أشكال الحروف عن بعض وبيبوّظ إحساس خط الرقعة.
+          */}
+          <div className="loader-writing overflow-hidden whitespace-nowrap">
+            <p className="font-ruqaa text-[clamp(2.25rem,9vw,5rem)] font-bold leading-[1.65] text-primary">
+              أكاديمية شفاء العليل
+            </p>
           </div>
 
-          <span className="loader-scan absolute inset-x-5 h-px bg-primary shadow-[0_0_12px_var(--primary)]" />
-        </div>
-
-        <div className="flex flex-col items-center gap-2">
-          <p className="text-xl font-black text-balance">أكاديمية شفاء العليل</p>
-          <p className="text-sm font-semibold text-muted-foreground">في اللغة العربية</p>
-        </div>
-
-        <div className="flex w-44 flex-col gap-2" aria-hidden="true">
-          <div className="h-1 overflow-hidden rounded-full bg-muted">
-            <span className="loader-progress block h-full origin-right rounded-full bg-primary" />
-          </div>
-          <div className="flex items-center justify-between font-mono text-[10px] tracking-widest text-muted-foreground" dir="ltr">
-            <span>READY</span>
-            <span className="loader-percent">100%</span>
-          </div>
+          <span className="loader-pen absolute bottom-3 left-0 size-1.5 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+          <span className="loader-baseline absolute inset-x-0 bottom-2 h-px origin-right bg-primary/20" />
         </div>
       </div>
 
+      <span className="sr-only">جارٍ التحميل</span>
+
       <style>{`
-        .loader-mark {
-          animation: loader-arrive 420ms cubic-bezier(.22, 1, .36, 1) both;
+        .loader-signature {
+          animation: signature-arrive 260ms ease-out both;
         }
-        .loader-monogram {
-          animation: loader-breathe 1.4s ease-in-out infinite;
+        .loader-writing {
+          clip-path: inset(0 0 0 100%);
+          animation: ruqaa-write 1.15s cubic-bezier(.65, 0, .35, 1) 120ms forwards;
         }
-        .loader-corner {
-          position: absolute;
-          width: 18px;
-          height: 18px;
-          border-color: var(--primary);
-          opacity: .75;
+        .loader-pen {
+          opacity: 0;
+          animation: pen-travel 1.15s cubic-bezier(.65, 0, .35, 1) 120ms forwards;
         }
-        .loader-corner-tr { top: 0; right: 0; border-top: 2px solid; border-right: 2px solid; }
-        .loader-corner-tl { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
-        .loader-corner-br { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; }
-        .loader-corner-bl { bottom: 0; left: 0; border-bottom: 2px solid; border-left: 2px solid; }
-        .loader-scan {
-          animation: loader-scan 1.05s cubic-bezier(.4, 0, .2, 1) infinite;
+        .loader-baseline {
+          transform: scaleX(0);
+          animation: baseline-draw 1.15s cubic-bezier(.65, 0, .35, 1) 120ms forwards;
         }
-        .loader-progress {
-          animation: loader-fill 1s cubic-bezier(.22, 1, .36, 1) both;
+        @keyframes signature-arrive {
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .loader-percent {
-          animation: loader-fade 500ms ease-out 400ms both;
+        @keyframes ruqaa-write {
+          from { clip-path: inset(0 0 0 100%); }
+          to { clip-path: inset(0 0 0 0); }
         }
-        @keyframes loader-arrive {
-          from { transform: scale(.86); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
+        @keyframes pen-travel {
+          0% { left: 100%; opacity: 0; }
+          8% { opacity: 1; }
+          92% { opacity: 1; }
+          100% { left: 0; opacity: 0; }
         }
-        @keyframes loader-breathe {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(.96); }
-        }
-        @keyframes loader-scan {
-          0% { transform: translateY(-30px); opacity: 0; }
-          20%, 80% { opacity: .8; }
-          100% { transform: translateY(30px); opacity: 0; }
-        }
-        @keyframes loader-fill {
+        @keyframes baseline-draw {
           from { transform: scaleX(0); }
           to { transform: scaleX(1); }
         }
-        @keyframes loader-fade {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
         @media (prefers-reduced-motion: reduce) {
-          .loader-mark,
-          .loader-monogram,
-          .loader-scan,
-          .loader-progress,
-          .loader-percent {
+          .loader-signature,
+          .loader-writing,
+          .loader-pen,
+          .loader-baseline {
             animation: none;
           }
+          .loader-writing { clip-path: none; }
+          .loader-pen { display: none; }
+          .loader-baseline { transform: scaleX(1); }
         }
       `}</style>
     </div>
