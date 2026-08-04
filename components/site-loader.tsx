@@ -10,7 +10,7 @@ const PRELOAD_IMAGES = [
   '/inkwell.webp',
 ]
 
-const MIN_DURATION = 1500
+const MIN_DURATION = 2600
 
 function preload(src: string) {
   return new Promise<void>((resolve) => {
@@ -25,12 +25,23 @@ function preload(src: string) {
 export function SiteLoader() {
   const [hidden, setHidden] = useState(false)
   const [leaving, setLeaving] = useState(false)
+  const [writing, setWriting] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     let leaveTimer: ReturnType<typeof setTimeout> | undefined
     let hideTimer: ReturnType<typeof setTimeout> | undefined
+    let firstFrame = 0
+    let secondFrame = 0
     const start = performance.now()
+
+    // CSS animation كانت بتبدأ مع وصول HTML وبتخلص أحيانًا قبل أول paint ظاهر.
+    // نبدأها بعد frame كامل من تركيب React عشان المستخدم يشوف الكتابة من أولها.
+    firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        if (!cancelled) setWriting(true)
+      })
+    })
 
     Promise.all(PRELOAD_IMAGES.map(preload)).then(() => {
       if (cancelled) return
@@ -46,6 +57,8 @@ export function SiteLoader() {
 
     return () => {
       cancelled = true
+      cancelAnimationFrame(firstFrame)
+      cancelAnimationFrame(secondFrame)
       if (leaveTimer) clearTimeout(leaveTimer)
       if (hideTimer) clearTimeout(hideTimer)
     }
@@ -72,14 +85,20 @@ export function SiteLoader() {
             بنحرّك عرض طبقة فيها الجملة كاملة بدل ما نقسّمها لحروف؛ تقسيم النص
             العربي بيفصل أشكال الحروف عن بعض وبيبوّظ إحساس خط الرقعة.
           */}
-          <div className="loader-writing overflow-hidden whitespace-nowrap">
+          <div
+            className={`loader-writing overflow-hidden whitespace-nowrap ${writing ? 'is-writing' : ''}`}
+          >
             <p className="font-ruqaa text-[clamp(2.25rem,9vw,5rem)] font-bold leading-[1.65] text-primary">
               أكاديمية شفاء العليل
             </p>
           </div>
 
-          <span className="loader-pen absolute bottom-3 left-0 size-1.5 rounded-full bg-primary shadow-[0_0_10px_var(--primary)]" />
-          <span className="loader-baseline absolute inset-x-0 bottom-2 h-px origin-right bg-primary/20" />
+          <span
+            className={`loader-pen absolute bottom-3 left-0 size-1.5 rounded-full bg-primary shadow-[0_0_10px_var(--primary)] ${writing ? 'is-writing' : ''}`}
+          />
+          <span
+            className={`loader-baseline absolute inset-x-0 bottom-2 h-px origin-right bg-primary/20 ${writing ? 'is-writing' : ''}`}
+          />
         </div>
       </div>
 
@@ -91,15 +110,22 @@ export function SiteLoader() {
         }
         .loader-writing {
           clip-path: inset(0 0 0 100%);
-          animation: ruqaa-write 1.15s cubic-bezier(.65, 0, .35, 1) 120ms forwards;
+        }
+        .loader-writing.is-writing {
+          animation: ruqaa-write 2s cubic-bezier(.45, 0, .25, 1) 120ms forwards;
         }
         .loader-pen {
+          left: 100%;
           opacity: 0;
-          animation: pen-travel 1.15s cubic-bezier(.65, 0, .35, 1) 120ms forwards;
+        }
+        .loader-pen.is-writing {
+          animation: pen-travel 2s cubic-bezier(.45, 0, .25, 1) 120ms forwards;
         }
         .loader-baseline {
           transform: scaleX(0);
-          animation: baseline-draw 1.15s cubic-bezier(.65, 0, .35, 1) 120ms forwards;
+        }
+        .loader-baseline.is-writing {
+          animation: baseline-draw 2s cubic-bezier(.45, 0, .25, 1) 120ms forwards;
         }
         @keyframes signature-arrive {
           from { opacity: 0; transform: translateY(5px); }
