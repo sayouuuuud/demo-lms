@@ -1,4 +1,5 @@
-import { Wallet, Video, BookOpen, Users, ShoppingCart, TrendingUp, TrendingDown, Library } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { Wallet, BookOpen, Users, ShoppingCart, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
@@ -8,11 +9,25 @@ function pct(n: number) {
   return `${sign}${n}%`
 }
 
+type Stat = {
+  label: string
+  value: string
+  unit?: string
+  change: string
+  up: boolean
+  neutral?: boolean
+  sub: string
+  detail?: string
+  icon: LucideIcon
+  color: string
+  bg: string
+}
+
 export function StatCards({ stats: inputStats }: { stats?: any }) {
   const changes = inputStats?.changes || {}
   const coursesThisMonth = changes.coursesThisMonth || 0
 
-  const stats = [
+  const stats: Stat[] = [
     {
       label: 'إجمالي الإيرادات',
       value: (inputStats?.totalRevenue || 0).toLocaleString(),
@@ -25,37 +40,15 @@ export function StatCards({ stats: inputStats }: { stats?: any }) {
       bg: 'bg-emerald-50 dark:bg-emerald-500/10',
     },
     {
-      label: 'عدد الدروس',
-      value: (inputStats?.totalLessons || 0).toLocaleString(),
-      change: 'إجمالي',
-      up: true,
-      neutral: true,
-      sub: 'حقيقي',
-      icon: Video,
-      color: 'text-rose-600',
-      bg: 'bg-rose-50 dark:bg-rose-500/10',
-    },
-    {
-      label: 'عدد المحاضرات',
-      value: (inputStats?.totalCourses || 0).toLocaleString(),
-      change: coursesThisMonth > 0 ? `+${coursesThisMonth}` : 'إجمالي',
-      up: true,
-      neutral: coursesThisMonth === 0,
-      sub: coursesThisMonth > 0 ? 'هذا الشهر' : 'حقيقي',
-      icon: BookOpen,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50 dark:bg-blue-500/10',
-    },
-    {
-      label: 'عدد الكورسات (الشهور)',
-      value: (inputStats?.totalMonthlyCourses || 0).toLocaleString(),
-      change: 'إجمالي',
-      up: true,
-      neutral: true,
-      sub: 'حقيقي',
-      icon: Library,
-      color: 'text-indigo-600',
-      bg: 'bg-indigo-50 dark:bg-indigo-500/10',
+      label: 'المبيعات اليوم',
+      value: (inputStats?.salesToday || 0).toLocaleString(),
+      unit: 'طلب',
+      change: pct(changes.sales ?? 0),
+      up: (changes.sales ?? 0) >= 0,
+      sub: 'عن أمس',
+      icon: ShoppingCart,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50 dark:bg-amber-500/10',
     },
     {
       label: 'إجمالي الطلاب',
@@ -68,20 +61,25 @@ export function StatCards({ stats: inputStats }: { stats?: any }) {
       bg: 'bg-primary/10',
     },
     {
-      label: 'المبيعات اليوم',
-      value: (inputStats?.salesToday || 0).toLocaleString(),
-      unit: 'ج.م',
-      change: pct(changes.sales ?? 0),
-      up: (changes.sales ?? 0) >= 0,
-      sub: 'عن أمس',
-      icon: ShoppingCart,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50 dark:bg-amber-500/10',
+      // المحاضرات والدروس والكورسات كانوا 3 كاردات منفصلة كل واحد بيقول
+      // "إجمالي / حقيقي" ومفيش فيهم أي إشارة اتجاه. اتلموا في كارد واحد
+      // والتفصيل بقى في السطر التحت.
+      label: 'المحتوى',
+      value: (inputStats?.totalCourses || 0).toLocaleString(),
+      unit: 'محاضرة',
+      change: coursesThisMonth > 0 ? `+${coursesThisMonth}` : 'مستقر',
+      up: true,
+      neutral: coursesThisMonth === 0,
+      sub: coursesThisMonth > 0 ? 'هذا الشهر' : 'مفيش جديد الشهر ده',
+      detail: `${(inputStats?.totalLessons || 0).toLocaleString()} درس · ${(inputStats?.totalMonthlyCourses || 0).toLocaleString()} كورس`,
+      icon: BookOpen,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50 dark:bg-blue-500/10',
     },
   ]
 
   return (
-    <div className="ns-stagger grid grid-cols-2 gap-4 lg:grid-cols-6">
+    <div className="ns-stagger grid grid-cols-2 gap-4 lg:grid-cols-4">
       {stats.map((stat) => (
         <Card
           key={stat.label}
@@ -127,6 +125,11 @@ export function StatCards({ stats: inputStats }: { stats?: any }) {
             </span>
             <span className="text-muted-foreground">{stat.sub}</span>
           </div>
+          {stat.detail && (
+            <p className="mt-2 border-t border-border pt-2 text-xs text-muted-foreground">
+              {stat.detail}
+            </p>
+          )}
         </Card>
       ))}
     </div>

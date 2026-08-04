@@ -28,19 +28,17 @@ export async function getDashboardData() {
     lessonsCount,
     latestStudents,
     latestLessons,
-    topCoursesRaw,
     ordersSummary,
     ordersMonthly,
     studentsMonthly,
-    baseStudentsQuery,
     ordersDaily,
     studentsDaily,
     viewsDaily,
     coursesThisMonthQuery,
     latestOrders,
     messagesData,
-    topExams,
-    submissionsSummary,
+    unreadMessagesCount,
+    pendingGradingCount,
   ] = await Promise.all([
     prisma.students.count(),
     prisma.monthly_courses.count(),
@@ -59,26 +57,12 @@ export async function getDashboardData() {
       take: 5,
     }),
 
-    // أكثر المحاضرات: الإيراد بيتحسب من أسعار البنود المدفوعة فعلاً
-    // (الأوردرات المقبولة بس) بدل price × عدد الأوردرات.
+    // ملحوظة: "أكثر المحاضرات" اتشال من الداشبورد لأنه مكرر مع
+    // CoursePerformanceTable في /admin/reports.
     prisma.$queryRaw<any[]>`
-      SELECT
-        l.title AS title,
-        l.image AS image,
-        COUNT(oi.id) AS students,
-        COALESCE(SUM(oi.price), 0) AS revenue
-      FROM lectures l
-      JOIN order_items oi ON oi.lecture_id = l.id
-      JOIN orders o ON o.id = oi.order_id AND o.status = 'approved'
-      GROUP BY l.id, l.title, l.image
-      ORDER BY students DESC
-      LIMIT 5
-    `,
-
-    prisma.$queryRaw<any[]>`
-      SELECT status, method, COUNT(*) as count, SUM(total) as sum_total
+      SELECT status, COUNT(*) as count, SUM(total) as sum_total
       FROM orders
-      GROUP BY status, method
+      GROUP BY status
     `,
 
     prisma.$queryRaw<any[]>`
@@ -97,10 +81,6 @@ export async function getDashboardData() {
       FROM students
       WHERE created_at >= ${monthlyWindowStart}
       GROUP BY 1
-    `,
-
-    prisma.$queryRaw<any[]>`
-      SELECT COUNT(*) as count FROM students WHERE created_at < ${monthlyWindowStart}
     `,
 
     prisma.$queryRaw<any[]>`
@@ -149,65 +129,33 @@ export async function getDashboardData() {
       take: 5,
     }),
 
-    prisma.exams.findMany({
-      select: { title: true, avg_score: true },
-      orderBy: { participants: 'desc' },
-      take: 6,
-    }),
+    // عدّادات "محتاج إجراء منك". تحليل الدرجات الكامل (نسبة النجاح، التوزيع،
+    // متوسط الدرجات) مكانه /admin/reports في ExamPerformanceAnalysis، فمابقاش
+    // الداشبورد بتحسبه على الفاضي.
+    prisma.messages.count({ where: { is_read: false } }),
 
-    prisma.$queryRaw<any[]>`
-      SELECT
-        SUM(CASE WHEN grading_status = 'pending' THEN 1 ELSE 0 END) as pending_grading,
-        COUNT(*) as total_scored,
-        SUM(score) as sum_score,
-        SUM(total) as sum_total,
-        SUM(CASE WHEN (score / NULLIF(total, 0) * 100) >= e.pass_mark THEN 1 ELSE 0 END) as pass_count,
-        SUM(CASE WHEN (score / NULLIF(total, 0) * 100) < e.pass_mark THEN 1 ELSE 0 END) as fail_count,
-        SUM(CASE WHEN (score / NULLIF(total, 0) * 100) < 50 THEN 1 ELSE 0 END) as dist_0_49,
-        SUM(CASE WHEN (score / NULLIF(total, 0) * 100) >= 50 AND (score / NULLIF(total, 0) * 100) < 70 THEN 1 ELSE 0 END) as dist_50_69,
-        SUM(CASE WHEN (score / NULLIF(total, 0) * 100) >= 70 AND (score / NULLIF(total, 0) * 100) < 85 THEN 1 ELSE 0 END) as dist_70_84,
-        SUM(CASE WHEN (score / NULLIF(total, 0) * 100) >= 85 THEN 1 ELSE 0 END) as dist_85_100
-      FROM exam_submissions s
-      JOIN exams e ON s.exam_id = e.id
-      WHERE s.total > 0
-    `,
+    prisma.exam_submissions.count({ where: { grading_status: 'pending' } }),
   ])
 
   // --- تلخيص الأوردرات ---
   let totalRevenue = 0
   let pendingPaymentsCount = 0
   let pendingPaymentsAmount = 0
-  const statusBucket: Record<string, number> = { 'مقبول': 0, 'قيد المراجعة': 0, 'مرفوض': 0 }
-  const methodBucket: Record<string, number> = {}
 
   ordersSummary.forEach((row) => {
     const sum = Number(row.sum_total) || 0
     const count = Number(row.count) || 0
     if (row.status === 'approved') {
       totalRevenue += sum
-      statusBucket['مقبول'] += count
-      const m = row.method || 'غير محدد'
-      methodBucket[m] = (methodBucket[m] || 0) + sum
     } else if (row.status === 'pending') {
       pendingPaymentsCount += count
       pendingPaymentsAmount += sum
-      statusBucket['قيد المراجعة'] += count
-    } else {
-      statusBucket['مرفوض'] += count
     }
   })
 
-  const paymentMethods = Object.entries(methodBucket)
-    .map(([method, value], i) => ({ method, value, fill: `var(--chart-${(i % 5) + 1})` }))
-    .sort((a, b) => b.value - a.value)
-
-  const paymentStatus = [
-    { name: 'مقبول', value: statusBucket['مقبول'] },
-    { name: 'قيد المراجعة', value: statusBucket['قيد المراجعة'] },
-    { name: 'مرفوض', value: statusBucket['مرفوض'] },
-  ]
-
-  // --- الإيراد الشهري ونمو الطلاب ---
+  // --- الإيراد الشهري ونمو الطلاب (للمقارنات فقط) ---
+  // الرسومات نفسها بقت في /admin/reports، فبنحتفظ بالـ buckets عشان
+  // نسب التغيّر في الكاردات بس ومبنبنيش arrays مش مستعملة.
   const revenueBucket: Record<string, number> = {}
   ordersMonthly.forEach((row) => {
     revenueBucket[row.month_key] = Number(row.sum_total) || 0
@@ -216,18 +164,6 @@ export async function getDashboardData() {
   const signupsBucket: Record<string, number> = {}
   studentsMonthly.forEach((row) => {
     signupsBucket[row.month_key] = Number(row.count) || 0
-  })
-
-  let cumulativeStudents = Number(baseStudentsQuery[0]?.count) || 0
-
-  const revenueData = monthlyWindow.map((b) => ({
-    month: b.month,
-    revenue: revenueBucket[b.key] || 0,
-  }))
-
-  const studentsData = monthlyWindow.map((b) => {
-    cumulativeStudents += signupsBucket[b.key] || 0
-    return { month: b.month, students: cumulativeStudents }
   })
 
   // --- النشاط اليومي ---
@@ -308,43 +244,17 @@ export async function getDashboardData() {
     unread: !m.is_read,
   }))
 
-  // --- تحليلات الامتحانات ---
-  const examScores = topExams.map((e) => ({
-    name: e.title && e.title.length > 16 ? e.title.slice(0, 16) + '…' : e.title || 'امتحان',
-    avg: Math.round(Number(e.avg_score) || 0),
-  }))
-
-  const subStats = submissionsSummary[0] || {}
-  const pendingGrading = Number(subStats.pending_grading) || 0
-  const passCount = Number(subStats.pass_count) || 0
-  const failCount = Number(subStats.fail_count) || 0
-  const totalGraded = passCount + failCount
-  const passRate = totalGraded > 0 ? Math.round((passCount / totalGraded) * 100) : 0
-
-  const sumScore = Number(subStats.sum_score) || 0
-  const sumTotal = Number(subStats.sum_total) || 0
-  const avgScorePct = sumTotal > 0 ? Math.round((sumScore / sumTotal) * 100) : 0
-
-  const passFailData = [
-    { name: 'ناجح', key: 'pass', value: passCount },
-    { name: 'راسب', key: 'fail', value: failCount },
-  ]
-
-  const scoreDistribution = [
-    { range: '٤٩-٠٪', count: Number(subStats.dist_0_49) || 0 },
-    { range: '٦٩-٥٠٪', count: Number(subStats.dist_50_69) || 0 },
-    { range: '٨٤-٧٠٪', count: Number(subStats.dist_70_84) || 0 },
-    { range: '١٠٠-٨٥٪', count: Number(subStats.dist_85_100) || 0 },
-  ]
-
   return {
     success: true as const,
-    examStats: { passRate, avgScorePct, pendingGrading, pendingPaymentsCount, pendingPaymentsAmount },
-    examScores,
-    passFailData,
-    scoreDistribution,
-    paymentMethods,
-    paymentStatus,
+
+    // "محتاج إجراء منك" — كل عنصر ليه رقم ولينك يودّي للصفحة اللي بتخلّص الشغل.
+    actionQueue: {
+      pendingPaymentsCount,
+      pendingPaymentsAmount,
+      pendingGrading: pendingGradingCount,
+      unreadMessages: unreadMessagesCount,
+    },
+
     stats: {
       totalRevenue,
       totalStudents: studentsCount,
@@ -354,18 +264,10 @@ export async function getDashboardData() {
       salesToday,
       changes,
     },
-    revenueData,
-    studentsData,
     activityData,
     viewsData,
     totalViews,
     totalVisitors,
-    topCourses: topCoursesRaw.map((c) => ({
-      title: c.title,
-      students: `${Number(c.students) || 0} طالب`,
-      revenue: `${Number(c.revenue) || 0} ج.م`,
-      image: c.image || null,
-    })),
     latestPayments,
     latestStudents: latestStudents.map((s) => ({
       name: s.name,
