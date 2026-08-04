@@ -87,6 +87,8 @@ export function SiteLoader() {
           */}
           <div
             className={`loader-writing overflow-hidden whitespace-nowrap ${writing ? 'is-writing' : ''}`}
+            // Inline عشان النص يفضل مخفي حتى قبل تحميل CSS وأول hydration frame.
+            style={writing ? undefined : { clipPath: 'inset(0 0 0 100%)' }}
           >
             <p className="font-ruqaa text-[clamp(2.25rem,9vw,5rem)] font-bold leading-[1.65] text-primary">
               أكاديمية شفاء العليل
@@ -112,20 +114,20 @@ export function SiteLoader() {
           clip-path: inset(0 0 0 100%);
         }
         .loader-writing.is-writing {
-          animation: ruqaa-write 2s cubic-bezier(.45, 0, .25, 1) 120ms forwards;
+          animation: ruqaa-write 2s cubic-bezier(.45, 0, .25, 1) forwards;
         }
         .loader-pen {
           left: 100%;
           opacity: 0;
         }
         .loader-pen.is-writing {
-          animation: pen-travel 2s cubic-bezier(.45, 0, .25, 1) 120ms forwards;
+          animation: pen-travel 2s cubic-bezier(.45, 0, .25, 1) forwards;
         }
         .loader-baseline {
           transform: scaleX(0);
         }
         .loader-baseline.is-writing {
-          animation: baseline-draw 2s cubic-bezier(.45, 0, .25, 1) 120ms forwards;
+          animation: baseline-draw 2s cubic-bezier(.45, 0, .25, 1) forwards;
         }
         @keyframes signature-arrive {
           from { opacity: 0; transform: translateY(5px); }
