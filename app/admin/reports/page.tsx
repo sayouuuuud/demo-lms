@@ -7,6 +7,11 @@ import { PaymentStatusChart } from '@/components/reports/payment-status-chart'
 import { RevenueByCategoryChart } from '@/components/reports/revenue-by-category-chart'
 import { CoursePerformanceTable } from '@/components/reports/course-performance-table'
 
+// اتنقلوا من الداشبورد. نفس البيانات بس بعرض تفاعلي (فلتر ٣/٦/١٢ شهر)
+// مقابل الرسم الثابت في RevenueReportChart / StudentsGrowthChart.
+import { RevenueChart } from '@/components/dashboard/revenue-chart'
+import { StudentsChart } from '@/components/dashboard/students-chart'
+
 // Advanced Analytics Components
 import { ViewsInsights } from '@/components/reports/views-insights'
 
@@ -44,6 +49,12 @@ export default async function ReportsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <RevenueReportChart data={data.monthlyRevenue} />
         <StudentsGrowthChart data={data.studentsGrowth} />
+      </div>
+
+      {/* النسخة المنقولة من الداشبورد — بتاخد نفس البيانات بفلتر مدة قابل للتغيير */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RevenueChart data={data.monthlyRevenue} />
+        <StudentsChart data={data.studentsGrowth} />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <RevenueByCategoryChart data={data.revenueByCategory} />

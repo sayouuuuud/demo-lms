@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import {
   Search,
@@ -97,9 +97,18 @@ function DetailRow({
 
 export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // بانل "محتاج إجراء منك" في الداشبورد بيبعت ?status=pending، فلازم الفلتر
+  // يبدأ من الـ URL بدل ما يفتح على "الكل" ويضيّع الفلترة اللي اللينك وعد بيها.
+  const initialStatus = (() => {
+    const raw = searchParams.get('status')
+    return FILTERS.some((f) => f.value === raw) ? (raw as OrderStatus | 'all') : 'all'
+  })()
+
   const [orders, setOrders] = useState<AdminOrder[]>(initialOrders)
   const [query, setQuery] = useState('')
-  const [status, setStatus] = useState<OrderStatus | 'all'>('all')
+  const [status, setStatus] = useState<OrderStatus | 'all'>(initialStatus)
   const [preview, setPreview] = useState<AdminOrder | null>(null)
   const [messaging, setMessaging] = useState(false)
   const [page, setPage] = useState(1)

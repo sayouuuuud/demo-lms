@@ -10,11 +10,12 @@ const PRELOAD_IMAGES = [
   '/inkwell.webp',
 ]
 
-const MIN_DURATION = 1000
+const MIN_DURATION = 2600
 
 function preload(src: string) {
   return new Promise<void>((resolve) => {
     const img = new Image()
+    img.crossOrigin = 'anonymous'
     img.onload = () => resolve()
     img.onerror = () => resolve()
     img.src = src
@@ -24,24 +25,42 @@ function preload(src: string) {
 export function SiteLoader() {
   const [hidden, setHidden] = useState(false)
   const [leaving, setLeaving] = useState(false)
+  const [writing, setWriting] = useState(false)
 
   useEffect(() => {
     let cancelled = false
+    let leaveTimer: ReturnType<typeof setTimeout> | undefined
+    let hideTimer: ReturnType<typeof setTimeout> | undefined
+    let firstFrame = 0
+    let secondFrame = 0
     const start = performance.now()
+
+    // CSS animation كانت بتبدأ مع وصول HTML وبتخلص أحيانًا قبل أول paint ظاهر.
+    // نبدأها بعد frame كامل من تركيب React عشان المستخدم يشوف الكتابة من أولها.
+    firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        if (!cancelled) setWriting(true)
+      })
+    })
 
     Promise.all(PRELOAD_IMAGES.map(preload)).then(() => {
       if (cancelled) return
       const elapsed = performance.now() - start
       const wait = Math.max(MIN_DURATION - elapsed, 0)
-      setTimeout(() => {
+
+      leaveTimer = setTimeout(() => {
         if (cancelled) return
         setLeaving(true)
-        setTimeout(() => !cancelled && setHidden(true), 650)
+        hideTimer = setTimeout(() => !cancelled && setHidden(true), 400)
       }, wait)
     })
 
     return () => {
       cancelled = true
+      cancelAnimationFrame(firstFrame)
+      cancelAnimationFrame(secondFrame)
+      if (leaveTimer) clearTimeout(leaveTimer)
+      if (hideTimer) clearTimeout(hideTimer)
     }
   }, [])
 
@@ -51,82 +70,93 @@ export function SiteLoader() {
     <div
       aria-hidden={leaving}
       role="status"
-      aria-label="جارٍ تحميل الموقع"
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6"
+      aria-label="جارٍ تحميل أكاديمية شفاء العليل"
+      aria-busy={!leaving}
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-background text-foreground"
       style={{
-        background: 'var(--background)',
         opacity: leaving ? 0 : 1,
-        transition: 'opacity 0.6s ease',
+        transition: 'opacity 0.35s ease',
         pointerEvents: leaving ? 'none' : 'auto',
       }}
     >
-      <div className="relative flex items-center justify-center">
-        <span
-          className="absolute rounded-full"
-          style={{
-            width: 96,
-            height: 96,
-            border: '1.5px solid var(--brand-gold)',
-            opacity: 0.5,
-            animation: 'loaderRing 1.6s ease-out infinite',
-          }}
-        />
-        <span
-          className="absolute rounded-full"
-          style={{
-            width: 96,
-            height: 96,
-            border: '1.5px solid var(--brand-gold)',
-            opacity: 0.3,
-            animation: 'loaderRing 1.6s ease-out infinite 0.5s',
-          }}
-        />
-        <div
-          className="flex items-center justify-center size-20 rounded-full text-3xl font-black"
-          style={{
-            background: 'var(--primary)',
-            color: 'var(--primary-foreground)',
-            fontFamily: 'var(--font-cairo)',
-            boxShadow: '0 8px 32px oklch(0.72 0.10 85 / 35%)',
-          }}
-        >
-          ش
+      <div className="flex w-full items-center justify-center px-6 text-center">
+        <div className="loader-signature relative py-5" aria-hidden="true">
+          {/*
+            بنحرّك عرض طبقة فيها الجملة كاملة بدل ما نقسّمها لحروف؛ تقسيم النص
+            العربي بيفصل أشكال الحروف عن بعض وبيبوّظ إحساس خط الرقعة.
+          */}
+          <div
+            className={`loader-writing overflow-hidden whitespace-nowrap ${writing ? 'is-writing' : ''}`}
+            // Inline عشان النص يفضل مخفي حتى قبل تحميل CSS وأول hydration frame.
+            style={writing ? undefined : { clipPath: 'inset(0 0 0 100%)' }}
+          >
+            <p className="font-ruqaa text-[clamp(2.25rem,9vw,5rem)] font-bold leading-[1.65] text-primary">
+              أكاديمية شفاء العليل
+            </p>
+          </div>
+
+          <span
+            className={`loader-pen absolute bottom-3 left-0 size-1.5 rounded-full bg-primary shadow-[0_0_10px_var(--primary)] ${writing ? 'is-writing' : ''}`}
+          />
+          <span
+            className={`loader-baseline absolute inset-x-0 bottom-2 h-px origin-right bg-primary/20 ${writing ? 'is-writing' : ''}`}
+          />
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-1">
-        <span
-          className="text-lg font-black"
-          style={{ color: 'var(--foreground)', fontFamily: 'var(--font-cairo)' }}
-        >
-          أكاديمية شفاء العليل
-        </span>
-        <span className="text-xs font-semibold" style={{ color: 'var(--muted-foreground)' }}>
-          في اللغة العربية
-        </span>
-      </div>
-
-      <div
-        className="relative h-1 w-40 overflow-hidden rounded-full"
-        style={{ background: 'oklch(0.72 0.10 85 / 18%)' }}
-      >
-        <span
-          className="absolute inset-y-0 w-1/3 rounded-full"
-          style={{
-            background: 'var(--brand-gold)',
-            animation: 'loaderBar 1.1s ease-in-out infinite',
-          }}
-        />
-      </div>
+      <span className="sr-only">جارٍ التحميل</span>
 
       <style>{`
-        @keyframes loaderRing {
-          0%   { transform: scale(0.85); opacity: 0.55; }
-          100% { transform: scale(1.5);  opacity: 0; }
+        .loader-signature {
+          animation: signature-arrive 260ms ease-out both;
         }
-        @keyframes loaderBar {
-          0%   { inset-inline-start: -35%; }
-          100% { inset-inline-start: 100%; }
+        .loader-writing {
+          clip-path: inset(0 0 0 100%);
+        }
+        .loader-writing.is-writing {
+          animation: ruqaa-write 2s cubic-bezier(.45, 0, .25, 1) forwards;
+        }
+        .loader-pen {
+          left: 100%;
+          opacity: 0;
+        }
+        .loader-pen.is-writing {
+          animation: pen-travel 2s cubic-bezier(.45, 0, .25, 1) forwards;
+        }
+        .loader-baseline {
+          transform: scaleX(0);
+        }
+        .loader-baseline.is-writing {
+          animation: baseline-draw 2s cubic-bezier(.45, 0, .25, 1) forwards;
+        }
+        @keyframes signature-arrive {
+          from { opacity: 0; transform: translateY(5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes ruqaa-write {
+          from { clip-path: inset(0 0 0 100%); }
+          to { clip-path: inset(0 0 0 0); }
+        }
+        @keyframes pen-travel {
+          0% { left: 100%; opacity: 0; }
+          8% { opacity: 1; }
+          92% { opacity: 1; }
+          100% { left: 0; opacity: 0; }
+        }
+        @keyframes baseline-draw {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .loader-signature,
+          .loader-writing,
+          .loader-pen,
+          .loader-baseline {
+            animation: none;
+          }
+          .loader-writing { clip-path: none; }
+          .loader-pen { display: none; }
+          .loader-baseline { transform: scaleX(1); }
         }
       `}</style>
     </div>
