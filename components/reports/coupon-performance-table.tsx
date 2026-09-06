@@ -42,10 +42,10 @@ export function CouponPerformanceTable({
                     {c.uses}
                   </TableCell>
                   <TableCell className="text-center text-muted-foreground text-sm">
-                    {Number(c.total_discount).toLocaleString()} ج.م
+                    {Number(c.total_discount).toLocaleString()} ر.ع
                   </TableCell>
                   <TableCell className="text-right text-emerald-600 font-bold">
-                    {Number(c.revenue_generated).toLocaleString()} ج.م
+                    {Number(c.revenue_generated).toLocaleString()} ر.ع
                   </TableCell>
                 </TableRow>
               ))

@@ -53,7 +53,7 @@ export function RevenueByCategoryChart({
               content={
                 <ChartTooltipContent
                   nameKey="name"
-                  formatter={(value) => [`${Number(value).toLocaleString('en')} ج.م`, '']}
+                  formatter={(value) => [`${Number(value).toLocaleString('en')} ر.ع`, '']}
                 />
               }
             />

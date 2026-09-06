@@ -111,7 +111,7 @@ export function paymentApprovedText(input: {
     'منصة أكاديمية شفاء العليل ل اللغة العربية',
     '',
     `أهلاً ${input.studentName || 'يا بطل'} 👋`,
-    `تم تأكيد دفع طلبك رقم ${input.orderCode} بمبلغ ${input.total} ج.م.`,
+    `تم تأكيد دفع طلبك رقم ${input.orderCode} بمبلغ ${input.total} ر.ع.`,
   ]
   if (input.items.length) {
     lines.push('', 'المحتوى المتاح لك الآن:', ...input.items.map((t) => `• ${t}`))

@@ -145,7 +145,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
 
     const action = status === 'approved' ? 'approve' : status === 'rejected' ? 'reject' : 'update'
     const label = orderRow
-      ? `طلب ${orderRow.code} — ${orderRow.student_name} (${orderRow.total} ج.م)`
+      ? `طلب ${orderRow.code} — ${orderRow.student_name} (${orderRow.total} ر.ع)`
       : `طلب ID: ${id}`
     logActivity({ action, resource: 'payments', targetId: id, targetLabel: label }).catch(() => {})
 

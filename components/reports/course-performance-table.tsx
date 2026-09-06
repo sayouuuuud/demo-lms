@@ -53,7 +53,7 @@ export function CoursePerformanceTable({ courses: inputCourses }: { courses?: an
                 <td className="px-5 py-4 text-muted-foreground">{c.category}</td>
                 <td className="px-5 py-4 text-foreground">{c.students.toLocaleString('en-US')}</td>
                 <td className="px-5 py-4 font-semibold text-foreground">
-                  {c.revenue.toLocaleString('en-US')} ج.م
+                  {c.revenue.toLocaleString('en-US')} ر.ع
                 </td>
                 <td className="px-5 py-4">
                   <ShareBar value={c.share} />
@@ -74,7 +74,7 @@ export function CoursePerformanceTable({ courses: inputCourses }: { courses?: an
                 <p className="mt-0.5 text-xs text-muted-foreground">{c.category}</p>
               </div>
               <span className="shrink-0 text-sm font-semibold text-foreground">
-                {c.revenue.toLocaleString('en-US')} ج.م
+                {c.revenue.toLocaleString('en-US')} ر.ع
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">

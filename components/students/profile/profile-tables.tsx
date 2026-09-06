@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { BookOpen, CreditCard, ClipboardList, FileCheck } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { formatOMR } from '@/lib/currency'
 import { Pagination } from '@/components/ui/pagination'
 import type { StudentProfile } from '@/lib/student-profile-data'
 
@@ -147,7 +148,7 @@ function PaymentsView({ profile }: { profile: StudentProfile }) {
               <td className="px-3 py-3 font-mono text-xs text-muted-foreground">{p.id}</td>
               <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">{p.date}</td>
               <td className="px-3 py-3 text-foreground">{p.item}</td>
-              <td className="px-3 py-3 font-semibold text-foreground">{p.amount.toLocaleString()} ج.م</td>
+              <td className="px-3 py-3 font-semibold text-foreground">{formatOMR(p.amount)}</td>
               <td className="px-3 py-3 text-muted-foreground">{p.method}</td>
               <td className="px-3 py-3">
                 <Pill tone={p.status === 'ناجح' ? 'success' : p.status === 'مسترد' ? 'danger' : 'warning'}>

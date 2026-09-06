@@ -75,7 +75,7 @@ export default async function CoursePage({
     offers: {
       '@type': 'Offer',
       price: String(result.course.price),
-      priceCurrency: 'EGP',
+      priceCurrency: 'OMR',
       availability: 'https://schema.org/InStock',
     },
   }

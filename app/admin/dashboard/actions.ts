@@ -232,7 +232,7 @@ export async function getDashboardData() {
     id: o.code ? (o.code.startsWith('#') ? o.code : `#${o.code}`) : `#PAY-${String(1000 + i)}`,
     name: o.student_name,
     course: o.order_items?.[0]?.lecture_title || 'طلب عام',
-    amount: `${o.total} ج.م`,
+    amount: `${o.total} ر.ع`,
     status: o.status === 'approved' ? 'ناجح' : o.status === 'pending' ? 'معلّق' : 'مرفوض',
   }))
 

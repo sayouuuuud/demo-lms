@@ -25,7 +25,7 @@ const statusFilters: { label: string; value: CouponStatus | 'الكل' }[] = [
 ]
 
 function formatDiscount(type: string, value: number) {
-  return type === 'نسبة مئوية' ? `${value}%` : `${value} ج.م`
+  return type === 'نسبة مئوية' ? `${value}%` : `${value} ر.ع`
 }
 
 function formatDate(date: string) {

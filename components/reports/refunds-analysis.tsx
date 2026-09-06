@@ -23,7 +23,7 @@ export function RefundsAnalysis({
           </div>
           <div className="mt-2 text-3xl font-bold text-foreground">{refCount} طلب</div>
           <div className="text-sm font-semibold text-amber-600">
-            بقيمة {refSum.toLocaleString()} ج.م
+            بقيمة {refSum.toLocaleString()} ر.ع
           </div>
         </div>
 
@@ -34,7 +34,7 @@ export function RefundsAnalysis({
           </div>
           <div className="mt-2 text-3xl font-bold text-foreground">{canCount} طلب</div>
           <div className="text-sm font-semibold text-destructive">
-            بقيمة {canSum.toLocaleString()} ج.م
+            بقيمة {canSum.toLocaleString()} ر.ع
           </div>
         </div>
       </div>

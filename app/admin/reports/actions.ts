@@ -120,7 +120,7 @@ export async function getReportsData() {
   const refChange = percentChange(rejectedThis, rejectedPrev)
 
   const reportStats = [
-    { key: 'revenue', label: 'إجمالي الإيرادات', value: totalRevenue, suffix: 'ج.م', change: Math.abs(revChange), up: revChange >= 0 },
+    { key: 'revenue', label: 'إجمالي الإيرادات', value: totalRevenue, suffix: 'ر.ع', change: Math.abs(revChange), up: revChange >= 0 },
     { key: 'students', label: 'إجمالي الطلاب', value: studentsCount || 0, suffix: 'طالب', change: Math.abs(stuChange), up: stuChange >= 0 },
     { key: 'enrollments', label: 'الاشتراكات', value: enrollmentsCount || 0, suffix: 'اشتراك', change: Math.abs(enrChange), up: enrChange >= 0 },
     { key: 'refunds', label: 'المدفوعات المرفوضة', value: rejectedOrders.length, suffix: 'طلب', change: Math.abs(refChange), up: refChange <= 0 },
@@ -267,14 +267,14 @@ export async function exportReportsCSV() {
   csv += '\n'
 
   csv += 'الإيرادات الشهرية\n'
-  csv += 'الشهر,الإيرادات (ج.م)\n'
+  csv += 'الشهر,الإيرادات (ر.ع)\n'
   data.monthlyRevenue?.forEach((m: any) => {
     csv += `${m.month},${m.revenue}\n`
   })
   csv += '\n'
 
   csv += 'أداء الكورسات\n'
-  csv += 'الكورس,القسم,عدد الطلاب,الإيرادات (ج.م)\n'
+  csv += 'الكورس,القسم,عدد الطلاب,الإيرادات (ر.ع)\n'
   data.coursePerformance?.forEach((c: any) => {
     csv += `"${c.title}","${c.category}",${c.students},${c.revenue}\n`
   })

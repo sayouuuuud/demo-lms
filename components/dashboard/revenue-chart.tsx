@@ -46,7 +46,7 @@ export function RevenueChart({ data = [] }: { data?: any[] }) {
           <ChartTooltip
             content={
               <ChartTooltipContent
-                formatter={(value) => [`${Number(value).toLocaleString('en')} ج.م`, '']}
+                formatter={(value) => [`${Number(value).toLocaleString('en')} ر.ع`, '']}
               />
             }
           />

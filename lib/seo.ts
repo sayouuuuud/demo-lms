@@ -81,7 +81,7 @@ export function buildCourseDescription(opts: {
   if (description && description.length > 20) {
     return description.slice(0, 155)
   }
-  const priceText = price === 0 ? 'مجاناً' : `بـ ${price} جنيه`
+  const priceText = price === 0 ? 'مجاناً' : `بـ ${price} ر.ع`
   return `${courseTitle} — ${branchTitle} ${stageTitle} على ${siteName}. اشترك ${priceText} وابدأ المذاكرة دلوقتي`
 }
 

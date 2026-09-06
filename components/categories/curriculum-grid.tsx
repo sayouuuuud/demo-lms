@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { formatOMR } from '@/lib/currency'
 import { useCurriculum } from './curriculum-context'
 
 
@@ -117,7 +118,7 @@ export function CurriculumGrid() {
                         >
                           <CalendarDays className="size-3 text-primary" />
                           <span className="font-medium text-foreground">{term.title}</span>
-                          <span className="text-muted-foreground">{term.price.toLocaleString('ar-EG')} ج.م</span>
+                          <span className="text-muted-foreground">{formatOMR(term.price)}</span>
                           <button
                             type="button"
                             onClick={() => openEditTerm(term)}

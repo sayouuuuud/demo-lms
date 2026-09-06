@@ -31,7 +31,7 @@ export function StatCards({ stats: inputStats }: { stats?: any }) {
     {
       label: 'إجمالي الإيرادات',
       value: (inputStats?.totalRevenue || 0).toLocaleString(),
-      unit: 'ج.م',
+      unit: 'ر.ع',
       change: pct(changes.revenue ?? 0),
       up: (changes.revenue ?? 0) >= 0,
       sub: 'عن الشهر السابق',

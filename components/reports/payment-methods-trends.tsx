@@ -65,7 +65,7 @@ export function PaymentMethodsTrends({
 
         <div className="flex items-baseline gap-3">
           <span className="text-4xl font-bold tracking-tight text-foreground" dir="ltr">
-            {totalAmount.toLocaleString()} ج.م
+            {totalAmount.toLocaleString()} ر.ع
           </span>
           <span className={`text-sm font-semibold ${isPositive ? 'text-emerald-500' : 'text-red-500'}`} dir="ltr">
             {isPositive ? '+' : ''}{percentageChange.toFixed(1)}%

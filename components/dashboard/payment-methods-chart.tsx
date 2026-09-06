@@ -48,7 +48,7 @@ export function PaymentMethodsChart({
                   <span className="text-muted-foreground">{r.method}</span>
                 </div>
                 <span className="font-semibold text-foreground">
-                  {r.value.toLocaleString()} ج.م
+                  {r.value.toLocaleString()} ر.ع
                 </span>
               </li>
             ))}

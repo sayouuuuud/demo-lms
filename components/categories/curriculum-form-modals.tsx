@@ -217,7 +217,7 @@ export function CurriculumFormModals() {
         <form onSubmit={handleStageSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="sm:col-span-2">
-              <Field label="اسم التصنيف (مثل: الصف العاشر)">
+              <Field label="اسم الت��نيف (مثل: الصف العاشر)">
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -258,7 +258,7 @@ export function CurriculumFormModals() {
 
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="سعر الترم كامل (ج.م)">
+            <Field label="سعر الترم كامل (ر.ع)">
               <Input
                 type="number"
                 inputMode="numeric"
@@ -445,7 +445,7 @@ export function CurriculumFormModals() {
           </label>
           {!cIsFree && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="السعر (ج.م)">
+              <Field label="السعر (ر.ع)">
                 <Input
                   type="number"
                   inputMode="numeric"
@@ -517,7 +517,7 @@ export function CurriculumFormModals() {
             />
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="سعر الترم (ج.م)">
+            <Field label="سعر الترم (ر.ع)">
               <Input
                 type="number"
                 inputMode="numeric"

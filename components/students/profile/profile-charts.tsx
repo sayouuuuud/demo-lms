@@ -37,7 +37,7 @@ const progressConfig: ChartConfig = {
   progress: { label: 'نسبة التقدم', color: 'var(--chart-1)' },
 }
 const spendConfig: ChartConfig = {
-  amount: { label: 'الإنفاق (ج.م)', color: 'var(--chart-2)' },
+  amount: { label: 'الإنفاق (ر.ع)', color: 'var(--chart-2)' },
 }
 const skillsConfig: ChartConfig = {
   examAvg: { label: 'متوسط الامتحانات', color: 'var(--chart-1)' },

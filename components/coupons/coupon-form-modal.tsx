@@ -137,7 +137,7 @@ export function CouponFormModal() {
             </div>
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label={type === 'نسبة مئوية' ? 'النسبة (%)' : 'المبلغ (ج.م)'}>
+            <Field label={type === 'نسبة مئوية' ? 'النسبة (%)' : 'المبلغ (ر.ع)'}>
               <input
                 type="number"
                 min={0}

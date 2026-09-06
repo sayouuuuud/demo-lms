@@ -67,7 +67,7 @@ export function buildReportsCsv(data: ReportsData): string {
   lines.push(
     ...section(
       'الإيرادات الشهرية',
-      ['الشهر', 'الإيرادات (ج.م)', 'المستهدف (ج.م)'],
+      ['الشهر', 'الإيرادات (ر.ع)', 'المستهدف (ر.ع)'],
       data.monthlyRevenue.map((m) => [m.month, m.revenue, m.target]),
     ),
   )
@@ -83,7 +83,7 @@ export function buildReportsCsv(data: ReportsData): string {
   lines.push(
     ...section(
       'الإيرادات حسب التصنيف',
-      ['التصنيف', 'الإيرادات (ج.م)'],
+      ['التصنيف', 'الإيرادات (ر.ع)'],
       data.revenueByCategory.map((r) => [r.name, r.revenue]),
     ),
   )
@@ -107,7 +107,7 @@ export function buildReportsCsv(data: ReportsData): string {
   lines.push(
     ...section(
       'أداء الكورسات',
-      ['الكورس', 'التصنيف', 'عدد الطلاب', 'الإيرادات (ج.م)', 'النسبة من الإجمالي %'],
+      ['الكورس', 'التصنيف', 'عدد الطلاب', 'الإيرادات (ر.ع)', 'النسبة من الإجمالي %'],
       data.coursePerformance.map((c) => [
         c.title,
         c.category,

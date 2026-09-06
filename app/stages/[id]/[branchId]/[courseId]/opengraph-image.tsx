@@ -28,7 +28,7 @@ export default async function Image({
   const stageTitle   = result?.stage.title   ?? ''
   const price        = result?.course.price  ?? 0
   const siteName     = seo.title
-  const priceLabel   = price === 0 ? 'مجاني' : `${price} جنيه`
+  const priceLabel   = price === 0 ? 'مجاني' : `${price} ر.ع`
 
   return new ImageResponse(
     (

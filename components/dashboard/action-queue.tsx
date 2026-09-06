@@ -19,7 +19,7 @@ export function ActionQueue({ queue }: { queue?: any }) {
       label: 'مدفوعات بانتظار الموافقة',
       count: q.pendingPaymentsCount ?? 0,
       unit: 'طلب',
-      sub: `${(q.pendingPaymentsAmount ?? 0).toLocaleString()} ج.م محجوزة`,
+      sub: `${(q.pendingPaymentsAmount ?? 0).toLocaleString()} ر.ع محجوزة`,
       href: '/admin/payments?status=pending',
       cta: 'راجع المدفوعات',
       icon: Clock,
