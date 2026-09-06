@@ -486,8 +486,9 @@ function QuestionBlock({
           <ImageUploadField
             value={localAnswer?.fileUrl ?? ''}
             onChange={(url) => onChange({ fileUrl: url })}
-            label="ارفع إجابتك (صورة/ملف)"
-            hint="ارفع صورة تحتوي على حلّك"
+            kind="exam"
+            label="ارفع إجابتك كصورة"
+            hint="JPG أو PNG أو WebP بحد أقصى 8 MB"
           />
         ))}
 

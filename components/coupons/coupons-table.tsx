@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { Search, Copy, Check, Pencil, Trash2 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import { type CouponStatus } from '@/lib/coupons-data'
 import { useCoupons } from './coupons-context'
@@ -25,7 +26,7 @@ const statusFilters: { label: string; value: CouponStatus | 'الكل' }[] = [
 ]
 
 function formatDiscount(type: string, value: number) {
-  return type === 'نسبة مئوية' ? `${value}%` : `${value} ج.م`
+  return type === 'نسبة مئوية' ? `${value}%` : formatOMR(value)
 }
 
 function formatDate(date: string) {

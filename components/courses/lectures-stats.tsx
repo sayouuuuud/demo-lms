@@ -2,6 +2,7 @@
 
 import { BookOpen, PlayCircle, Gift, Coins } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import { useLectures } from './lectures-context'
 
@@ -16,7 +17,7 @@ export function LecturesStats() {
   )
   const avgPrice =
     totalLectures > 0
-      ? Math.round(lectures.reduce((sum, l) => sum + l.price, 0) / totalLectures)
+      ? lectures.reduce((sum, l) => sum + l.price, 0) / totalLectures
       : 0
 
   const stats = [
@@ -43,7 +44,7 @@ export function LecturesStats() {
     },
     {
       label: 'متوسط سعر المحاضرة',
-      value: `${avgPrice.toLocaleString('en-US')} ج`,
+      value: formatOMR(avgPrice),
       icon: Coins,
       color: 'text-blue-600',
       bg: 'bg-blue-50 dark:bg-blue-500/10',

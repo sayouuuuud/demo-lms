@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { getInitials } from '@/lib/get-initials'
 import { cn } from '@/lib/utils'
+import { formatOMR } from '@/lib/currency'
 import { getStudentAvatar } from '@/lib/students-data'
 import type { StudentProfile, StudentStatus } from '@/lib/student-profile-data'
 import { updateStudentStatus } from '@/app/admin/students/[id]/actions'
@@ -92,7 +93,7 @@ export function StudentProfileView({ profile, studentDbId }: StudentProfileViewP
     },
     {
       label: 'إجمالي الإنفاق',
-      value: `${profile.totalSpent.toLocaleString()} ج.م`,
+      value: formatOMR(profile.totalSpent),
       icon: Wallet,
       color: 'text-blue-600',
       bg: 'bg-blue-50 dark:bg-blue-500/10',
@@ -311,7 +312,7 @@ export function StudentProfileView({ profile, studentDbId }: StudentProfileViewP
               <li className="flex items-center gap-3">
                 <School className="size-4 shrink-0 text-muted-foreground" />
                 <div className="min-w-0">
-                  <span className="ml-2 text-xs text-muted-foreground">اسم المدرسة</span>
+                  <span className="ml-2 text-xs text-muted-foreground">اسم الم��رسة</span>
                   <span className="text-muted-foreground">{student.schoolName || 'غير مضاف'}</span>
                 </div>
               </li>

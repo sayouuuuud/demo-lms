@@ -31,13 +31,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { formatOMR } from '@/lib/currency'
 import type { StudentProfile } from '@/lib/student-profile-data'
 
 const progressConfig: ChartConfig = {
   progress: { label: 'نسبة التقدم', color: 'var(--chart-1)' },
 }
 const spendConfig: ChartConfig = {
-  amount: { label: 'الإنفاق (ج.م)', color: 'var(--chart-2)' },
+  amount: { label: 'الإنفاق (ر.ع)', color: 'var(--chart-2)' },
 }
 const skillsConfig: ChartConfig = {
   examAvg: { label: 'متوسط الامتحانات', color: 'var(--chart-1)' },
@@ -336,7 +337,13 @@ export function ProfileCharts({ profile }: { profile: StudentProfile }) {
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} reversed />
               <YAxis tickLine={false} axisLine={false} width={36} orientation="right" />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value) => [formatOMR(Number(value)), '']}
+                  />
+                }
+              />
               <Bar dataKey="amount" fill="var(--color-amount)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ChartContainer>

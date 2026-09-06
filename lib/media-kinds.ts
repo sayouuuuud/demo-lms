@@ -9,6 +9,7 @@ export type MediaKind =
   | 'instructor'   // صورة المحاضر
   | 'avatar'       // صورة حساب المستخدم
   | 'receipt'      // إيصالات التحويل
+  | 'exam'         // صور إجابات الطالب داخل الاختبارات (أسئلة نوع "ملف")
   | 'video'        // فيديو درس بدون تحويل HLS
 
 type MediaKindConfig = {
@@ -58,6 +59,13 @@ export const MEDIA_KINDS: Record<MediaKind, MediaKindConfig> = {
     studentAllowed: true,
     accept: ['image/', 'application/pdf'],
     label: 'إيصال التحويل',
+  },
+  exam: {
+    folder: 'exams',
+    maxSize: 8 * 1024 * 1024,
+    studentAllowed: true,
+    accept: ['image/'],
+    label: 'صورة إجابة الاختبار',
   },
   video: {
     folder: 'videos',

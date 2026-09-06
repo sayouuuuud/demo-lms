@@ -1,4 +1,5 @@
 import { LandingPage } from '@/components/landing/landing-page'
+import { SiteLoader } from '@/components/site-loader'
 import { getCurriculum } from '@/lib/curriculum'
 import { getSiteContent } from '@/lib/site-content'
 import { getSiteUrl } from '@/lib/seo'
@@ -37,6 +38,7 @@ export default async function Page() {
 
   return (
     <>
+      <SiteLoader loaderText={siteContent.seo.loaderText} />
       <JsonLd data={organizationSchema} />
       <JsonLd data={websiteSchema} />
       <LandingPage stages={stages} isLoggedIn={!!user} siteContent={siteContent} />

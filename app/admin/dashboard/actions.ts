@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { hasResourceAccess } from '@/lib/auth-guard'
 import { lastMonths, percentChange, lastDays, dayKeyOf, APP_TIME_ZONE } from '@/lib/time-series'
+import { formatOMR } from '@/lib/currency'
 import { getRelativeTimeArabic } from '@/lib/utils'
 
 export async function getDashboardData() {
@@ -232,7 +233,7 @@ export async function getDashboardData() {
     id: o.code ? (o.code.startsWith('#') ? o.code : `#${o.code}`) : `#PAY-${String(1000 + i)}`,
     name: o.student_name,
     course: o.order_items?.[0]?.lecture_title || 'طلب عام',
-    amount: `${o.total} ج.م`,
+    amount: formatOMR(Number(o.total)),
     status: o.status === 'approved' ? 'ناجح' : o.status === 'pending' ? 'معلّق' : 'مرفوض',
   }))
 

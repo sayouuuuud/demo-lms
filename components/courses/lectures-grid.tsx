@@ -18,6 +18,7 @@ import {
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import { useLectures } from './lectures-context'
 
@@ -181,10 +182,10 @@ export function LecturesGrid() {
                           درس
                         </span>
                         <span className="font-bold text-primary">
-                          {lecture.price.toLocaleString('en-US')} ج
+                          {formatOMR(lecture.price)}
                           {lecture.oldPrice != null && (
                             <span className="mr-1.5 font-normal text-muted-foreground line-through">
-                              {lecture.oldPrice.toLocaleString('en-US')}
+                              {formatOMR(lecture.oldPrice)}
                             </span>
                           )}
                         </span>

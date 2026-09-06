@@ -27,7 +27,7 @@ function safeExtension(filename: string, contentType: string): string {
 
 /**
  * يرجّع presigned PUT URL لرفع ملف ميديا مباشرةً من المتصفح إلى R2.
- * الصلاحيات: الأنواع الإدارية للـ staff فقط، والأفاتار/الإيصالات لأي مستخدم مسجّل.
+ * الصلاحيات: الأنواع الإدارية للـ staff فقط، والأفاتار/الإيصالات/صور الاختبارات لأي مستخدم مسجّل.
  */
 export async function getMediaUploadUrl(
   kind: MediaKind,

@@ -8,7 +8,7 @@ import { uploadToR2 } from '@/lib/upload-to-r2'
 import type { MediaKind } from '@/lib/media-kinds'
 import { cn } from '@/lib/utils'
 
-// Reusable image picker used by admin curriculum forms.
+// Reusable authenticated image picker for curriculum, profile, and exam forms.
 // Uploads straight to Cloudflare R2 via a presigned PUT, then stores the
 // /api/media/... proxy URL so the bucket can stay private.
 export function ImageUploadField({

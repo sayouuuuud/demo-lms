@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -15,6 +16,14 @@ import {
 import { toast } from 'sonner'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import {
   gradeSubmission,
@@ -206,17 +215,32 @@ export function GradeSubmission({
                 <div className="mt-3 flex flex-col gap-3">
                   <div className="rounded-lg bg-secondary/40 p-3 text-sm">
                     {a.fileUrl ? (
-                      <a
-                        href={a.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 font-medium text-primary hover:underline"
-                      >
-                        <Paperclip className="size-4" />
-                        عرض الملف المرفوع
-                      </a>
+                      <Dialog>
+                        <DialogTrigger render={<Button variant="outline" size="sm" />}>
+                          <Paperclip data-icon="inline-start" />
+                          عرض صورة الإجابة
+                        </DialogTrigger>
+                        <DialogContent className="max-h-[90vh] overflow-hidden sm:max-w-4xl">
+                          <DialogHeader>
+                            <DialogTitle>صورة إجابة الطالب</DialogTitle>
+                            <DialogDescription>
+                              السؤال {i + 1}: {a.questionText}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="flex max-h-[75vh] items-center justify-center overflow-auto rounded-lg bg-muted p-2">
+                            <Image
+                              src={a.fileUrl}
+                              alt={`إجابة ${submission.studentName} عن السؤال ${i + 1}`}
+                              width={1600}
+                              height={1200}
+                              unoptimized
+                              className="h-auto max-h-[72vh] w-auto max-w-full rounded-md object-contain"
+                            />
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     ) : (
-                      <span className="text-muted-foreground">لم يتم رفع ملف</span>
+                      <span className="text-muted-foreground">لم يتم رفع صورة</span>
                     )}
                   </div>
                   <ManualGradeInput

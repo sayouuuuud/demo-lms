@@ -16,10 +16,7 @@ import {
 } from 'lucide-react'
 import type { Stage, Branch, MonthlyCourse, Lecture } from '@/lib/landing-data'
 import { useCart } from '@/components/cart/cart-provider'
-
-function formatEGP(value: number) {
-  return new Intl.NumberFormat('ar-EG').format(value)
-}
+import { useCurrency } from '@/components/currency/currency-provider'
 
 // Groups the course lectures under their sections, preserving section order and
 // appending an "uncategorised" group for lectures without a section.
@@ -58,6 +55,7 @@ function LectureRow({
   watchHref: string
 }) {
   const { add, inCart, setOpen: setCartOpen } = useCart()
+  const { format: money } = useCurrency()
   // A lecture is "free to watch" if explicitly flagged OR its price is 0.
   // Don't show "مجانية" badge when the lecture has a price > 0 even if isFree
   // is set, because isFree just means "preview" in that context.
@@ -110,12 +108,11 @@ function LectureRow({
           <div className="flex flex-col items-end">
             {lecture.oldPrice ? (
               <span className="text-xs text-foreground-soft/60 line-through dark:text-muted-foreground/60">
-                {formatEGP(lecture.oldPrice)}
+                {money(lecture.oldPrice)}
               </span>
             ) : null}
             <span className="font-heading text-base font-extrabold text-foreground dark:text-foreground">
-              {formatEGP(lecture.price)}
-              <span className="mr-1 text-xs font-bold text-gold-deep dark:text-teal-glow">ج.م</span>
+              {money(lecture.price)}
             </span>
           </div>
           <button
@@ -152,6 +149,7 @@ export function CourseLanding({
   course: MonthlyCourse
 }) {
   const { addCourse, courseInCart, setOpen: setCartOpen } = useCart()
+  const { format: money } = useCurrency()
   const added = course.dbId ? courseInCart(course.dbId) : false
 
   const groups = groupLecturesBySection(course)
@@ -234,13 +232,12 @@ export function CourseLanding({
                 <div className="flex items-baseline gap-2">
                   {course.oldPrice && (
                     <span className="text-lg text-foreground-soft/60 line-through dark:text-muted-foreground/60">
-                      {formatEGP(course.oldPrice)}
+                      {money(course.oldPrice)}
                     </span>
                   )}
                   <strong className="font-heading text-3xl font-extrabold text-foreground dark:text-foreground">
-                    {formatEGP(course.price)}
+                    {money(course.price)}
                   </strong>
-                  <span className="text-sm font-bold text-gold-deep dark:text-teal-glow">ج.م</span>
                 </div>
                 <button
                   type="button"

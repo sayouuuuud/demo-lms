@@ -33,6 +33,7 @@ import {
 } from '@/lib/student-billing-data'
 import { resubmitPayment } from '@/app/student/actions'
 import { ReceiptDropzone } from '@/components/ui/receipt-dropzone'
+import { useCurrency } from '@/components/currency/currency-provider'
 
 const statusStyles: Record<InvoiceStatus, string> = {
   'غير مدفوعة':
@@ -68,6 +69,7 @@ export function StudentBillingPage({
   initialInvoices?: Invoice[]
 }) {
   const [invoices, setInvoices] = useState<Invoice[]>(initialInvoices)
+  const { format: money } = useCurrency()
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<InvoiceStatus | 'الكل'>('الكل')
   const [payingInvoice, setPayingInvoice] = useState<Invoice | null>(null)
@@ -77,7 +79,7 @@ export function StudentBillingPage({
   const statCards = [
     {
       label: 'مستحق للدفع',
-      value: `${stats.dueAmount.toLocaleString('en-US')} ج.م`,
+      value: money(stats.dueAmount),
       hint: `${stats.dueCount} فاتورة`,
       icon: AlertCircle,
       color: 'text-rose-600',
@@ -101,7 +103,7 @@ export function StudentBillingPage({
     },
     {
       label: 'إجمالي المدفوع',
-      value: `${stats.totalPaid.toLocaleString('en-US')} ج.م`,
+      value: money(stats.totalPaid),
       hint: 'كل الأوقات',
       icon: Wallet,
       color: 'text-primary',
@@ -259,7 +261,7 @@ export function StudentBillingPage({
 
                 <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
                   <span className="text-lg font-bold text-foreground">
-                    {inv.amount.toLocaleString('en-US')} ج.م
+                    {money(inv.amount)}
                   </span>
                   {actionable ? (
                     <Button size="sm" onClick={() => setPayingInvoice(inv)}>
@@ -322,6 +324,7 @@ function PaymentModal({
   const [fileName, setFileName] = useState('')
   const [copied, setCopied] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { format: money } = useCurrency()
 
   const isInsta = method === 'انستاباي'
   const account = paymentAccounts.find((a) => a.method === method)
@@ -363,7 +366,7 @@ function PaymentModal({
         <div className="mt-4 flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3">
           <span className="text-sm font-medium text-foreground">المبلغ المطلوب</span>
           <span className="text-xl font-bold text-primary">
-            {invoice.amount.toLocaleString('en-US')} ج.م
+            {money(invoice.amount)}
           </span>
         </div>
 

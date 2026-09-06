@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { hasResourceAccess } from '@/lib/auth-guard'
 import { revalidatePath } from 'next/cache'
 import { logActivity } from '@/lib/audit-log'
+import { formatOMR } from '@/lib/currency'
 import { sendWhatsAppText, paymentApprovedText } from '@/lib/whatsapp'
 
 export type OrderStatus = 'pending' | 'approved' | 'rejected'
@@ -145,7 +146,7 @@ export async function updateOrderStatus(id: string, status: OrderStatus) {
 
     const action = status === 'approved' ? 'approve' : status === 'rejected' ? 'reject' : 'update'
     const label = orderRow
-      ? `طلب ${orderRow.code} — ${orderRow.student_name} (${orderRow.total} ج.م)`
+      ? `طلب ${orderRow.code} — ${orderRow.student_name} (${formatOMR(Number(orderRow.total))})`
       : `طلب ID: ${id}`
     logActivity({ action, resource: 'payments', targetId: id, targetLabel: label }).catch(() => {})
 

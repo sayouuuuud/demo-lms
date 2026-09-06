@@ -1,6 +1,7 @@
 'use client'
 
 import { PanelCard } from '@/components/dashboard/panel-card'
+import { formatOMR } from '@/lib/currency'
 import { Ban, Undo2 } from 'lucide-react'
 
 export function RefundsAnalysis({
@@ -23,7 +24,7 @@ export function RefundsAnalysis({
           </div>
           <div className="mt-2 text-3xl font-bold text-foreground">{refCount} طلب</div>
           <div className="text-sm font-semibold text-amber-600">
-            بقيمة {refSum.toLocaleString()} ج.م
+            بقيمة {formatOMR(refSum)}
           </div>
         </div>
 
@@ -34,7 +35,7 @@ export function RefundsAnalysis({
           </div>
           <div className="mt-2 text-3xl font-bold text-foreground">{canCount} طلب</div>
           <div className="text-sm font-semibold text-destructive">
-            بقيمة {canSum.toLocaleString()} ج.م
+            بقيمة {formatOMR(canSum)}
           </div>
         </div>
       </div>

@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { formatOMR } from '@/lib/currency'
 import { useCurriculum } from './curriculum-context'
 import {
   createCourseSection,
@@ -31,10 +32,6 @@ import {
   type AdminMonthlyCourse,
   type AdminCourseLecture,
 } from '@/app/admin/categories/actions'
-
-function formatEGP(value: number) {
-  return value.toLocaleString('en-US')
-}
 
 // A single lecture row inside the expanded course panel.
 function LectureRow({ lecture, index }: { lecture: AdminCourseLecture; index: number }) {
@@ -168,10 +165,10 @@ function CourseCard({ course }: { course: AdminMonthlyCourse }) {
             <Layers className="size-3" />
             {course.sections.length} تصنيف
           </Badge>
-          <Badge variant="secondary">{formatEGP(course.price)} ج.م</Badge>
+          <Badge variant="secondary">{formatOMR(course.price)}</Badge>
           {course.oldPrice != null && (
             <span className="text-xs text-muted-foreground line-through">
-              {formatEGP(course.oldPrice)}
+              {formatOMR(course.oldPrice)}
             </span>
           )}
         </div>

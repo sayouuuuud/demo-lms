@@ -5,6 +5,8 @@
  * لا تكتب دومين hardcoded في أي ملف آخر.
  */
 
+import { formatOMR } from '@/lib/currency'
+
 // ──────────────────────────────────────────────────────────────────────
 // URL helpers
 // ──────────────────────────────────────────────────────────────────────
@@ -81,7 +83,7 @@ export function buildCourseDescription(opts: {
   if (description && description.length > 20) {
     return description.slice(0, 155)
   }
-  const priceText = price === 0 ? 'مجاناً' : `بـ ${price} جنيه`
+  const priceText = price === 0 ? 'مجاناً' : `بـ ${formatOMR(price)}`
   return `${courseTitle} — ${branchTitle} ${stageTitle} على ${siteName}. اشترك ${priceText} وابدأ المذاكرة دلوقتي`
 }
 

@@ -1,5 +1,6 @@
 import { DollarSign, Users, BookOpen, RotateCcw, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 
 const icons = {
@@ -26,9 +27,13 @@ export function ReportsStats({ stats: inputStats }: { stats?: any[] }) {
             </div>
             <div className="mt-3 flex items-baseline gap-1.5">
               <span className="text-2xl font-bold text-foreground">
-                {stat.value.toLocaleString('en-US')}
+                {stat.key === 'revenue'
+                  ? formatOMR(Number(stat.value))
+                  : stat.value.toLocaleString('en-US')}
               </span>
-              <span className="text-xs text-muted-foreground">{stat.suffix}</span>
+              {stat.key !== 'revenue' && (
+                <span className="text-xs text-muted-foreground">{stat.suffix}</span>
+              )}
             </div>
             <div className="mt-2 flex items-center gap-1">
               <span

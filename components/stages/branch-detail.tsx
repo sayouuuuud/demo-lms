@@ -17,14 +17,12 @@ import {
 import type { Stage, Branch, Lecture, MonthlyCourse } from '@/lib/landing-data'
 import { Check } from 'lucide-react'
 import { useCart } from '@/components/cart/cart-provider'
-
-function formatEGP(value: number) {
-  return new Intl.NumberFormat('ar-EG').format(value)
-}
+import { useCurrency } from '@/components/currency/currency-provider'
 
 function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
   const [open, setOpen] = useState(false)
   const { add, inCart, setOpen: setCartOpen } = useCart()
+  const { format: money } = useCurrency()
   const added = lecture.dbId ? inCart(lecture.dbId) : false
 
   async function handleAdd() {
@@ -68,13 +66,12 @@ function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
         >
           {lecture.oldPrice && (
             <span className="text-xs text-primary-foreground/50 line-through">
-              {formatEGP(lecture.oldPrice)}
+              {money(lecture.oldPrice)}
             </span>
           )}
           <span className="font-heading text-xl font-extrabold text-primary-foreground">
-            {formatEGP(lecture.price)}
+            {money(lecture.price)}
           </span>
-          <span className="text-xs font-bold text-gold dark:text-teal-glow">ج.م</span>
         </button>
       </div>
 
@@ -109,7 +106,7 @@ function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
             onClick={handleBuy}
             className="flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-deep dark:bg-primary dark:text-white dark:hover:bg-violet-deep"
           >
-            <span>{`اشترك الآن — ${formatEGP(lecture.price)} ج.م`}</span>
+            <span>{`اشترك الآن — ${money(lecture.price)}`}</span>
             <ArrowRight className="size-4 -rotate-180" />
           </button>
           <button
@@ -195,7 +192,7 @@ function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
               onClick={handleBuy}
               className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-deep dark:bg-primary dark:text-white dark:hover:bg-violet-deep"
             >
-              <span>{`اشترك الآن بـ ${formatEGP(lecture.price)} ج.م`}</span>
+              <span>{`اشترك الآن بـ ${money(lecture.price)}`}</span>
               <ArrowRight className="size-4 -rotate-180" />
             </button>
           </div>
@@ -207,6 +204,7 @@ function LectureCard({ lecture, index }: { lecture: Lecture; index: number }) {
 
 function MonthlyCourseCard({ course, index, href }: { course: MonthlyCourse; index: number; href: string }) {
   const { addCourse, courseInCart, setOpen: setCartOpen } = useCart()
+  const { format: money } = useCurrency()
   const added = course.dbId ? courseInCart(course.dbId) : false
   const lessonsCount = course.lectures.reduce((sum, lecture) => sum + lecture.lessons.length, 0)
   const freeCount = course.lectures.filter((lecture) => lecture.isFree).length
@@ -240,7 +238,7 @@ function MonthlyCourseCard({ course, index, href }: { course: MonthlyCourse; ind
           <span className="min-w-0 flex-1 text-start">عرض تفاصيل الكورس والمحاضرات</span><ArrowRight className="size-4 shrink-0 -rotate-180" />
         </Link>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 dark:border-border">
-          <div><strong className="font-heading text-xl text-foreground dark:text-foreground">{formatEGP(course.price)}</strong> <span className="text-xs font-bold text-gold-deep">ج.م</span></div>
+          <div><strong className="font-heading text-xl text-foreground dark:text-foreground">{money(course.price)}</strong></div>
           <button type="button" onClick={() => handleAdd(true)} className="flex-1 rounded-full bg-primary px-4 py-3 text-sm font-bold text-primary-foreground sm:flex-none sm:px-5 dark:bg-primary">{added ? 'أكمل الشراء' : 'اشترك في الكورس'}</button>
         </div>
       </div>

@@ -25,6 +25,7 @@ import {
   ReceiptText,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatOMR } from '@/lib/currency'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -61,10 +62,6 @@ const FILTERS: { value: OrderStatus | 'all'; label: string }[] = [
   { value: 'approved', label: 'مقبول' },
   { value: 'rejected', label: 'مرفوض' },
 ]
-
-function formatEGP(value: number) {
-  return new Intl.NumberFormat('ar-EG').format(value)
-}
 
 function DetailRow({
   icon: Icon,
@@ -131,7 +128,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }
     { label: 'طلبات قيد المراجعة', value: String(stats.pending), icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-500/10' },
     { label: 'طلبات مقبولة', value: String(stats.approved), icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
     { label: 'طلبات مرفوضة', value: String(stats.rejected), icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-500/10' },
-    { label: 'إجمالي الإيرادات', value: `${formatEGP(stats.revenue)} ج.م`, icon: Wallet, color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'إجمالي الإيرادات', value: formatOMR(stats.revenue), icon: Wallet, color: 'text-primary', bg: 'bg-primary/10' },
   ]
 
   const filtered = useMemo(() => {
@@ -269,7 +266,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }
                   </td>
                   <td className="px-5 py-4 font-mono text-xs text-muted-foreground">{o.code}</td>
                   <td className="px-5 py-4 text-foreground">{o.items.length} محاضرة</td>
-                  <td className="px-5 py-4 font-semibold text-foreground">{formatEGP(o.total)} ج.م</td>
+                  <td className="px-5 py-4 font-semibold text-foreground">{formatOMR(o.total)}</td>
                   <td className="px-5 py-4 text-muted-foreground">{o.createdAt}</td>
                   <td className="px-5 py-4">
                     <Badge variant="outline" className={cn('font-medium', statusStyles[o.status])}>
@@ -320,7 +317,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">الإجمالي</p>
-                  <p className="font-semibold text-foreground">{formatEGP(o.total)} ج.م</p>
+                  <p className="font-semibold text-foreground">{formatOMR(o.total)}</p>
                 </div>
               </div>
 
@@ -383,7 +380,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }
             <div className="mt-4 space-y-1">
               <p className="mb-2 text-xs font-semibold text-muted-foreground">بيانات الطالب</p>
               <DetailRow icon={Mail} label="البريد الإلكتروني" value={preview.studentEmail} dir="ltr" />
-              <DetailRow icon={Phone} label="رقم الهاتف" value={preview.studentPhone} dir="ltr" />
+              <DetailRow icon={Phone} label="رقم ��لهاتف" value={preview.studentPhone} dir="ltr" />
             </div>
 
             {/* المحاضرات المطلوبة */}
@@ -402,7 +399,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }
                       </p>
                     </div>
                     <span className="shrink-0 text-sm font-bold text-primary">
-                      {formatEGP(item.price)} ج.م
+                      {formatOMR(item.price)}
                     </span>
                   </li>
                 ))}
@@ -418,7 +415,7 @@ export function OrdersManager({ initialOrders }: { initialOrders: AdminOrder[] }
                   الإجمالي
                 </span>
                 <span className="text-base font-bold text-foreground">
-                  {formatEGP(preview.total)} ج.م
+                  {formatOMR(preview.total)}
                 </span>
               </div>
               <DetailRow icon={CreditCard} label="وسيلة الدفع" value={preview.method} />

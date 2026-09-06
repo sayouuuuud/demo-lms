@@ -1,6 +1,7 @@
 'use client'
 
 import { PanelCard } from '@/components/dashboard/panel-card'
+import { formatOMR } from '@/lib/currency'
 import {
   Table,
   TableBody,
@@ -42,7 +43,7 @@ export function TopStudentsTable({
                     {student.courses_count}
                   </TableCell>
                   <TableCell className="text-right text-emerald-600 font-bold">
-                    {Number(student.total_spent).toLocaleString()} ج.م
+                    {formatOMR(Number(student.total_spent))}
                   </TableCell>
                 </TableRow>
               ))

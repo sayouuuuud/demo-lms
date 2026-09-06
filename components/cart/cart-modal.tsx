@@ -22,10 +22,7 @@ import { toast } from 'sonner'
 import { useCart } from './cart-provider'
 import { createOrder, getCheckoutDefaults, getPaymentAccounts } from '@/app/cart-actions'
 import { uploadToR2 } from '@/lib/upload-to-r2'
-
-function formatEGP(value: number) {
-  return new Intl.NumberFormat('ar-EG').format(value)
-}
+import { useCurrency } from '@/components/currency/currency-provider'
 
 type View = 'cart' | 'checkout' | 'done'
 
@@ -46,6 +43,8 @@ export function CartModal() {
     discount,
     grandTotal,
   } = useCart()
+  // عملة العرض (OMR افتراضيًا / EGP حسب تفضيل الطالب) — المبالغ المخزّنة بالريال العُماني.
+  const { format: money } = useCurrency()
   const [mounted, setMounted] = useState(false)
   const [view, setView] = useState<View>('cart')
   const [submitting, setSubmitting] = useState(false)
@@ -249,7 +248,7 @@ export function CartModal() {
                         )}
                       </p>
                       <p className="mt-1 text-sm font-bold text-primary">
-                        {formatEGP(item.price)} ج.م
+                        {money(item.price)}
                       </p>
                     </div>
                     <button
@@ -281,21 +280,21 @@ export function CartModal() {
                   <>
                     <div className="mt-1 flex items-center justify-between">
                       <span className="text-muted-foreground">المجموع</span>
-                      <span className="text-muted-foreground">{formatEGP(total)} ج.م</span>
+                      <span className="text-muted-foreground">{money(total)}</span>
                     </div>
                     <div className="mt-1 flex items-center justify-between">
                       <span className="text-muted-foreground">
                         خصم{coupon ? ` (${coupon.code})` : ''}
                       </span>
                       <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                        - {formatEGP(discount)} ج.م
+                        - {money(discount)}
                       </span>
                     </div>
                   </>
                 )}
                 <div className="mt-1 flex items-center justify-between">
                   <span className="text-muted-foreground">الإجمالي</span>
-                  <span className="font-bold text-primary">{formatEGP(grandTotal)} ج.م</span>
+                  <span className="font-bold text-primary">{money(grandTotal)}</span>
                 </div>
                 {coupon && coupon.scope === 'lectures' && (
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -509,10 +508,10 @@ export function CartModal() {
             <div className="mb-3 mt-3 space-y-1.5">
               {discount > 0 && (
                 <>
-                  <Row label="المجموع" value={`${formatEGP(total)} ج.م`} muted />
+                  <Row label="المجموع" value={money(total)} muted />
                   <Row
                     label={`خصم${coupon ? ` (${coupon.code})` : ''}`}
-                    value={`- ${formatEGP(discount)} ج.م`}
+                    value={`- ${money(discount)}`}
                     discount
                   />
                 </>
@@ -520,8 +519,7 @@ export function CartModal() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">الإجمالي</span>
                 <span className="text-xl font-extrabold text-foreground">
-                  {formatEGP(grandTotal)}{' '}
-                  <span className="text-sm font-bold text-primary">ج.م</span>
+                  {money(grandTotal)}
                 </span>
               </div>
             </div>
@@ -551,7 +549,7 @@ export function CartModal() {
                   جارٍ الإرسال...
                 </>
               ) : (
-                <>إرسال الطلب ({formatEGP(grandTotal)} ج.م)</>
+                <>إرسال الطلب ({money(grandTotal)})</>
               )}
             </button>
           </div>

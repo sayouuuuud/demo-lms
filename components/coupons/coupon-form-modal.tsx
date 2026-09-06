@@ -137,10 +137,12 @@ export function CouponFormModal() {
             </div>
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label={type === 'نسبة مئوية' ? 'النسبة (%)' : 'المبلغ (ج.م)'}>
+            <Field label={type === 'نسبة مئوية' ? 'النسبة (%)' : 'المبلغ (ر.ع)'}>
               <input
                 type="number"
+                inputMode="decimal"
                 min={0}
+                step={type === 'نسبة مئوية' ? 1 : 0.001}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
                 placeholder="0"

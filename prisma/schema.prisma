@@ -792,7 +792,7 @@ model courses {
   lessons         Int               @default(0)
   duration_hours  Decimal           @default(0) @db.Decimal
   rating          Decimal           @default(0) @db.Decimal
-  price           String            @default("0 ج.م")
+  price           String            @default("0 ر.ع")
   status          String            @default("مسودة")
   image           String?
   created_at      DateTime          @default(now()) @db.Timestamptz(6)
@@ -1450,7 +1450,7 @@ model students {
   avatar                 String?
   courses                Int                      @default(0)
   progress               Int                      @default(0)
-  spent                  String                   @default("0 ج.م")
+  spent                  String                   @default("0 ر.ع")
   status                 String                   @default("نشط")
   joined_at              DateTime                 @default(dbgenerated("CURRENT_DATE")) @db.Date
   created_at             DateTime                 @default(now()) @db.Timestamptz(6)

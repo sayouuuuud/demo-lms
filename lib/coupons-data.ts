@@ -28,7 +28,7 @@ export type CouponRecord = {
   code: string
   description: string
   type: CouponType
-  // discount value: percentage (0-100) or fixed amount in EGP
+  // discount value: percentage (0-100) or fixed amount in OMR (base currency)
   value: number
   used: number
   limit: number

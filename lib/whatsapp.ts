@@ -1,4 +1,5 @@
 import 'server-only'
+import { formatOMR } from '@/lib/currency'
 import { prisma } from '@/lib/prisma'
 import { normalizeEgyptPhone } from '@/lib/phone'
 
@@ -111,7 +112,7 @@ export function paymentApprovedText(input: {
     'منصة أكاديمية شفاء العليل ل اللغة العربية',
     '',
     `أهلاً ${input.studentName || 'يا بطل'} 👋`,
-    `تم تأكيد دفع طلبك رقم ${input.orderCode} بمبلغ ${input.total} ج.م.`,
+    `تم تأكيد دفع طلبك رقم ${input.orderCode} بمبلغ ${formatOMR(input.total)}.`,
   ]
   if (input.items.length) {
     lines.push('', 'المحتوى المتاح لك الآن:', ...input.items.map((t) => `• ${t}`))

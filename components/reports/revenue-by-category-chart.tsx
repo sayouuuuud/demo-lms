@@ -8,6 +8,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { PanelCard } from '@/components/dashboard/panel-card'
+import { formatOMR } from '@/lib/currency'
 
 const config = {
   revenue: { label: 'الإيراد', color: 'var(--chart-1)' },
@@ -53,7 +54,7 @@ export function RevenueByCategoryChart({
               content={
                 <ChartTooltipContent
                   nameKey="name"
-                  formatter={(value) => [`${Number(value).toLocaleString('en')} ج.م`, '']}
+                  formatter={(value) => [formatOMR(Number(value)), '']}
                 />
               }
             />

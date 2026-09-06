@@ -9,6 +9,7 @@ import {
   type ChartConfig,
 } from '@/components/ui/chart'
 import { PanelCard } from './panel-card'
+import { formatOMR } from '@/lib/currency'
 import { RANGE_OPTIONS } from '@/lib/time-series'
 
 const config = {
@@ -46,7 +47,7 @@ export function RevenueChart({ data = [] }: { data?: any[] }) {
           <ChartTooltip
             content={
               <ChartTooltipContent
-                formatter={(value) => [`${Number(value).toLocaleString('en')} ج.م`, '']}
+                formatter={(value) => [formatOMR(Number(value)), '']}
               />
             }
           />
