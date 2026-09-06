@@ -183,6 +183,12 @@ export type SubmitAnswer = {
   fileUrl?: string | null
 }
 
+function normalizeExamImageUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const url = value.trim()
+  return /^\/api\/media\/exams\/[a-zA-Z0-9._-]+$/.test(url) ? url : null
+}
+
 export async function submitExam(code: string, answers: SubmitAnswer[]) {
   const guard = await assertDeviceAllowed()
   if (!guard.ok) return { success: false, error: guard.message }
@@ -220,6 +226,14 @@ export async function submitExam(code: string, answers: SubmitAnswer[]) {
   const totalPoints = questions.reduce((sum: number, q: any) => sum + (q.points || 0), 0)
   const answerMap = new Map(answers.map((a) => [a.questionId, a]))
 
+  for (const question of questions) {
+    if (question.question_type !== 'file') continue
+    const fileUrl = answerMap.get(question.id)?.fileUrl
+    if (fileUrl && !normalizeExamImageUrl(fileUrl)) {
+      return { success: false, error: 'رابط صورة الإجابة غير صالح. ارفع الصورة مرة أخرى.' }
+    }
+  }
+
   let autoScore = 0
   let hasManual = false
 
@@ -244,8 +258,8 @@ export async function submitExam(code: string, answers: SubmitAnswer[]) {
     return {
       question_id: q.id,
       selected_option: null,
-      answer_text: given?.answerText ?? null,
-      file_url: given?.fileUrl ?? null,
+      answer_text: q.question_type === 'essay' ? given?.answerText ?? null : null,
+      file_url: q.question_type === 'file' ? normalizeExamImageUrl(given?.fileUrl) : null,
       awarded_points: 0,
       is_correct: null,
       needs_manual: true,

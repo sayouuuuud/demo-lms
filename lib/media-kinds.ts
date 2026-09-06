@@ -64,7 +64,7 @@ export const MEDIA_KINDS: Record<MediaKind, MediaKindConfig> = {
     folder: 'exams',
     maxSize: 8 * 1024 * 1024,
     studentAllowed: true,
-    accept: ['image/', 'application/pdf'],
+    accept: ['image/'],
     label: 'صورة إجابة الاختبار',
   },
   video: {

@@ -1,6 +1,7 @@
 'use client'
 
 import { PanelCard } from '@/components/dashboard/panel-card'
+import { formatOMR } from '@/lib/currency'
 import {
   Table,
   TableBody,
@@ -42,10 +43,10 @@ export function CouponPerformanceTable({
                     {c.uses}
                   </TableCell>
                   <TableCell className="text-center text-muted-foreground text-sm">
-                    {Number(c.total_discount).toLocaleString()} ر.ع
+                    {formatOMR(Number(c.total_discount))}
                   </TableCell>
                   <TableCell className="text-right text-emerald-600 font-bold">
-                    {Number(c.revenue_generated).toLocaleString()} ر.ع
+                    {formatOMR(Number(c.revenue_generated))}
                   </TableCell>
                 </TableRow>
               ))

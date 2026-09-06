@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { formatOMR } from '@/lib/currency'
 import type { StudentProfile } from '@/lib/student-profile-data'
 
 const progressConfig: ChartConfig = {
@@ -336,7 +337,13 @@ export function ProfileCharts({ profile }: { profile: StudentProfile }) {
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} reversed />
               <YAxis tickLine={false} axisLine={false} width={36} orientation="right" />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value) => [formatOMR(Number(value)), '']}
+                  />
+                }
+              />
               <Bar dataKey="amount" fill="var(--color-amount)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ChartContainer>

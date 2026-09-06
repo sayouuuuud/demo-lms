@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft, CheckCircle2, Clock, FileCheck, Inbox } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 
 /**
@@ -19,7 +20,7 @@ export function ActionQueue({ queue }: { queue?: any }) {
       label: 'مدفوعات بانتظار الموافقة',
       count: q.pendingPaymentsCount ?? 0,
       unit: 'طلب',
-      sub: `${(q.pendingPaymentsAmount ?? 0).toLocaleString()} ر.ع محجوزة`,
+      sub: `${formatOMR(q.pendingPaymentsAmount ?? 0)} محجوزة`,
       href: '/admin/payments?status=pending',
       cta: 'راجع المدفوعات',
       icon: Clock,

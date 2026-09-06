@@ -1,6 +1,7 @@
 'use client'
 
 import { DonutChart } from '@/components/ui/donut-chart'
+import { formatOMR } from '@/lib/currency'
 import { PanelCard } from './panel-card'
 
 const config = {
@@ -30,8 +31,8 @@ export function PaymentMethodsChart({
               strokeWidth={24}
               centerContent={
                 <div className="flex flex-col items-center justify-center text-center">
-                  <span className="fill-foreground text-lg font-bold">
-                    {new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(total)}
+                  <span className="fill-foreground text-sm font-bold">
+                    {formatOMR(total)}
                   </span>
                   <span className="fill-muted-foreground text-xs">
                     إجمالي
@@ -48,7 +49,7 @@ export function PaymentMethodsChart({
                   <span className="text-muted-foreground">{r.method}</span>
                 </div>
                 <span className="font-semibold text-foreground">
-                  {r.value.toLocaleString()} ر.ع
+                  {formatOMR(r.value)}
                 </span>
               </li>
             ))}

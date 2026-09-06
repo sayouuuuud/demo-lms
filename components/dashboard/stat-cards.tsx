@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { Wallet, BookOpen, Users, ShoppingCart, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card } from '@/components/ui/card'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 
 // Formats a signed percentage like "+12.5%" / "-3%".
@@ -30,8 +31,7 @@ export function StatCards({ stats: inputStats }: { stats?: any }) {
   const stats: Stat[] = [
     {
       label: 'إجمالي الإيرادات',
-      value: (inputStats?.totalRevenue || 0).toLocaleString(),
-      unit: 'ر.ع',
+      value: formatOMR(inputStats?.totalRevenue || 0),
       change: pct(changes.revenue ?? 0),
       up: (changes.revenue ?? 0) >= 0,
       sub: 'عن الشهر السابق',

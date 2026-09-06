@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { cookies } from 'next/headers'
 import { Cairo, Geist_Mono, Aref_Ruqaa } from 'next/font/google'
 import localFont from 'next/font/local'
 import { Toaster } from 'sonner'
@@ -8,6 +9,7 @@ import { SiteLoader } from '@/components/site-loader'
 import { CartProvider } from '@/components/cart/cart-provider'
 import { CartModal } from '@/components/cart/cart-modal'
 import { CurrencyProvider } from '@/components/currency/currency-provider'
+import { CURRENCY_PREFERENCE_COOKIE, isCurrencyCode } from '@/lib/currency'
 import { PageViewTracker } from '@/components/analytics/page-view-tracker'
 import { colorPresets } from '@/lib/color-presets'
 import { neonPresets } from '@/lib/neon-presets'
@@ -113,6 +115,9 @@ export default async function RootLayout({
   let savedNeon = 'teal-violet'
   let savedLight = 'navy-gold'
   let seoContent: any = null
+  const cookieStore = await cookies()
+  const savedCurrency = cookieStore.get(CURRENCY_PREFERENCE_COOKIE)?.value
+  const initialCurrency = isCurrencyCode(savedCurrency) ? savedCurrency : undefined
   try {
     ;[savedColor, savedNeon, savedLight, { seo: seoContent }] = await Promise.all([
       getSiteColor(),
@@ -199,13 +204,13 @@ export default async function RootLayout({
       </head>
       <body className={`${cairo.className} font-sans antialiased`}>
         <ThemeProvider>
-          <CurrencyProvider>
-          <CartProvider>
-            <SiteLoader loaderText={seoContent?.loaderText} />
-            {children}
-            <CartModal />
-            <PageViewTracker />
-          </CartProvider>
+          <CurrencyProvider initialCurrency={initialCurrency}>
+            <CartProvider>
+              <SiteLoader loaderText={seoContent?.loaderText} />
+              {children}
+              <CartModal />
+              <PageViewTracker />
+            </CartProvider>
           </CurrencyProvider>
         </ThemeProvider>
         <Toaster 

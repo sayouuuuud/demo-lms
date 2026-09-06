@@ -5,14 +5,13 @@
  *
  * سياق عملة العرض للطالب: كل المبالغ المخزّنة بالريال العُماني (OMR)،
  * والطالب يمكنه تبديل عملة العرض بين الريال العُماني والجنيه المصري (EGP).
- * التفضيل محفوظ محليًا في المتصفح ولا يؤثر على أي قيمة مخزّنة.
+ * التفضيل محفوظ في كوكي غير حساسة ولا يؤثر على أي قيمة مخزّنة.
  */
 
 import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -20,14 +19,11 @@ import {
 import {
   BASE_CURRENCY,
   CURRENCIES,
-  CURRENCY_OPTIONS,
+  CURRENCY_PREFERENCE_COOKIE,
   convertFromOMR,
   formatMoney,
-  isCurrencyCode,
   type CurrencyCode,
 } from '@/lib/currency'
-
-const STORAGE_KEY = 'currency-preference'
 
 type CurrencyContextValue = {
   /** عملة العرض الحالية (OMR افتراضيًا). */
@@ -44,26 +40,19 @@ type CurrencyContextValue = {
 
 const CurrencyContext = createContext<CurrencyContextValue | null>(null)
 
-export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const [currency, setCurrencyState] = useState<CurrencyCode>(BASE_CURRENCY)
-
-  // قراءة التفضيل المحفوظ بعد أول رسم (لتجنب اختلاف الـ hydration).
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (isCurrencyCode(saved)) setCurrencyState(saved)
-    } catch {
-      // localStorage قد يكون معطّلًا — نكمل بالافتراضي
-    }
-  }, [])
+export function CurrencyProvider({
+  children,
+  initialCurrency = BASE_CURRENCY,
+}: {
+  children: ReactNode
+  initialCurrency?: CurrencyCode
+}) {
+  const [currency, setCurrencyState] = useState<CurrencyCode>(initialCurrency)
 
   const setCurrency = useCallback((c: CurrencyCode) => {
     setCurrencyState(c)
-    try {
-      localStorage.setItem(STORAGE_KEY, c)
-    } catch {
-      // تجاهل أخطاء التخزين
-    }
+    const secure = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `${CURRENCY_PREFERENCE_COOKIE}=${c}; Path=/; Max-Age=31536000; SameSite=Lax${secure}`
   }, [])
 
   const value = useMemo<CurrencyContextValue>(

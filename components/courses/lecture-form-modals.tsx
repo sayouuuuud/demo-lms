@@ -361,17 +361,23 @@ export function LectureFormModals() {
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="السعر (ج)">
+            <Field label="السعر (ر.ع)">
               <Input
                 type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="120"
+                placeholder="مثال: 0.925"
               />
             </Field>
-            <Field label="السعر قبل الخصم">
+            <Field label="السعر قبل الخصم (ر.ع)">
               <Input
                 type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={oldPrice}
                 onChange={(e) => setOldPrice(e.target.value)}
                 placeholder="اختياري"

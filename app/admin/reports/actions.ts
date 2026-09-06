@@ -138,7 +138,7 @@ export async function getReportsData() {
     const prevKey = monthKeyOf(prevD)
     const prevRevenue = revenueBucket[prevKey] || 0
     const target = prevRevenue === 0 ? revenue * 1.15 : prevRevenue * 1.15
-    return { month: b.month, revenue, target: Math.round(target) }
+    return { month: b.month, revenue, target: Math.round(target * 1000) / 1000 }
   })
 
   const signupsBucket: Record<string, number> = {}

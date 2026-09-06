@@ -31,6 +31,7 @@ import { ImageUploadField } from '@/components/ui/image-upload-field'
 import { VideoUploadField } from '@/components/ui/video-upload-field'
 import { AttachmentsUploadField } from '@/components/ui/attachments-upload-field'
 import { AssignmentEditorModal } from '@/components/courses/assignment-editor-modal'
+import { formatOMR } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import {
   type AdminLecture,
@@ -280,10 +281,10 @@ export function AdminLectureDetail({
                 واجب
               </span>
               <span className="font-bold text-primary">
-                {lecture.price.toLocaleString('en-US')} ج
+                {formatOMR(lecture.price)}
                 {lecture.oldPrice != null && (
                   <span className="mr-1.5 font-normal text-muted-foreground line-through">
-                    {lecture.oldPrice.toLocaleString('en-US')}
+                    {formatOMR(lecture.oldPrice)}
                   </span>
                 )}
               </span>
@@ -371,16 +372,22 @@ export function AdminLectureDetail({
             />
           </Field>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Field label="السعر (ج)">
+            <Field label="السعر (ر.ع)">
               <Input
                 type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
               />
             </Field>
-            <Field label="السعر قبل الخصم">
+            <Field label="السعر قبل الخصم (ر.ع)">
               <Input
                 type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={oldPrice}
                 onChange={(e) => setOldPrice(e.target.value)}
                 placeholder="اختياري"

@@ -24,6 +24,7 @@ export function CurrencySwitcher() {
         className="flex h-10 items-center gap-1.5 rounded-xl px-2.5 text-sm font-bold text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
         aria-label={`عملة العرض: ${CURRENCIES[currency].label}`}
         aria-expanded={open}
+        aria-haspopup="listbox"
         title="تبديل عملة العرض"
       >
         <Banknote className="size-5" />
@@ -36,13 +37,14 @@ export function CurrencySwitcher() {
           <p className="border-b border-border px-4 py-2.5 text-xs font-semibold text-muted-foreground">
             عملة العرض
           </p>
-          <ul className="py-1">
+          <ul className="py-1" role="listbox" aria-label="اختر عملة العرض">
             {CURRENCY_OPTIONS.map((code: CurrencyCode) => (
-              <li key={code}>
+              <li key={code} role="none">
                 <button
                   type="button"
-                  onMouseDown={(e) => {
-                    e.preventDefault()
+                  role="option"
+                  aria-selected={currency === code}
+                  onClick={() => {
                     setCurrency(code)
                     setOpen(false)
                   }}

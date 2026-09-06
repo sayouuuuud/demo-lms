@@ -1,7 +1,7 @@
 /**
  * scripts/convert-egp-to-omr.mjs
  *
- * ترحيل لمرة واحدة: تحويل كل المبالغ المخزّنة من الجنيه المصري (EGP)
+ * ترحيل لمرة واحدة: تحويل المبالغ المخزّنة من الجنيه المصري (EGP)
  * إلى الريال العُماني (OMR) — العملة الأساسية الجديدة للمنصة.
  *
  * الاستخدام:
@@ -12,30 +12,30 @@
  * سعر التحويل: 1 ر.ع = RATE ج.م (افتراضي 130، أو من OMR_TO_EGP_RATE /
  * NEXT_PUBLIC_OMR_TO_EGP_RATE). القيم الجديدة تُقرَّب لـ 3 خانات عشرية (البيسة).
  *
- * الحماية من التشغيل مرتين: جدول علامة _omr_migration — لو موجود وتم
- * الترحيل قبل كده، السكريبت يرفض يشتغل تاني إلا بعلم --force.
+ * شغّل الترحيل قبل استقبال أسعار جديدة بالريال العُماني. التنفيذ الفعلي يتم
+ * داخل transaction واحدة، ومعه علامة تمنع التقسيم مرتين. وضع المعاينة لا يكتب
+ * أي شيء في قاعدة البيانات.
  */
 
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
-
 const args = process.argv.slice(2)
 const WRITE = args.includes('--write')
 const FORCE = args.includes('--force')
-const rateArg = args.find((a) => a.startsWith('--rate='))
-const RATE =
-  Number(rateArg?.split('=')[1]) ||
-  Number(process.env.OMR_TO_EGP_RATE) ||
-  Number(process.env.NEXT_PUBLIC_OMR_TO_EGP_RATE) ||
-  130
+const rateArg = args.find((arg) => arg.startsWith('--rate='))
+const configuredRate =
+  rateArg?.split('=')[1] ??
+  process.env.OMR_TO_EGP_RATE ??
+  process.env.NEXT_PUBLIC_OMR_TO_EGP_RATE ??
+  '130'
+const RATE = Number(configuredRate)
 
 if (!Number.isFinite(RATE) || RATE <= 0) {
   console.error('سعر تحويل غير صالح')
   process.exit(1)
 }
 
-/** أعمدة Decimal تُقسم على السعر مباشرة في SQL */
 const DECIMAL_COLUMNS = [
   { table: 'lectures', columns: ['price', 'old_price'] },
   { table: 'monthly_courses', columns: ['price', 'old_price'] },
@@ -46,7 +46,6 @@ const DECIMAL_COLUMNS = [
   { table: 'terms', columns: ['price', 'old_price'] },
 ]
 
-/** أعمدة نصية تحتوي رقمًا + لاحقة عملة — تُحوَّل صفًا صفًا */
 const STRING_COLUMNS = [
   { table: 'courses', column: 'price' },
   { table: 'students', column: 'spent' },
@@ -56,106 +55,154 @@ function parseAmount(raw) {
   if (raw == null) return null
   const match = String(raw).replace(/,/g, '').match(/-?\d+(?:\.\d+)?/)
   if (!match) return null
-  const n = Number(match[0])
-  return Number.isFinite(n) ? n : null
+  const value = Number(match[0])
+  return Number.isFinite(value) ? value : null
 }
 
 function toOMR(egp) {
   return Math.round((egp / RATE) * 1000) / 1000
 }
 
-async function main() {
-  console.log(`تحويل المبالغ من ج.م إلى ر.ع (سعر 1 ر.ع = ${RATE} ج.م)`)
-  console.log(WRITE ? 'الوضع: تنفيذ فعلي (--write)' : 'الوضع: معاينة فقط (dry-run)')
-
-  // ── علامة الترحيل ──
-  await prisma.$executeRawUnsafe(
-    `CREATE TABLE IF NOT EXISTS _omr_migration (id int primary key, rate numeric, done_at timestamptz default now())`,
+async function getMigrationMarker(db) {
+  const table = await db.$queryRawUnsafe(
+    `SELECT to_regclass('public._omr_migration') AS name`,
   )
-  const marker = await prisma.$queryRawUnsafe(`SELECT id, rate, done_at FROM _omr_migration LIMIT 1`)
-  if (marker.length > 0 && !FORCE) {
-    console.error(
-      `تم الترحيل بالفعل في ${new Date(marker[0].done_at).toISOString()} بسعر ${marker[0].rate}.` +
-        ` استخدم --force لتشغيله مرة أخرى (غير موصى به — سيقسم القيم مرة ثانية!).`,
-    )
-    process.exit(1)
-  }
+  if (!table[0]?.name) return null
 
-  // ── الأعمدة العشرية ──
+  const markers = await db.$queryRawUnsafe(
+    `SELECT id, rate, done_at FROM public._omr_migration WHERE id = 1 LIMIT 1`,
+  )
+  return markers[0] ?? null
+}
+
+function assertCanRun(marker) {
+  if (!marker || FORCE) return
+  throw new Error(
+    `تم الترحيل بالفعل في ${new Date(marker.done_at).toISOString()} بسعر ${marker.rate}. ` +
+      'لن يتم تقسيم القيم مرة ثانية. استخدم --force فقط إذا كنت متأكدًا تمامًا.',
+  )
+}
+
+async function convertValues(db, write) {
   for (const { table, columns } of DECIMAL_COLUMNS) {
-    for (const col of columns) {
-      const rows = await prisma.$queryRawUnsafe(
-        `SELECT id, ${col} AS v FROM ${table} WHERE ${col} IS NOT NULL AND ${col} > 0`,
+    for (const column of columns) {
+      const rows = await db.$queryRawUnsafe(
+        `SELECT id, ${column} AS value FROM ${table} WHERE ${column} IS NOT NULL AND ${column} > 0`,
       )
       if (rows.length === 0) {
-        console.log(`- ${table}.${col}: لا توجد صفوف للتحويل`)
+        console.log(`- ${table}.${column}: لا توجد صفوف للتحويل`)
         continue
       }
-      const sample = rows[0]
+
       console.log(
-        `- ${table}.${col}: ${rows.length} صف — مثال: ${Number(sample.v)} ج.م → ${toOMR(Number(sample.v))} ر.ع`,
+        `- ${table}.${column}: ${rows.length} صف — مثال: ${Number(rows[0].value)} ج.م → ${toOMR(Number(rows[0].value))} ر.ع`,
       )
-      if (WRITE) {
-        await prisma.$executeRawUnsafe(
-          `UPDATE ${table} SET ${col} = ROUND(${col} / ${RATE}, 3) WHERE ${col} IS NOT NULL AND ${col} > 0`,
+      if (write) {
+        await db.$executeRawUnsafe(
+          `UPDATE ${table} SET ${column} = ROUND(${column} / $1::numeric, 3) WHERE ${column} IS NOT NULL AND ${column} > 0`,
+          RATE,
         )
       }
     }
   }
 
-  // ── الكوبونات ذات المبلغ الثابت (النسب المئوية لا تُمس) ──
-  const coupons = await prisma.$queryRawUnsafe(
-    `SELECT id, value FROM coupons WHERE type = 'مبلغ ثابت' AND value > 0`,
+  const coupons = await db.$queryRawUnsafe(
+    `SELECT id, value FROM coupons WHERE type = $1 AND value > 0`,
+    'مبلغ ثابت',
   )
-  if (coupons.length > 0) {
+  if (coupons.length === 0) {
+    console.log('- coupons.value (مبلغ ثابت): لا توجد صفوف للتحويل')
+  } else {
     console.log(
       `- coupons.value (مبلغ ثابت): ${coupons.length} صف — مثال: ${Number(coupons[0].value)} ج.م → ${toOMR(Number(coupons[0].value))} ر.ع`,
     )
-    if (WRITE) {
-      await prisma.$executeRawUnsafe(
-        `UPDATE coupons SET value = ROUND(value / ${RATE}, 3) WHERE type = 'مبلغ ثابت' AND value > 0`,
+    if (write) {
+      await db.$executeRawUnsafe(
+        `UPDATE coupons SET value = ROUND(value / $1::numeric, 3) WHERE type = $2 AND value > 0`,
+        RATE,
+        'مبلغ ثابت',
       )
     }
-  } else {
-    console.log('- coupons.value (مبلغ ثابت): لا توجد صفوف للتحويل')
   }
 
-  // ── الأعمدة النصية ──
   for (const { table, column } of STRING_COLUMNS) {
-    const rows = await prisma.$queryRawUnsafe(`SELECT id, ${column} AS v FROM ${table}`)
+    const rows = await db.$queryRawUnsafe(
+      `SELECT id, ${column} AS value FROM ${table} WHERE ${column} ILIKE '%ج.م%' OR ${column} ILIKE '%EGP%'`,
+    )
     let converted = 0
+
     for (const row of rows) {
-      const n = parseAmount(row.v)
-      if (n == null || n <= 0) continue
-      converted++
+      const value = parseAmount(row.value)
+      if (value == null || value <= 0) continue
+      converted += 1
+
       if (converted <= 3) {
-        console.log(`- ${table}.${column} مثال: "${row.v}" → "${toOMR(n)} ر.ع"`)
+        console.log(`- ${table}.${column} مثال: "${row.value}" → "${toOMR(value)} ر.ع"`)
       }
-      if (WRITE) {
-        await prisma.$executeRawUnsafe(
+      if (write) {
+        await db.$executeRawUnsafe(
           `UPDATE ${table} SET ${column} = $1 WHERE id = $2`,
-          `${toOMR(n)} ر.ع`,
+          `${toOMR(value)} ر.ع`,
           row.id,
         )
       }
     }
-    if (converted === 0) console.log(`- ${table}.${column}: لا توجد صفوف للتحويل`)
-    else console.log(`- ${table}.${column}: ${converted} صف سيُحوَّل`)
-  }
 
-  // ── تسجيل العلامة ──
-  if (WRITE) {
-    await prisma.$executeRawUnsafe(`DELETE FROM _omr_migration`)
-    await prisma.$executeRawUnsafe(`INSERT INTO _omr_migration (id, rate) VALUES (1, ${RATE})`)
-    console.log('تم الترحيل وتسجيل العلامة في _omr_migration.')
-  } else {
-    console.log('معاينة فقط — أعد التشغيل بعلم --write للتنفيذ الفعلي.')
+    console.log(
+      converted === 0
+        ? `- ${table}.${column}: لا توجد قيم EGP للتحويل`
+        : `- ${table}.${column}: ${converted} صف سيُحوَّل`,
+    )
   }
 }
 
+async function main() {
+  console.log(`تحويل المبالغ من ج.م إلى ر.ع (سعر 1 ر.ع = ${RATE} ج.م)`)
+  console.log(WRITE ? 'الوضع: تنفيذ فعلي (--write)' : 'الوضع: معاينة فقط (dry-run)')
+
+  if (!WRITE) {
+    assertCanRun(await getMigrationMarker(prisma))
+    await convertValues(prisma, false)
+    console.log('معاينة فقط — لم تتم أي كتابة. أعد التشغيل بعلم --write للتنفيذ الفعلي.')
+    return
+  }
+
+  await prisma.$transaction(
+    async (tx) => {
+      await tx.$queryRawUnsafe(
+        `SELECT pg_advisory_xact_lock(hashtext('currency-egp-to-omr'))`,
+      )
+      await tx.$executeRawUnsafe(
+        `CREATE TABLE IF NOT EXISTS public._omr_migration (
+          id int PRIMARY KEY,
+          rate numeric NOT NULL,
+          done_at timestamptz NOT NULL DEFAULT now()
+        )`,
+      )
+      assertCanRun(await getMigrationMarker(tx))
+
+      await convertValues(tx, true)
+      await tx.$executeRawUnsafe(
+        `ALTER TABLE courses ALTER COLUMN price SET DEFAULT '0 ر.ع'`,
+      )
+      await tx.$executeRawUnsafe(
+        `ALTER TABLE students ALTER COLUMN spent SET DEFAULT '0 ر.ع'`,
+      )
+      await tx.$executeRawUnsafe(`DELETE FROM public._omr_migration`)
+      await tx.$executeRawUnsafe(
+        `INSERT INTO public._omr_migration (id, rate) VALUES (1, $1::numeric)`,
+        RATE,
+      )
+    },
+    { maxWait: 10_000, timeout: 600_000 },
+  )
+
+  console.log('تم الترحيل بالكامل وتسجيل العلامة في _omr_migration.')
+}
+
 main()
-  .catch((e) => {
-    console.error('فشل الترحيل:', e)
-    process.exit(1)
+  .catch((error) => {
+    console.error('فشل الترحيل:', error instanceof Error ? error.message : error)
+    process.exitCode = 1
   })
   .finally(() => prisma.$disconnect())

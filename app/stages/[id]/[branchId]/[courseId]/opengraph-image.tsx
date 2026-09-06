@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { getCourseBySlug } from '@/lib/curriculum'
 import { getSiteContent } from '@/lib/site-content'
+import { formatOMR } from '@/lib/currency'
 import { loadCairoFonts } from '@/lib/og-fonts'
 
 export const runtime     = 'nodejs'
@@ -28,7 +29,7 @@ export default async function Image({
   const stageTitle   = result?.stage.title   ?? ''
   const price        = result?.course.price  ?? 0
   const siteName     = seo.title
-  const priceLabel   = price === 0 ? 'مجاني' : `${price} ر.ع`
+  const priceLabel   = price === 0 ? 'مجاني' : formatOMR(price)
 
   return new ImageResponse(
     (

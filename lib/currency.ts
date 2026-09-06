@@ -13,6 +13,9 @@ export type CurrencyCode = 'OMR' | 'EGP'
 /** العملة الأساسية للنظام — كل المبالغ المخزّنة بها. */
 export const BASE_CURRENCY: CurrencyCode = 'OMR'
 
+/** اسم كوكي تفضيل عملة العرض — لا تحتوي أي بيانات حساسة. */
+export const CURRENCY_PREFERENCE_COOKIE = 'currency-preference'
+
 /**
  * سعر تحويل 1 ريال عُماني إلى جنيه مصري.
  * يمكن ضبطه من متغير البيئة NEXT_PUBLIC_OMR_TO_EGP_RATE دون تعديل الكود.
@@ -40,7 +43,7 @@ export function convertFromOMR(amountOMR: number, to: CurrencyCode): number {
 
 function formatNumber(value: number, decimals: number): string {
   return value.toLocaleString('en-US', {
-    minimumFractionDigits: 0,
+    minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   })
 }

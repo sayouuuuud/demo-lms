@@ -217,7 +217,7 @@ export function CurriculumFormModals() {
         <form onSubmit={handleStageSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="sm:col-span-2">
-              <Field label="اسم الت��نيف (مثل: الصف العاشر)">
+              <Field label="اسم التصنيف (مثل: الصف العاشر)">
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -249,7 +249,7 @@ export function CurriculumFormModals() {
             <textarea
               value={rows}
               onChange={(e) => setRows(e.target.value)}
-              placeholder={'الجبر والمتطابقات\nح��اب المثلثات\nالهندسة التحليلية'}
+              placeholder={'الجبر والمتطابقات\nحساب المثلثات\nالهندسة التحليلية'}
               rows={3}
               className={textareaClass}
             />
@@ -261,19 +261,23 @@ export function CurriculumFormModals() {
             <Field label="سعر الترم كامل (ر.ع)">
               <Input
                 type="number"
-                inputMode="numeric"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={termPrice}
                 onChange={(e) => setTermPrice(e.target.value)}
-                placeholder="مثال: 1500"
+                placeholder="مثال: 15.000"
               />
             </Field>
-            <Field label="السعر قبل الخصم (اختياري)">
+            <Field label="السعر قبل الخصم (ر.ع، اختياري)">
               <Input
                 type="number"
-                inputMode="numeric"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={termOldPrice}
                 onChange={(e) => setTermOldPrice(e.target.value)}
-                placeholder="مثال: 2000"
+                placeholder="مثال: 20.000"
               />
             </Field>
           </div>
@@ -448,19 +452,23 @@ export function CurriculumFormModals() {
               <Field label="السعر (ر.ع)">
                 <Input
                   type="number"
-                  inputMode="numeric"
+                  inputMode="decimal"
+                  min={0}
+                  step="0.001"
                   value={cPrice}
                   onChange={(e) => setCPrice(e.target.value)}
-                  placeholder="٣٠٠"
+                  placeholder="3.000"
                 />
               </Field>
-              <Field label="السعر قبل الخصم (اختياري)">
+              <Field label="السعر قبل الخصم (ر.ع، اختياري)">
                 <Input
                   type="number"
-                  inputMode="numeric"
+                  inputMode="decimal"
+                  min={0}
+                  step="0.001"
                   value={cOldPrice}
                   onChange={(e) => setCOldPrice(e.target.value)}
-                  placeholder="٤٥٠"
+                  placeholder="4.500"
                 />
               </Field>
             </div>
@@ -520,19 +528,23 @@ export function CurriculumFormModals() {
             <Field label="سعر الترم (ر.ع)">
               <Input
                 type="number"
-                inputMode="numeric"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={tPrice}
                 onChange={(e) => setTPrice(e.target.value)}
-                placeholder="مثال: 1500"
+                placeholder="مثال: 15.000"
               />
             </Field>
-            <Field label="السعر قبل الخصم (اختياري)">
+            <Field label="السعر قبل الخصم (ر.ع، اختياري)">
               <Input
                 type="number"
-                inputMode="numeric"
+                inputMode="decimal"
+                min={0}
+                step="0.001"
                 value={tOldPrice}
                 onChange={(e) => setTOldPrice(e.target.value)}
-                placeholder="مثال: 2000"
+                placeholder="مثال: 20.000"
               />
             </Field>
           </div>

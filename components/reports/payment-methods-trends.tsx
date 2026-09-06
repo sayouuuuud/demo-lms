@@ -1,6 +1,7 @@
 'use client'
 
 import { PanelCard } from '@/components/dashboard/panel-card'
+import { formatOMR } from '@/lib/currency'
 import { Wallet } from 'lucide-react'
 
 export function PaymentMethodsTrends({
@@ -65,7 +66,7 @@ export function PaymentMethodsTrends({
 
         <div className="flex items-baseline gap-3">
           <span className="text-4xl font-bold tracking-tight text-foreground" dir="ltr">
-            {totalAmount.toLocaleString()} ر.ع
+            {formatOMR(totalAmount)}
           </span>
           <span className={`text-sm font-semibold ${isPositive ? 'text-emerald-500' : 'text-red-500'}`} dir="ltr">
             {isPositive ? '+' : ''}{percentageChange.toFixed(1)}%
