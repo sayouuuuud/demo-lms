@@ -26,6 +26,7 @@ import { useStudent } from '@/components/student/student-context'
 import { getStudentAvatar } from '@/lib/students-data'
 import { useLogout } from '@/lib/use-logout'
 import { CartButton } from '@/components/cart/cart-button'
+import { CurrencySwitcher } from '@/components/currency/currency-switcher'
 import {
   getStudentNotifications,
   markStudentNotificationRead,
@@ -320,6 +321,7 @@ export function StudentHeader({
 
         <div className="flex items-center gap-1">
           <CartButton className="text-muted-foreground hover:text-foreground" />
+          <CurrencySwitcher />
           <NotificationsDropdown />
           <Button
             variant="ghost"

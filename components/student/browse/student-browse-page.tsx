@@ -18,11 +18,8 @@ import {
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { useCart } from '@/components/cart/cart-provider'
+import { useCurrency } from '@/components/currency/currency-provider'
 import type { Stage, Lesson } from '@/lib/landing-data'
-
-function formatEGP(value: number) {
-  return new Intl.NumberFormat('ar-EG').format(value)
-}
 
 // Groups a course's lectures by their section, preserving section order and
 // placing any unclassified lectures in a trailing "بدون تصنيف" group. When the
@@ -97,6 +94,7 @@ export function StudentBrowsePage({
 }) {
   const searchParams = useSearchParams()
   const { add, addCourse, inCart, courseInCart, setOpen, count } = useCart()
+  const { format: money } = useCurrency()
   const [query, setQuery] = useState(searchParams.get('q') || '')
   const [stageFilter, setStageFilter] = useState<string>('all')
 
@@ -270,9 +268,8 @@ export function StudentBrowsePage({
                         <strong className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">مجاناً</strong>
                       ) : (
                         <>
-                          <strong className="text-lg font-extrabold text-foreground">{formatEGP(course.price)}</strong>
-                          <span className="text-xs font-bold text-primary">ج.م</span>
-                          {course.oldPrice && <span className="text-xs text-muted-foreground line-through">{formatEGP(course.oldPrice)}</span>}
+                          <strong className="text-lg font-extrabold text-foreground">{money(course.price)}</strong>
+                          {course.oldPrice && <span className="text-xs text-muted-foreground line-through">{money(course.oldPrice)}</span>}
                         </>
                       )}
                     </div>
@@ -319,6 +316,7 @@ function CourseDetailsModal({ course, inCart, onAddCourse, onClose, purchasedCou
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   const isCoursePurchased = course.dbId ? purchasedCourseIds.includes(course.dbId) : false
   const { add, inCart: lectureInCart } = useCart()
+  const { format: money } = useCurrency()
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -396,8 +394,7 @@ function CourseDetailsModal({ course, inCart, onAddCourse, onClose, purchasedCou
                               <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">مجاناً</span>
                             ) : (
                               <div className="flex items-baseline gap-1">
-                                <span className="text-sm font-bold text-foreground">{formatEGP(lecture.price)}</span>
-                                <span className="text-[10px] text-muted-foreground">ج.م</span>
+                                <span className="text-sm font-bold text-foreground">{money(lecture.price)}</span>
                               </div>
                             )}
 
@@ -493,8 +490,7 @@ function CourseDetailsModal({ course, inCart, onAddCourse, onClose, purchasedCou
                 <strong className="text-xl text-emerald-600 dark:text-emerald-400">مجاناً</strong>
               ) : (
                 <>
-                  <strong className="text-xl text-foreground">{formatEGP(course.price)}</strong>
-                  <span className="text-xs font-bold text-primary">ج.م</span>
+                  <strong className="text-xl text-foreground">{money(course.price)}</strong>
                 </>
               )}
             </div>
@@ -519,6 +515,7 @@ function LectureDetailsModal({
   onAdd: () => void
   onClose: () => void
 }) {
+  const { format: money } = useCurrency()
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <button
@@ -612,12 +609,11 @@ function LectureDetailsModal({
         <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border p-4">
           <div className="flex items-baseline gap-1.5">
             <span className="text-xl font-extrabold text-foreground">
-              {formatEGP(lecture.price)}
+              {money(lecture.price)}
             </span>
-            <span className="text-xs font-bold text-primary">ج.م</span>
             {lecture.oldPrice && (
               <span className="text-xs text-muted-foreground line-through">
-                {formatEGP(lecture.oldPrice)}
+                {money(lecture.oldPrice)}
               </span>
             )}
           </div>

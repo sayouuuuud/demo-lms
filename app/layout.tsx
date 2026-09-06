@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { SiteLoader } from '@/components/site-loader'
 import { CartProvider } from '@/components/cart/cart-provider'
 import { CartModal } from '@/components/cart/cart-modal'
+import { CurrencyProvider } from '@/components/currency/currency-provider'
 import { PageViewTracker } from '@/components/analytics/page-view-tracker'
 import { colorPresets } from '@/lib/color-presets'
 import { neonPresets } from '@/lib/neon-presets'
@@ -198,12 +199,14 @@ export default async function RootLayout({
       </head>
       <body className={`${cairo.className} font-sans antialiased`}>
         <ThemeProvider>
+          <CurrencyProvider>
           <CartProvider>
             <SiteLoader loaderText={seoContent?.loaderText} />
             {children}
             <CartModal />
             <PageViewTracker />
           </CartProvider>
+          </CurrencyProvider>
         </ThemeProvider>
         <Toaster 
           position="top-center" 
