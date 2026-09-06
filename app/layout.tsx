@@ -5,7 +5,6 @@ import { Cairo, Geist_Mono, Aref_Ruqaa } from 'next/font/google'
 import localFont from 'next/font/local'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/theme-provider'
-import { SiteLoader } from '@/components/site-loader'
 import { CartProvider } from '@/components/cart/cart-provider'
 import { CartModal } from '@/components/cart/cart-modal'
 import { CurrencyProvider } from '@/components/currency/currency-provider'
@@ -114,16 +113,14 @@ export default async function RootLayout({
   let savedColor = 'navy'
   let savedNeon = 'teal-violet'
   let savedLight = 'navy-gold'
-  let seoContent: any = null
   const cookieStore = await cookies()
   const savedCurrency = cookieStore.get(CURRENCY_PREFERENCE_COOKIE)?.value
   const initialCurrency = isCurrencyCode(savedCurrency) ? savedCurrency : undefined
   try {
-    ;[savedColor, savedNeon, savedLight, { seo: seoContent }] = await Promise.all([
+    ;[savedColor, savedNeon, savedLight] = await Promise.all([
       getSiteColor(),
       getSiteNeon(),
       getSiteLightPreset(),
-      getSiteContent(),
     ])
 
     const session = await auth()
@@ -206,7 +203,6 @@ export default async function RootLayout({
         <ThemeProvider>
           <CurrencyProvider initialCurrency={initialCurrency}>
             <CartProvider>
-              <SiteLoader loaderText={seoContent?.loaderText} />
               {children}
               <CartModal />
               <PageViewTracker />
